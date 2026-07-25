@@ -1,9 +1,9 @@
 import * as d3 from 'd3';
 import * as topojson from 'topojson-client';
-import renderSrTable from './accessibility';
-import { createTooltip, moveTooltip, DEFAULT_BREAKPOINTS, DEFAULT_COLORS, NO_DATA_FILL, computeJenksBreaks } from './utils';
+import renderSrTable from '../accessibility';
+import { createTooltip, moveTooltip, DEFAULT_BREAKPOINTS, DEFAULT_COLORS, NO_DATA_FILL, computeJenksBreaks } from '../utils';
 import renderCountyMap from './renderCountyMap';
-import requestDataset from '../../../src/router';
+import requestDataset from '../../../../src/router';
 import renderTierHistogram from './renderTierHistogram';
 
 // us-atlas's states-10m.json is unprojected (raw lon/lat), so we project it
@@ -25,12 +25,22 @@ const MOBILE_MEDIA_QUERY = '(max-width: 63.99em)';
 // document only ever gets one dashboard:countyselect listener.
 const countyViewRegistry = {};
 
+// entry.rerender() is a full synchronous rebuild
+// expensive for state with many counties.
+// Coalescing into the next animation frame collapses 
+// a burst of clicks into a render of the final selection
+let countySelectFrame = null;
+
 document.addEventListener('dashboard:countyselect', (event) => {
   const { containerSelector, county } = event.detail || {};
   const entry = countyViewRegistry[containerSelector];
   if (!entry) return;
-  entry.rerender(county);
-  document.dispatchEvent(new CustomEvent('dashboard:countychange', { detail: { county } }));
+
+  if (countySelectFrame) cancelAnimationFrame(countySelectFrame);
+  countySelectFrame = requestAnimationFrame(() => {
+    entry.rerender(county);
+    document.dispatchEvent(new CustomEvent('dashboard:countychange', { detail: { county } }));
+  });
 });
 
 // pendingX tracks an in-flight fetch so concurrent callers 
@@ -277,25 +287,27 @@ function renderStateMap(containerSelector, data, config = {}) {
         renderStateMap(containerSelector, data, config);
       };
 
-      countyViewRegistry[containerSelector] = {
-        rerender: (selectedCounty) => renderCountyMap(
-          containerSelector,
-          countyFeatures,
-          stateFeature,
-          countyRows,
-          {
-            metricLabel,
-            metricPercent,
-            metricCount,
-            breakpoints: countyBreakpoints,
-            colors: resolvedColors,
-            selectedCounty,
-            histogramSelector,
-          },
-        ),
-      };
+      // Full render happens once here; subsequent county selections reuse
+      // the cheap updateSelection path (see renderCountyMap.js)
+      const countyMapHandle = renderCountyMap(
+        containerSelector,
+        countyFeatures,
+        stateFeature,
+        countyRows,
+        {
+          metricLabel,
+          metricPercent,
+          metricCount,
+          breakpoints: countyBreakpoints,
+          colors: resolvedColors,
+          selectedCounty: null,
+          histogramSelector,
+        },
+      );
 
-      countyViewRegistry[containerSelector].rerender(null);
+      countyViewRegistry[containerSelector] = {
+        rerender: countyMapHandle.updateSelection,
+      };
 
       if (backButtonEl) {
         backButtonEl.hidden = false;

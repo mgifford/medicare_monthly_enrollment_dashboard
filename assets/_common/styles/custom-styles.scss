@@ -3,16 +3,7 @@
 
 $bullet-spacing: 1.25rem;
 
-// Shared responsive text size: 18px normally, shrinking to 15px as the
-// containing card narrows. Used by dashboard button labels, hero card
-// labels, and hero/map legend text so they all resize in lockstep.
-%dashboard-label-text {
-  font-size: clamp(15px, 4cqi, 18px);
-}
-
-// Self-hosted (not USWDS-bundled). Currently orphaned (its only consumer,
-// .title-bar__heading, was removed as dead CSS) — left in place pending a
-// follow-up decision on whether to delete it too.
+// Self-hosted (not USWDS-bundled)
 @font-face {
   font-family: 'Montserrat';
   font-style: normal;

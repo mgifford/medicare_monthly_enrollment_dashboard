@@ -1,5 +1,5 @@
 import cmsGet from '../api/cmsClient';
-import { monthOrder, parseEnrollmentFields } from '../utils/helpers';
+import { monthOrder, parseEnrollmentFields } from '../utils';
 
 const COUNTY_COLUMNS = [
   'BENE_STATE_ABRVTN',
@@ -28,7 +28,7 @@ function parseCountyRow(row) {
   };
 }
 
-async function fetchCountiesForState(options = {}) {
+async function fetchCountiesForState(options = {}, { signal } = {}) {
   const { state, year, month } = options;
 
   if (!state) {
@@ -47,7 +47,7 @@ async function fetchCountiesForState(options = {}) {
     size: hasPeriod ? '250' : '5000',
   });
 
-  const rawData = await cmsGet(queryParams);
+  const rawData = await cmsGet(queryParams, { signal });
   // 'Unknown' is the API's catch-all bucket for unreported counties
   //  Dropped here rather filtering out individually.
   const data = rawData.filter((row) => row.MONTH !== 'Year' && row.BENE_COUNTY_DESC !== 'Unknown');
@@ -64,9 +64,9 @@ async function fetchCountiesForState(options = {}) {
     .map(parseCountyRow);
 }
 
-export async function fetchCountyEnrollment(options = {}) {
+// Fetches once and returns both yearly/monthly slices
+export async function fetchCountyEnrollment(options = {}, { signal } = {}) {
   const { state, county } = options;
-  const type = options.type || 'monthly';
 
   if (!state || !county) {
     throw new Error('fetchCountyEnrollment requires options.state and options.county (e.g. { state: \'NY\', county: \'Kings\' })');
@@ -82,26 +82,22 @@ export async function fetchCountyEnrollment(options = {}) {
     size: '600',
   });
 
-  const rawData = await cmsGet(queryParams);
+  const rawData = await cmsGet(queryParams, { signal });
   const parsedRows = rawData.map(parseCountyRow);
 
-  if (type === 'yearly') {
-    return parsedRows
-      .filter((row) => row.month === 'Year')
-      .sort((a, b) => b.year - a.year);
-  }
+  const yearly = parsedRows
+    .filter((row) => row.month === 'Year')
+    .sort((a, b) => b.year - a.year);
 
-  if (type === 'monthly') {
-    return parsedRows
-      .filter((row) => row.month !== 'Year')
-      .sort((a, b) => {
-        if (b.year !== a.year) return b.year - a.year;
-        return monthOrder[b.month] - monthOrder[a.month];
-      })
-      .slice(0, 12);
-  }
+  const monthly = parsedRows
+    .filter((row) => row.month !== 'Year')
+    .sort((a, b) => {
+      if (b.year !== a.year) return b.year - a.year;
+      return monthOrder[b.month] - monthOrder[a.month];
+    })
+    .slice(0, 12);
 
-  return parsedRows;
+  return { yearly, monthly };
 }
 
 export default fetchCountiesForState;

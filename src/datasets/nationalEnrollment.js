@@ -1,7 +1,7 @@
 import cmsGet from '../api/cmsClient';
-import { monthOrder, parseEnrollmentFields } from '../utils/helpers';
+import { monthOrder, parseEnrollmentFields } from '../utils';
 
-async function fetchNationalData(options = {}) {
+async function fetchNationalData(options = {}, { signal } = {}) {
   const type = options.type || 'monthly';
 
   const queryParams = new URLSearchParams({
@@ -12,7 +12,7 @@ async function fetchNationalData(options = {}) {
     ...(type === 'yearly' && { 'filter[MONTH]': 'Year' }), // yearly rows come pre-aggregated by the API under MONTH: "Year"
   });
 
-  const rawData = await cmsGet(queryParams);
+  const rawData = await cmsGet(queryParams, { signal });
 
   const parsedRows = rawData.map((row) => ({
     year: row.YEAR,

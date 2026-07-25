@@ -1,6 +1,6 @@
 import * as d3 from 'd3';
-import renderSrTable from './accessibility';
-import { createTooltip, moveTooltip, DEFAULT_BREAKPOINTS, NO_DATA_FILL, DEFAULT_COLORS } from './utils';
+import renderSrTable from '../accessibility';
+import { createTooltip, moveTooltip, DEFAULT_BREAKPOINTS, NO_DATA_FILL, DEFAULT_COLORS } from '../utils';
 import { joinCountyData, filterCountiesByState } from './joinCountyData';
 import renderTierHistogram from './renderTierHistogram';
 
@@ -39,7 +39,7 @@ function renderCountyMap(
     metricCount = (d) => d.maCount,
     breakpoints,
     colors,
-    selectedCounty = null,
+    selectedCounty: initialSelectedCounty = null,
     histogramSelector,
     title = `${stateFeature.properties.name} counties`,
     tableColumns = [
@@ -49,6 +49,9 @@ function renderCountyMap(
     ],
   } = config;
 
+  // Mutable so updateSelection can change the path 
+  // without re-running the rest of this function
+  let selectedCounty = initialSelectedCounty;
 
   const resolvedBreakpoints =
     breakpoints && breakpoints.length === 4 ? breakpoints : DEFAULT_BREAKPOINTS;
@@ -89,7 +92,7 @@ function renderCountyMap(
 
   if (!stateCounties.length) {
     container.append('p').attr('role', 'alert').text('No county shapes found for this state.');
-    return;
+    return { updateSelection: () => {} };
   }
 
   const joined = joinCountyData(stateCounties, countyRows);
@@ -183,6 +186,22 @@ function renderCountyMap(
     tableColumns,
     joined.filter((entry) => entry.data !== undefined).map((entry) => entry.data),
   );
+
+  // Cheap path for "only the selection changed" (same state, same data) --
+  // re-applies fill/stroke/raise on the already-bound paths instead of
+  // rebuilding the histogram, sr-only table, and county-shape geometry,
+  // which for a large state (Texas has 254 counties) is the expensive part
+  // of a full re-render and was blocking the trend card from updating.
+  const updateSelection = (newSelectedCounty) => {
+    selectedCounty = newSelectedCounty;
+    countyPaths
+      .attr('fill', getDisplayedFill)
+      .attr('stroke', (entry) => (isSelected(entry) ? '#111' : '#fff'))
+      .attr('stroke-width', (entry) => (isSelected(entry) ? 3 : 0.75));
+    countyPaths.filter((entry) => isSelected(entry)).raise();
+  };
+
+  return { updateSelection };
 }
 
 export default renderCountyMap;

@@ -6,8 +6,8 @@ const MONTH_ORDER = {
   July: 7, August: 8, September: 9, October: 10, November: 11, December: 12,
 };
 
-export const TREND_CHART_WIDTH = 560;
-export const TREND_CHART_HEIGHT = 270;
+const TREND_CHART_WIDTH = 560;
+const TREND_CHART_HEIGHT = 270;
 
 export const DEFAULT_BREAKPOINTS = [17, 34, 51, 67];
 export const  NO_DATA_FILL = '#eee';
@@ -36,10 +36,6 @@ export const TREND_MARGIN = {
   top: 12, right: 100, bottom: 30, left: 44,
 };
 
-export function clearContainer(selector) {
-  return d3.select(selector).html('');
-}
-
 export function sortYearlyAscending(data) {
   return [...data].sort((a, b) => Number(a.year) - Number(b.year));
 }
@@ -56,10 +52,11 @@ export function formatPeriod(d) {
   return d.month ? `${d.month} ${d.year}` : String(d.year);
 }
 
-export function formatMillions(d) {
-  if (d === 0) return '0';
-  const m = d / 1e6;
-  return Number.isInteger(m) ? `${m}M` : `${m.toFixed(1)}M`;
+// Scale-adaptive: plain number under 1,000 (e.g. a small county's
+// enrollment), "12k" for thousands, "3.5M" for millions -- a fixed
+// divide-by-1e6 breaks down for anything smaller than national/state scale.
+export function formatCompactNumber(d) {
+  return d3.format('.2~s')(d);
 }
 
 export function createTooltip(container) {
@@ -140,12 +137,8 @@ export function appendTrendFigure(container, title) {
     .attr('role', 'img')
     .attr('aria-label', title);
 
-  // The figure's height is flex-grown to fill its card on desktop (see
-  // .chart-figure in _dashboard-v2.scss), so the viewBox is sized to match
-  // the figure's actual box rather than a fixed constant — this keeps the
-  // plot filling the box exactly (no distortion/dead space) at whatever
-  // size the flex layout gives it, and stays correct across resizes via
-  // the ResizeObserver in allAreas.js (observeResize('#chartsView', ...)).
+  // Figure's height is flex-grown to fill its card on desktop
+  // viewBox is sized to match the figure's actual box rather than a fixed constant
   const rect = figure.node().getBoundingClientRect();
   const width = Math.round(rect.width) || TREND_CHART_WIDTH;
   const height = Math.round(rect.height) || TREND_CHART_HEIGHT;
@@ -165,10 +158,8 @@ export function appendTrendFigure(container, title) {
   };
 }
 
-// Re-measures `selector`'s box whenever it changes size (e.g. a breakpoint
-// stacking the grid, or a window resize changing the available width) and
-// calls `onResize` so charts can redraw at the correct size. No-ops on
-// browsers without ResizeObserver — charts just keep their initial-render size.
+// Re-measures `selector`'s box whenever it changes size.
+// Calls `onResize` so charts can redraw at the correct size.
 export function observeResize(selector, onResize) {
   if (typeof ResizeObserver === 'undefined') return undefined;
   const node = document.querySelector(selector);

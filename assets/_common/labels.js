@@ -1,9 +1,25 @@
 // Single source of truth for the enrollment-program labels shown across both
-// dashboard views. Renaming a program (e.g. FFS -> OM) or re-labeling a
-// column should only ever require editing the entries below.
+// dashboard views (hero card, state/county map, trend charts, grid/drawer
+// tables). To rename or relabel a program (e.g. the FFS -> OM rename), just
+// edit the strings below -- nothing else in the codebase needs to change.
+//
+// Field guide:
+//   label       - short display text (table headers, legends, hero card)
+//   labelLong   - full display text (hero card's accessible table, tooltips)
+//   chartLabel  - optional override of `label` just for trend chart legends
+//                 and tooltips (falls back to `label` if omitted)
+//   colorKey    - must match a key in LINE_CHART_COLORS
+//                 (assets/_common/charts/utils.js) -- adding a brand-new
+//                 program needs a color added there first
+//   dash        - 'dashed' | 'dotted', the line chart's stroke pattern for
+//                 this program (keeps type1 vs type2 tellable apart without
+//                 relying on color alone)
+//   key / percentKey - the raw count/percent field names as returned by the
+//                 API. These are data wiring, not display text -- only
+//                 change them if the underlying dataset field itself renames.
 //
 // Each dashboard view has a "type1" (the map's primary/colored metric) and a
-// "type2" (its comparison metric)
+// "type2" (its comparison metric).
 const DASHBOARD_LABELS = {
   hospitalMedical: {
     heroTitle: 'Medicare enrollment by program type',

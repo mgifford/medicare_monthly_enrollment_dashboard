@@ -14,7 +14,10 @@ const functionRegistry = {
 // dataset share one fetch instead of racing duplicate network requests 
 const pendingRequests = new Map();
 
-async function requestDataset(serviceName, options = {}) {
+// signal is a per-caller cancellation handle
+// If two callers request the exact same cache key concurrently,
+// the fetch is aborted
+async function requestDataset(serviceName, options = {}, { signal } = {}) {
   const targetFunction = functionRegistry[serviceName];
 
   if (!targetFunction) {
@@ -31,7 +34,7 @@ async function requestDataset(serviceName, options = {}) {
   }
 
   const requestPromise = (async () => {
-    const data = await targetFunction(options);
+    const data = await targetFunction(options, { signal });
 
     try {
       sessionStorage.setItem(cacheKey, JSON.stringify(data));

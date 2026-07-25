@@ -1,5 +1,5 @@
 import * as d3 from 'd3';
-import renderSrTable from './accessibility';
+import renderSrTable from '../accessibility';
 
 const SLOTS = ['A', 'B'];
 

@@ -1,0 +1,98 @@
+// Area (state) + county enrollment grid -- mirrors dashboard/grid.js.
+@use '../colors' as *;
+@use 'tokens' as *;
+
+.data-grid-scroll-wrap {
+  position: relative;
+  min-height: 0;
+  flex: 1;
+}
+
+.data-grid-scroll {
+  overflow: auto;
+  // ~8 rows (36.5px each) + header, as a scrollable preview -- capped, not full-height; the outer card matches the trend card independently.
+  max-height: 332px;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-gutter: stable;
+  // Reserves space for the sticky header so scrollIntoView doesn't park a row underneath it.
+  scroll-padding-top: 36px;
+}
+
+.data-grid-scroll::-webkit-scrollbar {
+  height: 8px;
+}
+
+.data-grid-scroll::-webkit-scrollbar-thumb {
+  background: rgba(20, 20, 28, 0.28);
+  border-radius: 999px;
+}
+
+.data-grid-scroll::-webkit-scrollbar-track {
+  background: #f0f1f3;
+}
+
+.data-grid-scroll-wrap.is-scrollable-x:not(.is-at-start) .data-grid-scroll {
+  box-shadow: inset 14px 0 10px -10px rgba(16, 16, 24, 0.28);
+}
+
+.data-grid-scroll-wrap.is-scrollable-x:not(.is-at-end) .data-grid-scroll {
+  box-shadow: inset -14px 0 10px -10px rgba(16, 16, 24, 0.28);
+}
+
+.data-grid-scroll-wrap.is-scrollable-x:not(.is-at-start):not(.is-at-end) .data-grid-scroll {
+  box-shadow:
+    inset 14px 0 10px -10px rgba(16, 16, 24, 0.28),
+    inset -14px 0 10px -10px rgba(16, 16, 24, 0.28);
+}
+
+.data-grid-unmappable-note {
+  display: inline-flex;
+  align-items: center;
+  margin-left: 6px;
+  font-size: 0.6875rem;
+  font-weight: 600;
+  // Darkened for WCAG AA contrast (raw $color-red is only ~3.45:1).
+  color: darken($color-red, 15%);
+  white-space: nowrap;
+}
+
+.data-grid-unmappable-note__icon {
+  width: 12px;
+  height: 12px;
+  margin-right: 3px;
+  fill: currentColor;
+}
+
+// The enrollment grid's own instance of the shared mobile-trigger pattern
+// (see template/_card.scss) -- trend.scss has the matching rule for its
+// own #trend-panel-grid instance.
+@media (max-width: $bp-tablet-max) {
+  .data-grid-card--enrollment .data-grid-card__mobile-trigger {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    width: 100%;
+    padding: 16px;
+    background: transparent;
+    border: 0;
+    font: inherit;
+    text-align: left;
+    cursor: pointer;
+  }
+}
+
+// Reparented into the desktop "expand" overlay's body while it's open (see
+// grid.js's enrollmentOverlayPopup) -- fills the overlay instead of being
+// height-capped like the inline card preview.
+.data-grid-overlay__body .data-grid-scroll-wrap {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;
+}
+
+.data-grid-overlay__body .data-grid-scroll {
+  max-height: none;
+  flex: 1;
+  min-height: 0;
+}

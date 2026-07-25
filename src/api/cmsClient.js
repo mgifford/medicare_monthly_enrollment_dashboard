@@ -1,9 +1,10 @@
 import { baseUrl } from '../config';
 
-async function cmsGet(queryParams) {
+async function cmsGet(queryParams, { signal } = {}) {
   const response = await fetch(`${baseUrl}?${queryParams.toString()}`, {
     method: 'GET',
-    headers: { 'Accept': 'application/json' }
+    headers: { 'Accept': 'application/json' },
+    signal,
   });
 
   if (!response.ok) {

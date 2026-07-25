@@ -1,4 +1,4 @@
-import './allAreas';
+import './index';
 
 require('@uswds/uswds');
 

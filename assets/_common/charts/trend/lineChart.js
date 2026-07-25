@@ -1,14 +1,14 @@
 import * as d3 from 'd3';
-import renderSrTable from './accessibility';
+import renderSrTable from '../accessibility';
 import {
   appendTrendFigure,
   buildLegendHtml,
   resolveLegendTarget,
   selectTickRows,
-  formatMillions,
+  formatCompactNumber,
   formatPeriod,
   TREND_MARGIN,
-} from './utils';
+} from '../utils';
 
 const PRIMARY_STROKE_WIDTH = 3;
 const DEFAULT_STROKE_WIDTH = 2;
@@ -45,7 +45,7 @@ function renderLineChart(selector, data, config) {
     xTickFormat = xAccessor,
     title,
     tableColumns,
-    yTickFormat = formatMillions,
+    yTickFormat = formatCompactNumber,
     legendSelector,
   } = config;
 

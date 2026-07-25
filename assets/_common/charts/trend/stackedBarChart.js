@@ -1,5 +1,5 @@
 import * as d3 from 'd3';
-import renderSrTable from './accessibility';
+import renderSrTable from '../accessibility';
 import {
   appendTrendFigure,
   buildLegendHtml,
@@ -7,7 +7,7 @@ import {
   selectTickRows,
   formatPeriod,
   TREND_MARGIN,
-} from './utils';
+} from '../utils';
 
 const BAR_MAX_WIDTH = 24;
 const SEGMENT_GAP = 2;
