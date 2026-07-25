@@ -7,16 +7,19 @@ import {
   LINE_CHART_COLORS
 } from './utils';
 import { drugYearly, drugMonthly } from '../tables/prescriptionDrug/tableColumns';
+import DASHBOARD_LABELS from '../js/labels';
+
+const { total, type1, type2 } = DASHBOARD_LABELS.prescriptionDrug;
 
 const DRUG_LINE_SERIES = [
-  { key: 'drugTotal', label: 'TOTAL', color: LINE_CHART_COLORS.total, primary: true },
-  { key: 'mapdCount', label: 'MA-PD', color: LINE_CHART_COLORS.mapd, dash: 'dashed' },
-  { key: 'pdpCount', label: 'PDP', color: LINE_CHART_COLORS.pdp, dash: 'dotted' },
+  { key: total.key, label: total.label, color: LINE_CHART_COLORS[total.colorKey], primary: true },
+  { key: type1.key, label: type1.chartLabel || type1.label, color: LINE_CHART_COLORS[type1.colorKey], dash: type1.dash },
+  { key: type2.key, label: type2.label, color: LINE_CHART_COLORS[type2.colorKey], dash: type2.dash },
 ];
 
 const DRUG_STACK_SEGMENTS = [
-  { key: 'pdpPercent', countKey: 'pdpCount', label: 'PDP', color: LINE_CHART_COLORS.pdp },
-  { key: 'mapdPercent', countKey: 'mapdCount', label: 'MA-PD', color: LINE_CHART_COLORS.mapd },
+  { key: type2.percentKey, countKey: type2.key, label: type2.label, color: LINE_CHART_COLORS[type2.colorKey] },
+  { key: type1.percentKey, countKey: type1.key, label: type1.chartLabel || type1.label, color: LINE_CHART_COLORS[type1.colorKey] },
 ];
 
 const monthTick = (d) => d.month.slice(0, 3);

@@ -7,16 +7,19 @@ import {
   LINE_CHART_COLORS
 } from './utils';
 import { hospitalYearly, hospitalMonthly } from '../tables/hospitalMedical/tableColumns';
+import DASHBOARD_LABELS from '../js/labels';
+
+const { total, type1, type2 } = DASHBOARD_LABELS.hospitalMedical;
 
 const HOSPITAL_LINE_SERIES = [
-  { key: 'totalEnrollees', label: 'TOTAL', color: LINE_CHART_COLORS.total, primary: true },
-  { key: 'maCount', label: 'MA', color: LINE_CHART_COLORS.ma, dash: 'dashed' },
-  { key: 'ffsCount', label: 'FFS', color: LINE_CHART_COLORS.ffs, dash: 'dotted' },
+  { key: total.key, label: total.label, color: LINE_CHART_COLORS[total.colorKey], primary: true },
+  { key: type1.key, label: type1.label, color: LINE_CHART_COLORS[type1.colorKey], dash: type1.dash },
+  { key: type2.key, label: type2.label, color: LINE_CHART_COLORS[type2.colorKey], dash: type2.dash },
 ];
 
 const HOSPITAL_STACK_SEGMENTS = [
-  { key: 'ffsPercent', countKey: 'ffsCount', label: 'FFS', color: LINE_CHART_COLORS.ffs },
-  { key: 'maPercent', countKey: 'maCount', label: 'MA', color: LINE_CHART_COLORS.ma },
+  { key: type2.percentKey, countKey: type2.key, label: type2.label, color: LINE_CHART_COLORS[type2.colorKey] },
+  { key: type1.percentKey, countKey: type1.key, label: type1.label, color: LINE_CHART_COLORS[type1.colorKey] },
 ];
 
 const monthTick = (d) => d.month.slice(0, 3);

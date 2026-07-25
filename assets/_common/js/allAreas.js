@@ -3,6 +3,7 @@ import requestDataset from '../../../src/router';
 import renderTable from '../tables/renderTable';
 import usStates from '../../../_data/usStates.json';
 import { sortYearlyAscending, sortMonthlyAscending, observeResize, DRUG_COLORS, LINE_CHART_COLORS, computeJenksBreaks } from '../charts/utils';
+import DASHBOARD_LABELS from './labels';
 import {
   renderHospitalYearlyLineChart,
   renderHospitalMonthlyLineChart,
@@ -22,6 +23,10 @@ const formatNum = d3.format(',');
 // API's "State" geo level includes territories (e.g. Puerto Rico)
 // Can't be handed off to the map -> grid/drawer render them disabled w/ warning label
 const mappableStateNames = new Set(usStates);
+
+const hospitalLabels = DASHBOARD_LABELS.hospitalMedical;
+const drugLabels = DASHBOARD_LABELS.prescriptionDrug;
+const dashboardLabelsFor = (type) => (type === 'drug' ? drugLabels : hospitalLabels);
 
 async function init() {
   try {
@@ -82,23 +87,15 @@ async function init() {
         ? [{ label: 'Year', value: (d) => d.year }, { label: 'Month', value: (d) => d.month }]
         : [{ label: 'Year', value: (d) => d.year }];
 
-      if (type === 'drug') {
-        return [
-          ...periodCols,
-          { label: 'Total', value: (d) => formatNum(d.drugTotal) },
-          { label: 'PDP', value: (d) => formatNum(d.pdpCount) },
-          { label: 'MAPD', value: (d) => formatNum(d.mapdCount) },
-          { label: 'PDP %', value: (d) => `${Math.round(d.pdpPercent)}%` },
-          { label: 'MAPD %', value: (d) => `${Math.round(d.mapdPercent)}%` },
-        ];
-      }
+      const { total, type1, type2 } = dashboardLabelsFor(type);
+
       return [
         ...periodCols,
-        { label: 'Total', value: (d) => formatNum(d.totalEnrollees) },
-        { label: 'FFS', value: (d) => formatNum(d.ffsCount) },
-        { label: 'MA', value: (d) => formatNum(d.maCount) },
-        { label: 'FFS %', value: (d) => `${Math.round(d.ffsPercent)}%` },
-        { label: 'MA %', value: (d) => `${Math.round(d.maPercent)}%` },
+        { label: 'Total', value: (d) => formatNum(d[total.key]) },
+        { label: type1.label, value: (d) => formatNum(d[type1.key]) },
+        { label: type2.label, value: (d) => formatNum(d[type2.key]) },
+        { label: `${type1.label} %`, value: (d) => `${Math.round(d[type1.percentKey])}%` },
+        { label: `${type2.label} %`, value: (d) => `${Math.round(d[type2.percentKey])}%` },
       ];
     };
 
@@ -348,16 +345,16 @@ async function init() {
 
     // Config for the swappable card at #medicare-enrollment-hero, keyed by
     // the button's data-dashboard-type
-    const pieCardConfigs = {
+    const heroCardConfigs = {
       hospital: {
         data: [
-          { name: 'FFS', label: 'Fee-For-Service (FFS)', value: currentYear.ffsPercent },
-          { name: 'MA', label: 'Medicare Advantage (MA) & Other Health Plans', value: currentYear.maPercent },
+          { name: hospitalLabels.type2.label, label: hospitalLabels.type2.labelLong, value: currentYear[hospitalLabels.type2.percentKey] },
+          { name: hospitalLabels.type1.label, label: hospitalLabels.type1.labelLong, value: currentYear[hospitalLabels.type1.percentKey] },
         ],
-        total: currentYear.totalEnrollees,
+        total: currentYear[hospitalLabels.total.key],
         options: {
-          colors: [LINE_CHART_COLORS.ffs, LINE_CHART_COLORS.ma],
-          title: `Medicare enrollment by program type, ${currentYear.year}`,
+          colors: [LINE_CHART_COLORS[hospitalLabels.type2.colorKey], LINE_CHART_COLORS[hospitalLabels.type1.colorKey]],
+          title: `${hospitalLabels.heroTitle}, ${currentYear.year}`,
           tableColumns: [
             { label: 'Program', value: (d) => d.name },
             { label: 'Percent of total', value: (d) => `${Math.round(d.value)}%` },
@@ -366,13 +363,13 @@ async function init() {
       },
       drug: {
         data: [
-          { name: 'PDP', label: 'Stand-Alone Prescription Drug Plans (PDP)', value: currentYear.pdpPercent },
-          { name: 'MAPD', label: 'Medicare Advantage Prescription Drug Plans (MAPD)', value: currentYear.mapdPercent },
+          { name: drugLabels.type2.label, label: drugLabels.type2.labelLong, value: currentYear[drugLabels.type2.percentKey] },
+          { name: drugLabels.type1.label, label: drugLabels.type1.labelLong, value: currentYear[drugLabels.type1.percentKey] },
         ],
-        total: currentYear.drugTotal,
+        total: currentYear[drugLabels.total.key],
         options: {
-          colors: [LINE_CHART_COLORS.pdp, LINE_CHART_COLORS.mapd],
-          title: `Medicare Prescription Drug enrollment by plan type, ${currentYear.year}`,
+          colors: [LINE_CHART_COLORS[drugLabels.type2.colorKey], LINE_CHART_COLORS[drugLabels.type1.colorKey]],
+          title: `${drugLabels.heroTitle}, ${currentYear.year}`,
           tableColumns: [
             { label: 'Plan type', value: (d) => d.name },
             { label: 'Percent of total', value: (d) => `${Math.round(d.value)}%` },
@@ -393,7 +390,7 @@ async function init() {
     };
 
     const renderEnrollmentHeroCard = (type) => {
-      const config = pieCardConfigs[type];
+      const config = heroCardConfigs[type];
       if (!config) {
         
         return;
@@ -423,7 +420,9 @@ async function init() {
     d3.select('#dashboard-title-date')
       .text(`${latestMonth.month} ${latestMonth.year}`);
 
-    const roundPct = (v) => `${Math.round(v)}%`;
+    const roundPct = (v) => (Number.isFinite(v) ? `${Math.round(v)}%` : 'No data');
+
+    const rowTotal = (type, d) => (type === 'drug' ? d.drugTotal : d.totalEnrollees);
 
     const compactNum = (n) => {
       const value = Number(n) || 0;
@@ -452,38 +451,49 @@ async function init() {
 
     const hospitalAreaColumns = [
       stateNameColumn,
-      countCol('TOTAL', (d) => d.totalEnrollees),
-      countCol('FFS', (d) => d.ffsCount),
-      countCol('MA', (d) => d.maCount),
-      { label: 'FFS %', value: (d) => roundPct(d.ffsPercent), sortValue: (d) => d.ffsPercent },
-      { label: 'MA %', value: (d) => roundPct(d.maPercent), sortValue: (d) => d.maPercent },
+      countCol('TOTAL', (d) => d[hospitalLabels.total.key]),
+      countCol(hospitalLabels.type1.label, (d) => d[hospitalLabels.type1.key]),
+      countCol(hospitalLabels.type2.label, (d) => d[hospitalLabels.type2.key]),
+      { label: `${hospitalLabels.type1.label} %`, value: (d) => roundPct(d[hospitalLabels.type1.percentKey]), sortValue: (d) => d[hospitalLabels.type1.percentKey] },
+      { label: `${hospitalLabels.type2.label} %`, value: (d) => roundPct(d[hospitalLabels.type2.percentKey]), sortValue: (d) => d[hospitalLabels.type2.percentKey] },
     ];
 
     const drugAreaColumns = [
       stateNameColumn,
-      countCol('TOTAL', (d) => d.drugTotal),
-      countCol('PDP', (d) => d.pdpCount),
-      countCol('MAPD', (d) => d.mapdCount),
-      { label: 'PDP %', value: (d) => roundPct(d.pdpPercent), sortValue: (d) => d.pdpPercent },
-      { label: 'MAPD %', value: (d) => roundPct(d.mapdPercent), sortValue: (d) => d.mapdPercent },
+      countCol('TOTAL', (d) => d[drugLabels.total.key]),
+      countCol(drugLabels.type1.label, (d) => d[drugLabels.type1.key]),
+      countCol(drugLabels.type2.label, (d) => d[drugLabels.type2.key]),
+      { label: `${drugLabels.type1.label} %`, value: (d) => roundPct(d[drugLabels.type1.percentKey]), sortValue: (d) => d[drugLabels.type1.percentKey] },
+      { label: `${drugLabels.type2.label} %`, value: (d) => roundPct(d[drugLabels.type2.percentKey]), sortValue: (d) => d[drugLabels.type2.percentKey] },
     ];
 
+    // Counties with no data (ex. Kalawao County, HI) will show up
+    // flagged and unselectable. These are still visible on the map.
+    const countyNameColumnFor = (type) => ({
+      label: 'County',
+      value: (d) => d.county,
+      sortValue: (d) => d.county,
+      html: (d) => (rowTotal(type, d) > 0
+        ? d.county
+        : `${d.county} <span class="data-grid-unmappable-note" title="No enrollment data available for this county."><svg class="data-grid-unmappable-note__icon" aria-hidden="true" focusable="false"><use xlink:href="#svg-warning"></use></svg>No data</span>`),
+    });
+
     const hospitalCountyColumns = [
-      { label: 'County', value: (d) => d.county, sortValue: (d) => d.county },
-      countCol('TOTAL', (d) => d.totalEnrollees),
-      countCol('FFS', (d) => d.ffsCount),
-      countCol('MA', (d) => d.maCount),
-      { label: 'FFS %', value: (d) => roundPct(d.ffsPercent), sortValue: (d) => d.ffsPercent },
-      { label: 'MA %', value: (d) => roundPct(d.maPercent), sortValue: (d) => d.maPercent },
+      countyNameColumnFor('hospital'),
+      countCol('TOTAL', (d) => d[hospitalLabels.total.key]),
+      countCol(hospitalLabels.type1.label, (d) => d[hospitalLabels.type1.key]),
+      countCol(hospitalLabels.type2.label, (d) => d[hospitalLabels.type2.key]),
+      { label: `${hospitalLabels.type1.label} %`, value: (d) => roundPct(d[hospitalLabels.type1.percentKey]), sortValue: (d) => d[hospitalLabels.type1.percentKey] },
+      { label: `${hospitalLabels.type2.label} %`, value: (d) => roundPct(d[hospitalLabels.type2.percentKey]), sortValue: (d) => d[hospitalLabels.type2.percentKey] },
     ];
 
     const drugCountyColumns = [
-      { label: 'County', value: (d) => d.county, sortValue: (d) => d.county },
-      countCol('TOTAL', (d) => d.drugTotal),
-      countCol('PDP', (d) => d.pdpCount),
-      countCol('MAPD', (d) => d.mapdCount),
-      { label: 'PDP %', value: (d) => roundPct(d.pdpPercent), sortValue: (d) => d.pdpPercent },
-      { label: 'MAPD %', value: (d) => roundPct(d.mapdPercent), sortValue: (d) => d.mapdPercent },
+      countyNameColumnFor('drug'),
+      countCol('TOTAL', (d) => d[drugLabels.total.key]),
+      countCol(drugLabels.type1.label, (d) => d[drugLabels.type1.key]),
+      countCol(drugLabels.type2.label, (d) => d[drugLabels.type2.key]),
+      { label: `${drugLabels.type1.label} %`, value: (d) => roundPct(d[drugLabels.type1.percentKey]), sortValue: (d) => d[drugLabels.type1.percentKey] },
+      { label: `${drugLabels.type2.label} %`, value: (d) => roundPct(d[drugLabels.type2.percentKey]), sortValue: (d) => d[drugLabels.type2.percentKey] },
     ];
 
     let allStatesRows = [];
@@ -512,7 +522,6 @@ async function init() {
 
     const areaColumnsFor = (type) => (type === 'drug' ? drugAreaColumns : hospitalAreaColumns);
     const countyColumnsFor = (type) => (type === 'drug' ? drugCountyColumns : hospitalCountyColumns);
-    const rowTotal = (type, d) => (type === 'drug' ? d.drugTotal : d.totalEnrollees);
 
     // Shared by the desktop grids and both mobile drawers (each keeps its
     // own {index, direction} state, but the comparator logic is identical).
@@ -550,7 +559,12 @@ async function init() {
         selector: '#medicare-enrollment-state-map',
         options: {
           title: 'Medicare Advantage enrollment by state',
-          metricPercent: (d) => d.maPercent,
+          metricLabel: hospitalLabels.type1.label,
+          metricPercent: (d) => d[hospitalLabels.type1.percentKey],
+          metricCount: (d) => d[hospitalLabels.type1.key],
+          comparisonLabel: hospitalLabels.type2.label,
+          comparisonPercent: (d) => d[hospitalLabels.type2.percentKey],
+          comparisonCount: (d) => d[hospitalLabels.type2.key],
           comboBoxSelector: '#medicare-state-selector',
           backButtonSelector: '#medicare-map-back',
           histogramSelector: '#medicare-tier-histogram',
@@ -559,13 +573,13 @@ async function init() {
       drug: {
         selector: '#medicare-mapd-state-map',
         options: {
-          metricLabel: 'MAPD',
-          metricPercent: (d) => d.mapdPercent,
-          metricCount: (d) => d.mapdCount,
+          metricLabel: drugLabels.type1.label,
+          metricPercent: (d) => d[drugLabels.type1.percentKey],
+          metricCount: (d) => d[drugLabels.type1.key],
           colors: DRUG_COLORS,
-          comparisonLabel: 'PDP',
-          comparisonPercent: (d) => d.pdpPercent,
-          comparisonCount: (d) => d.pdpCount,
+          comparisonLabel: drugLabels.type2.label,
+          comparisonPercent: (d) => d[drugLabels.type2.percentKey],
+          comparisonCount: (d) => d[drugLabels.type2.key],
           comboBoxSelector: '#drug-state-selector',
           backButtonSelector: '#drug-map-back',
           histogramSelector: '#drug-tier-histogram',
@@ -989,6 +1003,7 @@ async function init() {
       });
       renderDrawerRows(countyDrawerEls.tbody, rows, cols, {
         emptyMessage: countyDrawerSearchTerm ? `No counties match "${countyDrawerSearchTerm}".` : 'No data available.',
+        isRowSelectable: (row) => rowTotal(type, row) > 0,
         isRowSelected: (row) => selectedCounty === row.county,
         onSelectRow: (row) => {
           document.dispatchEvent(new CustomEvent('dashboard:countyselect', {
@@ -1216,6 +1231,7 @@ async function init() {
 
       renderTable('#county-table', cols, rows, {
         onRowClick: (row) => selectCountyFromGrid(row.county),
+        isRowSelectable: (row) => rowTotal(type, row) > 0,
         isRowSelected: (row) => selectedCounty === row.county,
         sortState: countyGridSort,
         onSort: (index) => {
@@ -1264,8 +1280,11 @@ async function init() {
       host.innerHTML = '<p class="data-grid-placeholder">Loading counties…</p>';
 
       try {
-        const counties = await requestDataset('countyEnrollment', { state: stateAbbr });
-        currentCountyRows = counties.filter((d) => rowTotal(type, d) > 0);
+        const { year, month } = mapConfigs[type].options;
+        // Suppressed/no-data counties (e.g. Kalawao County, HI) are kept here
+        // -- they're still shown flagged and unselectable in the grid rather
+        // than silently dropped, since they're still visible on the map.
+        currentCountyRows = await requestDataset('countyEnrollment', { state: stateAbbr, year, month });
 
         renderCountyGridTable(type);
         updateCountyDrawerTriggerValue();
@@ -1286,6 +1305,9 @@ async function init() {
       const mappableRows = allStatesRows.filter((row) => mappableStateNames.has(row.stateName));
       const values = mappableRows.map(config.options.metricPercent);
       config.options.breakpoints = computeJenksBreaks(values);
+      // DC is mappable/clickable but isn't one of the 50 states
+      // so it's excluded here only
+      config.options.histogramData = mappableRows.filter((row) => row.stateName !== 'District of Columbia');
 
       renderStateMap(config.selector, allStatesRows, config.options);
     };
@@ -1306,6 +1328,12 @@ async function init() {
     const loadStateMap = async () => {
       const recentRows = await requestDataset('stateEnrollment', { state: 'NY', type: 'monthly' });
       const latest = recentRows[0];
+
+      mapConfigs.hospital.options.year = latest.year;
+      mapConfigs.hospital.options.month = latest.month;
+      mapConfigs.drug.options.year = latest.year;
+      mapConfigs.drug.options.month = latest.month;
+
       allStatesRows = await requestDataset('allStates', {
         year: latest.year,
         month: latest.month,

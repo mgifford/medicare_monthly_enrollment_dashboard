@@ -4,8 +4,8 @@
 $bullet-spacing: 1.25rem;
 
 // Shared responsive text size: 18px normally, shrinking to 15px as the
-// containing card narrows. Used by dashboard button labels, pie chart
-// labels, and pie/map legend text so they all resize in lockstep.
+// containing card narrows. Used by dashboard button labels, hero card
+// labels, and hero/map legend text so they all resize in lockstep.
 %dashboard-label-text {
   font-size: clamp(15px, 4cqi, 18px);
 }

@@ -17,7 +17,7 @@ const MARGIN = { ...TREND_MARGIN, right: 16 };
 /**
  * Renders a stacked bar chart showing percent-of-total enrollment trends (0–100%).
  * Assumes exactly two segments: segments[0] stacks on the bottom (square),
- * segments[1] stacks on top (rounded top corners) — matches the mockup's MA/FFS split.
+ * segments[1] stacks on top (rounded top corners) — matches the mockup's MA/OM split.
  *
  * @param {string} selector - DOM container selector
  * @param {Array}  data      - Enrollment data rows (pre-sorted ascending)

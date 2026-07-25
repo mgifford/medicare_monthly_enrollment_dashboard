@@ -33,24 +33,48 @@ document.addEventListener('dashboard:countyselect', (event) => {
   document.dispatchEvent(new CustomEvent('dashboard:countychange', { detail: { county } }));
 });
 
+// pendingX tracks an in-flight fetch so concurrent callers 
+// share one request instead of each firing their own 
 let cachedCountyFeatures = null;
+let pendingCountyFeatures = null;
 
 async function getCountyFeatures() {
-  if (!cachedCountyFeatures) {
-    const us = await d3.json('https://cdn.jsdelivr.net/npm/us-atlas@3/counties-10m.json');
-    cachedCountyFeatures = topojson.feature(us, us.objects.counties).features;
+  if (cachedCountyFeatures) return cachedCountyFeatures;
+
+  if (!pendingCountyFeatures) {
+    pendingCountyFeatures = (async () => {
+      const us = await d3.json('https://cdn.jsdelivr.net/npm/us-atlas@3/counties-10m.json');
+      cachedCountyFeatures = topojson.feature(us, us.objects.counties).features;
+      return cachedCountyFeatures;
+    })();
   }
-  return cachedCountyFeatures;
+
+  try {
+    return await pendingCountyFeatures;
+  } finally {
+    pendingCountyFeatures = null;
+  }
 }
 
 let cachedStateFeatures = null;
+let pendingStateFeatures = null;
 
 async function getStateFeatures() {
-  if (!cachedStateFeatures) {
-    const us = await d3.json('https://cdn.jsdelivr.net/npm/us-atlas@3/states-10m.json');
-    cachedStateFeatures = topojson.feature(us, us.objects.states).features;
+  if (cachedStateFeatures) return cachedStateFeatures;
+
+  if (!pendingStateFeatures) {
+    pendingStateFeatures = (async () => {
+      const us = await d3.json('https://cdn.jsdelivr.net/npm/us-atlas@3/states-10m.json');
+      cachedStateFeatures = topojson.feature(us, us.objects.states).features;
+      return cachedStateFeatures;
+    })();
   }
-  return cachedStateFeatures;
+
+  try {
+    return await pendingStateFeatures;
+  } finally {
+    pendingStateFeatures = null;
+  }
 }
 
 /**
@@ -60,7 +84,7 @@ async function getStateFeatures() {
  * (see accessibility.js / renderSrTable)
  *
  * NOTE: this function assumes data rows shaped like fetchAllStates()'s
- * output (stateName, ffsCount, ffsPercent, totalEnrollees, plus whatever
+ * output (stateName, omCount, omPercent, totalEnrollees, plus whatever
  * count/percent fields config.metricPercent / config.metricCount point at).
  *
  * @param {string} containerSelector - CSS selector for the chart's container element.
@@ -74,12 +98,12 @@ async function getStateFeatures() {
  * @param {Function} [config.metricCount] - (row) => raw count, shown in the
  *   tooltip's "<label>" row. Defaults to MA count (d => d.maCount).
  * @param {string} [config.comparisonLabel] - Display label for the tooltip's
- *   non-colored comparison row (e.g. "FFS" for the MA map, "PDP" for the
- *   MAPD map). Defaults to "FFS".
+ *   non-colored comparison row (e.g. "OM" for the MA map, "PDP" for the
+ *   MAPD map). Defaults to "OM".
  * @param {Function} [config.comparisonPercent] - (row) => percent value for
- *   the comparison row. Defaults to FFS% (d => d.ffsPercent).
+ *   the comparison row. Defaults to OM% (d => d.omPercent).
  * @param {Function} [config.comparisonCount] - (row) => raw count for the
- *   comparison row. Defaults to FFS count (d => d.ffsCount).
+ *   comparison row. Defaults to OM count (d => d.omCount).
  * @param {number[]} [config.breakpoints] - 4 cutoff values defining the 5
  *   color bands (e.g. [17, 34, 51, 67]). Falls back to DEFAULT_BREAKPOINTS.
  * @param {string[]} [config.colors] - 5 hex colors, one per band, low-to-high.
@@ -110,18 +134,21 @@ function renderStateMap(containerSelector, data, config = {}) {
     metricLabel = 'MA',
     metricPercent = (d) => d.maPercent,
     metricCount = (d) => d.maCount,
-    comparisonLabel = 'FFS',
-    comparisonPercent = (d) => d.ffsPercent,
-    comparisonCount = (d) => d.ffsCount,
+    comparisonLabel = 'OM',
+    comparisonPercent = (d) => d.omPercent,
+    comparisonCount = (d) => d.omCount,
     tableColumns = [
       { label: 'State', value: (d) => d.stateName },
-      { label: `${metricLabel} %`, value: (d) => `${metricPercent(d)}%` },
-      { label: `${comparisonLabel} %`, value: (d) => `${comparisonPercent(d)}%` },
+      { label: `${metricLabel} %`, value: (d) => (Number.isFinite(metricPercent(d)) ? `${metricPercent(d)}%` : 'No data') },
+      { label: `${comparisonLabel} %`, value: (d) => (Number.isFinite(comparisonPercent(d)) ? `${comparisonPercent(d)}%` : 'No data') },
       { label: 'Total enrollees', value: (d) => d.totalEnrollees.toLocaleString() },
     ],
     comboBoxSelector,
     backButtonSelector,
     histogramSelector,
+    histogramData = data,
+    year,
+    month,
   } = config;
 
   // Reaching here always means we're back on the national view — the button
@@ -134,7 +161,7 @@ function renderStateMap(containerSelector, data, config = {}) {
   const resolvedColors = colors && colors.length === 5 ? colors : DEFAULT_COLORS;
 
   if (histogramSelector) {
-    renderTierHistogram(histogramSelector, data, {
+    renderTierHistogram(histogramSelector, histogramData, {
       metricPercent,
       metricLabel,
       breakpoints: resolvedBreakpoints,
@@ -237,7 +264,7 @@ function renderStateMap(containerSelector, data, config = {}) {
     try {
       const [countyFeatures, countyRows] = await Promise.all([
         getCountyFeatures(),
-        requestDataset('countyEnrollment', { state: stateData.state }),
+        requestDataset('countyEnrollment', { state: stateData.state, year, month }),
       ]);
 
       if (requestId !== currentCountyRequestId) return;
@@ -347,11 +374,13 @@ function renderStateMap(containerSelector, data, config = {}) {
             return;
           }
 
+          const formatPercent = (value) => (Number.isFinite(value) ? `${value}%` : 'No data');
+
           tooltip.style('display', 'block').style('opacity', 1).html(`
             <div class="chart-tooltip__row"><span class="chart-tooltip__label">State</span><span>${row.stateName}</span></div>
-            <div class="chart-tooltip__row"><span class="chart-tooltip__label">${metricLabel} %</span><span>${metricPercent(row)}%</span></div>
+            <div class="chart-tooltip__row"><span class="chart-tooltip__label">${metricLabel} %</span><span>${formatPercent(metricPercent(row))}</span></div>
             <div class="chart-tooltip__row"><span class="chart-tooltip__label">${metricLabel}</span><span>${metricCount(row).toLocaleString()}</span></div>
-            <div class="chart-tooltip__row"><span class="chart-tooltip__label">${comparisonLabel} %</span><span>${comparisonPercent(row)}%</span></div>
+            <div class="chart-tooltip__row"><span class="chart-tooltip__label">${comparisonLabel} %</span><span>${formatPercent(comparisonPercent(row))}</span></div>
             <div class="chart-tooltip__row"><span class="chart-tooltip__label">${comparisonLabel}</span><span>${comparisonCount(row).toLocaleString()}</span></div>
             <div class="chart-tooltip__row chart-tooltip__row--spaced"><span class="chart-tooltip__label">TOTAL</span><span>${row.totalEnrollees.toLocaleString()}</span></div>
           `);

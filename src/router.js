@@ -10,6 +10,10 @@ const functionRegistry = {
   stateEnrollment: fetchStateEnrollment,
 };
 
+// Tracks in-flight requests by cache key so concurrent callers for the same
+// dataset share one fetch instead of racing duplicate network requests 
+const pendingRequests = new Map();
+
 async function requestDataset(serviceName, options = {}) {
   const targetFunction = functionRegistry[serviceName];
 
@@ -22,15 +26,29 @@ async function requestDataset(serviceName, options = {}) {
   const cached = sessionStorage.getItem(cacheKey);
   if (cached) return JSON.parse(cached);
 
-  const data = await targetFunction(options);
-
-  try {
-    sessionStorage.setItem(cacheKey, JSON.stringify(data));
-  } catch {
-    return data;
+  if (pendingRequests.has(cacheKey)) {
+    return pendingRequests.get(cacheKey);
   }
 
-  return data;
+  const requestPromise = (async () => {
+    const data = await targetFunction(options);
+
+    try {
+      sessionStorage.setItem(cacheKey, JSON.stringify(data));
+    } catch {
+      // sessionStorage full/unavailable -- caching is best-effort, not required
+    }
+
+    return data;
+  })();
+
+  pendingRequests.set(cacheKey, requestPromise);
+
+  try {
+    return await requestPromise;
+  } finally {
+    pendingRequests.delete(cacheKey);
+  }
 }
 
 export default requestDataset;

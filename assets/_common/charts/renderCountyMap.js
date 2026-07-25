@@ -44,7 +44,7 @@ function renderCountyMap(
     title = `${stateFeature.properties.name} counties`,
     tableColumns = [
       { label: 'County', value: (d) => d.county },
-      { label: `${metricLabel} %`, value: (d) => `${metricPercent(d) ?? 'No data'}%` },
+      { label: `${metricLabel} %`, value: (d) => (Number.isFinite(metricPercent(d)) ? `${metricPercent(d)}%` : 'No data') },
       { label: 'Total enrollees', value: (d) => formatNumber(d.totalEnrollees) },
     ],
   } = config;
@@ -107,6 +107,10 @@ function renderCountyMap(
   const tooltip = createTooltip(container).classed('county-map-tooltip', true);
 
   const isSelected = (entry) => Boolean(entry.data) && entry.data.county === selectedCounty;
+  // Matches the grid's isRowSelectable check
+  // a county with suppressed/no data (e.g. Kalawao County, HI) 
+  // is still shown on the map but shouldn't be selectable (only hover)
+  const isSelectable = (entry) => Boolean(entry.data) && Number.isFinite(metricPercent(entry.data));
 
   const getDisplayedFill = (entry) => {
   const fill = getCountyFill(entry);
@@ -125,7 +129,7 @@ function renderCountyMap(
     .attr('fill', getDisplayedFill)
     .attr('stroke', (entry) => (isSelected(entry) ? '#111' : '#fff'))
     .attr('stroke-width', (entry) => (isSelected(entry) ? 3 : 0.75))
-    .style('cursor', 'pointer')
+    .style('cursor', (entry) => (isSelectable(entry) ? 'pointer' : 'default'))
     .on('mouseenter', function highlightCurrent(event, entry){
       const currentFill = getCountyFill(entry);
       d3.select(this)
@@ -165,7 +169,7 @@ function renderCountyMap(
       tooltip.style('opacity', 0).style('display', 'none');
     })
     .on('click', (event, entry) => {
-      if (!entry.data) return;
+      if (!isSelectable(entry)) return;
       document.dispatchEvent(new CustomEvent('dashboard:countyselect', {
         detail: { containerSelector, county: entry.data.county },
       }));

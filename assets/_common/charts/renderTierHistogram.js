@@ -64,7 +64,8 @@ function renderTierHistogram(
     .filter((value) => Number.isFinite(value));
 
   const rawMax = d3.max(values) ?? 100;
-  const domainMax = Math.ceil(rawMax);
+  // Max value for areas with too few data points (ex. 1-4 counties)
+  const domainMax = Math.max(Math.ceil(rawMax), breakpoints[breakpoints.length - 1]);
 
   const noDataCount = data.length - values.length;
   const edges = [0, ...breakpoints, domainMax];

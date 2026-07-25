@@ -1,5 +1,5 @@
 import cmsGet from '../api/cmsClient';
-import { monthOrder, getPercent } from '../utils/helpers'
+import { monthOrder, parseEnrollmentFields } from '../utils/helpers';
 
 const COUNTY_COLUMNS = [
   'BENE_STATE_ABRVTN',
@@ -16,12 +16,7 @@ const COUNTY_COLUMNS = [
   'PRSCRPTN_DRUG_MAPD_BENES',
 ];
 
-const num = (val) => parseInt(val, 10) || 0;
-
 function parseCountyRow(row) {
-  const total = num(row.TOT_BENES);
-  const drugTotal = num(row.PRSCRPTN_DRUG_TOT_BENES);
-
   return {
     state: row.BENE_STATE_ABRVTN,
     stateName: row.BENE_STATE_DESC,
@@ -29,37 +24,37 @@ function parseCountyRow(row) {
     fips: row.BENE_FIPS_CD,
     year: row.YEAR,
     month: row.MONTH,
-    totalEnrollees: total,
-    ffsCount: num(row.ORGNL_MDCR_BENES),
-    maCount: num(row.MA_AND_OTH_BENES),
-    ffsPercent: getPercent(num(row.ORGNL_MDCR_BENES), total),
-    maPercent: getPercent(num(row.MA_AND_OTH_BENES), total),
-    drugTotal,
-    pdpCount: num(row.PRSCRPTN_DRUG_PDP_BENES),
-    mapdCount: num(row.PRSCRPTN_DRUG_MAPD_BENES),
-    pdpPercent: getPercent(num(row.PRSCRPTN_DRUG_PDP_BENES), drugTotal),
-    mapdPercent: getPercent(num(row.PRSCRPTN_DRUG_MAPD_BENES), drugTotal),
+    ...parseEnrollmentFields(row),
   };
 }
 
 async function fetchCountiesForState(options = {}) {
-  const { state } = options;
+  const { state, year, month } = options;
 
   if (!state) {
     throw new Error('fetchCountiesForState requires options.state (e.g. \'NY\')');
   }
 
+  const hasPeriod = Boolean(year && month);
+
   const queryParams = new URLSearchParams({
     'filter[BENE_GEO_LVL]': 'County',
     'filter[BENE_STATE_ABRVTN]': state,
+    ...(hasPeriod ? { 'filter[YEAR]': year, 'filter[MONTH]': month } : {}),
     'sort[YEAR]': 'DESC',
     'sort[MONTH]': 'DESC',
     column: COUNTY_COLUMNS.join(','),
-    size: '5000',
+    size: hasPeriod ? '250' : '5000',
   });
 
   const rawData = await cmsGet(queryParams);
-  const data = rawData.filter((row) => row.MONTH !== 'Year');
+  // 'Unknown' is the API's catch-all bucket for unreported counties
+  //  Dropped here rather filtering out individually.
+  const data = rawData.filter((row) => row.MONTH !== 'Year' && row.BENE_COUNTY_DESC !== 'Unknown');
+
+  if (hasPeriod) {
+    return data.map(parseCountyRow);
+  }
 
   const latestYear = data[0].YEAR;
   const latestMonth = data[0].MONTH;

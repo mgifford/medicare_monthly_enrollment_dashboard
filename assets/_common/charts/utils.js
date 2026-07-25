@@ -15,7 +15,7 @@ export const DEFAULT_COLORS = ['#f1eef6', '#d7b5d8', '#df65b0', '#dd1c77', '#980
 export const DRUG_COLORS = ['#edf8fb', '#b2e2e2', '#66c2a4', '#2ca25f', '#006d2c'];
 export const LINE_CHART_COLORS = {
   ma:'#961D56',
-  ffs: '#0074D9',
+  om: '#0074D9',
   mapd:'#006d2c',
   pdp: '#E69F00',
   total: '#1b1b1b'
