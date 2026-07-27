@@ -201,7 +201,7 @@ export const renderSortableDrawerHead = (theadRow, cols, sortState, onSortClick)
     button.type = 'button';
     button.className = 'data-grid-sort-button';
     button.classList.toggle('is-active', isActive);
-    button.setAttribute('aria-sort', ariaSortValue);
+    th.setAttribute('aria-sort', ariaSortValue);
     button.innerHTML = `${col.label}<span aria-hidden="true">${arrow}</span>`;
     button.addEventListener('click', () => onSortClick(index));
 
