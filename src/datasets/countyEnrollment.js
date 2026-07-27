@@ -44,7 +44,7 @@ async function fetchCountiesForState(options = {}, { signal } = {}) {
     'sort[YEAR]': 'DESC',
     'sort[MONTH]': 'DESC',
     column: COUNTY_COLUMNS.join(','),
-    size: hasPeriod ? '250' : '5000',
+      size: hasPeriod ? '300' : '5000',
   });
 
   const rawData = await cmsGet(queryParams, { signal });
