@@ -37,6 +37,7 @@ function renderCountyMap(
     metricLabel = 'MA',
     metricPercent = (d) => d.maPercent,
     metricCount = (d) => d.maCount,
+    totalCount = (d) => d.totalEnrollees,
     breakpoints,
     colors,
     selectedCounty: initialSelectedCounty = null,
@@ -45,7 +46,7 @@ function renderCountyMap(
     tableColumns = [
       { label: 'County', value: (d) => d.county },
       { label: `${metricLabel} %`, value: (d) => (Number.isFinite(metricPercent(d)) ? `${metricPercent(d)}%` : 'No data') },
-      { label: 'Total enrollees', value: (d) => formatNumber(d.totalEnrollees) },
+      { label: 'Total enrollees', value: (d) => formatNumber(totalCount(d)) },
     ],
   } = config;
 
@@ -156,7 +157,7 @@ function renderCountyMap(
         <div class="chart-tooltip__row"><span class="chart-tooltip__label">County</span><span>${row.county}</span></div>
         <div class="chart-tooltip__row"><span class="chart-tooltip__label">${metricLabel} %</span><span>${Number.isFinite(percent) ? `${percent}%` : 'No data'}</span></div>
         <div class="chart-tooltip__row"><span class="chart-tooltip__label">${metricLabel}</span><span>${formatNumber(count)}</span></div>
-        <div class="chart-tooltip__row chart-tooltip__row--spaced"><span class="chart-tooltip__label">TOTAL</span><span>${formatNumber(row.totalEnrollees)}</span></div>
+        <div class="chart-tooltip__row chart-tooltip__row--spaced"><span class="chart-tooltip__label">TOTAL</span><span>${formatNumber(totalCount(row))}</span></div>
       `);
 
       moveTooltip(tooltip, container.node(), event);

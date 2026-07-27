@@ -147,11 +147,12 @@ function renderStateMap(containerSelector, data, config = {}) {
     comparisonLabel = 'OM',
     comparisonPercent = (d) => d.omPercent,
     comparisonCount = (d) => d.omCount,
+    totalCount = (d) => d.totalEnrollees,
     tableColumns = [
       { label: 'State', value: (d) => d.stateName },
       { label: `${metricLabel} %`, value: (d) => (Number.isFinite(metricPercent(d)) ? `${metricPercent(d)}%` : 'No data') },
       { label: `${comparisonLabel} %`, value: (d) => (Number.isFinite(comparisonPercent(d)) ? `${comparisonPercent(d)}%` : 'No data') },
-      { label: 'Total enrollees', value: (d) => d.totalEnrollees.toLocaleString() },
+      { label: 'Total enrollees', value: (d) => totalCount(d).toLocaleString() },
     ],
     comboBoxSelector,
     backButtonSelector,
@@ -298,6 +299,7 @@ function renderStateMap(containerSelector, data, config = {}) {
           metricLabel,
           metricPercent,
           metricCount,
+          totalCount,
           breakpoints: countyBreakpoints,
           colors: resolvedColors,
           selectedCounty: null,
@@ -394,7 +396,7 @@ function renderStateMap(containerSelector, data, config = {}) {
             <div class="chart-tooltip__row"><span class="chart-tooltip__label">${metricLabel}</span><span>${metricCount(row).toLocaleString()}</span></div>
             <div class="chart-tooltip__row"><span class="chart-tooltip__label">${comparisonLabel} %</span><span>${formatPercent(comparisonPercent(row))}</span></div>
             <div class="chart-tooltip__row"><span class="chart-tooltip__label">${comparisonLabel}</span><span>${comparisonCount(row).toLocaleString()}</span></div>
-            <div class="chart-tooltip__row chart-tooltip__row--spaced"><span class="chart-tooltip__label">TOTAL</span><span>${row.totalEnrollees.toLocaleString()}</span></div>
+            <div class="chart-tooltip__row chart-tooltip__row--spaced"><span class="chart-tooltip__label">TOTAL</span><span>${totalCount(row).toLocaleString()}</span></div>
           `);
           moveTooltip(tooltip, container.node(), event);
         })
