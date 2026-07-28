@@ -1,8 +1,5 @@
-import * as d3 from 'd3';
 import DASHBOARD_LABELS from '../labels';
-
-const num = d3.format(',');
-const pct = (v) => (Number.isFinite(v) ? `${v}%` : 'No data');
+import { formatCount, formatPercent } from '../charts/utils';
 
 // Screen-reader-only accessible table columns for the trend line/bar charts.
 // Shared shape for both dashboard views -- only the total field and the
@@ -14,11 +11,11 @@ function buildColumns({ totalKey, type1, type2, hasMonth }) {
 
   return [
     ...periodCols,
-    { label: 'Total Enrolled', value: (d) => num(d[totalKey]) },
-    { label: type1.label, value: (d) => num(d[type1.key]) },
-    { label: type2.label, value: (d) => num(d[type2.key]) },
-    { label: `${type1.label} %`, value: (d) => pct(d[type1.percentKey]) },
-    { label: `${type2.label} %`, value: (d) => pct(d[type2.percentKey]) },
+    { label: 'Total Enrolled', value: (d) => formatCount(d[totalKey]) },
+    { label: type1.label, value: (d) => formatCount(d[type1.key]) },
+    { label: type2.label, value: (d) => formatCount(d[type2.key]) },
+    { label: `${type1.label} %`, value: (d) => formatPercent(d[type1.percentKey]) },
+    { label: `${type2.label} %`, value: (d) => formatPercent(d[type2.percentKey]) },
   ];
 }
 

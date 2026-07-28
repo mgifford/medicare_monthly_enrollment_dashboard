@@ -1,6 +1,7 @@
 import * as d3 from 'd3';
 import DASHBOARD_LABELS from '../labels';
 import usStates from '../../../_data/usStates.json';
+import { formatCount, NO_DATA_LABEL, SUPPRESSED_LABEL } from '../charts/utils';
 
 const formatNum = d3.format(',');
 
@@ -15,10 +16,12 @@ const dashboardLabelsFor = (type) => (type === 'drug' ? drugLabels : hospitalLab
 
 export const rowTotal = (type, d) => (type === 'drug' ? d.drugTotal : d.totalEnrollees);
 
-const roundPct = (v) => (Number.isFinite(v) ? `${Math.round(v)}%` : 'No data');
+// Grid rounds to a whole percent for compact display, unlike the map/sr
+// table's formatPercent -- kept separate for that reason, but shares
+// NO_DATA_LABEL so both stay in sync.
+const roundPct = (v) => (Number.isFinite(v) ? `${Math.round(v)}%` : NO_DATA_LABEL);
 
-const compactNum = (n) => {
-  const value = Number(n) || 0;
+const compactNum = (value) => {
   if (value >= 1e6) return `${(value / 1e6).toFixed(value >= 1e7 ? 1 : 2)}M`;
   if (value >= 1e3) return `${(value / 1e3).toFixed(value >= 1e4 ? 0 : 1)}K`;
   return formatNum(value);
@@ -28,6 +31,7 @@ const countCol = (label, getter) => ({
   label,
   html: (d) => {
     const n = getter(d);
+    if (!Number.isFinite(n)) return `<span class="num-full">${formatCount(n)}</span>`;
     return `<span class="num-full">${formatNum(n)}</span><span class="num-abbr">${compactNum(n)}</span>`;
   },
   sortValue: getter,
@@ -42,16 +46,28 @@ const stateNameColumn = {
     : `${d.stateName} <span class="data-grid-unmappable-note" title="Not part of the state map — this area can't be selected."><svg class="data-grid-unmappable-note__icon" aria-hidden="true" focusable="false"><use xlink:href="#svg-warning"></use></svg>Not on map</span>`),
 };
 
-// Counties with no data (ex. Kalawao County, HI) still show up here, flagged
-// and unselectable, rather than silently dropped -- they're still visible
-// on the map.
+// Counties with no usable total (ex. Kalawao County, HI, where CMS
+// suppresses even TOT_BENES) still show up here, flagged -- but selectable,
+// matching the map -- rather than silently dropped. A suppressed total
+// (null) gets its own "Suppressed" flag distinct from a genuinely
+// missing/zero total's "No data" -- otherwise the tag next to the county
+// name would contradict what its own TOTAL/MA/OM cells say.
 const countyNameColumnFor = (type) => ({
   label: 'County',
   value: (d) => d.county,
   sortValue: (d) => d.county,
-  html: (d) => (rowTotal(type, d) > 0
-    ? d.county
-    : `${d.county} <span class="data-grid-unmappable-note" title="No enrollment data available for this county."><svg class="data-grid-unmappable-note__icon" aria-hidden="true" focusable="false"><use xlink:href="#svg-warning"></use></svg>No data</span>`),
+  html: (d) => {
+    const total = rowTotal(type, d);
+    if (total > 0) return d.county;
+
+    const isSuppressed = total === null;
+    const label = isSuppressed ? SUPPRESSED_LABEL : 'No data';
+    const title = isSuppressed
+      ? 'CMS suppressed enrollment data for this county.'
+      : 'No enrollment data available for this county.';
+
+    return `${d.county} <span class="data-grid-unmappable-note" title="${title}"><svg class="data-grid-unmappable-note__icon" aria-hidden="true" focusable="false"><use xlink:href="#svg-warning"></use></svg>${label}</span>`;
+  },
 });
 
 function buildAreaColumns(labels) {
@@ -95,9 +111,9 @@ export function buildTrendGridColumns(type, range) {
 
   return [
     ...periodCols,
-    { label: 'Total', value: (d) => formatNum(d[total.key]) },
-    { label: type1.label, value: (d) => formatNum(d[type1.key]) },
-    { label: type2.label, value: (d) => formatNum(d[type2.key]) },
+    { label: 'Total', value: (d) => formatCount(d[total.key]) },
+    { label: type1.label, value: (d) => formatCount(d[type1.key]) },
+    { label: type2.label, value: (d) => formatCount(d[type2.key]) },
     { label: `${type1.label} %`, value: (d) => roundPct(d[type1.percentKey]) },
     { label: `${type2.label} %`, value: (d) => roundPct(d[type2.percentKey]) },
   ];

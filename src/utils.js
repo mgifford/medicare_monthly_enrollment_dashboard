@@ -13,15 +13,24 @@ export const monthOrder = {
   'December': 12
 };
 
-// NaN (not 0) when totalVal is 0 -- CMS uses '*' to suppress small counts for
-// privacy, which num() parses as 0. A real 0% and "we don't know" need to
-// stay distinguishable, since consumers like computeJenksBreaks and
-// renderTierHistogram already filter out NaN as "no data" rather than
-// counting it as a real data point.
+// NaN when totalVal is 0, OR when count itself is suppressed (see num()
+// below) -- a real 0% and "we don't know" need to stay distinguishable,
+// since consumers like computeJenksBreaks and renderTierHistogram already
+// filter out NaN as "no data" rather than counting it as a real data point.
+// Percent displays don't need to tell these two NaN causes apart (they both
+// just show "-") -- the count field sitting next to the percent is what
+// carries the "Suppressed" vs. real-zero distinction, via formatCount().
 export const getPercent = (count, totalVal) =>
-  (totalVal > 0 ? parseFloat(((count / totalVal) * 100).toFixed(2)) : NaN);
+  (totalVal > 0 && Number.isFinite(count) ? parseFloat(((count / totalVal) * 100).toFixed(2)) : NaN);
 
-export const num = (val) => parseInt(val, 10) || 0;
+// null (not 0) for non-numeric input -- CMS uses '*' to suppress small
+// beneficiary counts for privacy, and a suppressed count must stay
+// distinguishable from a genuine 0. null (unlike NaN) survives the
+// sessionStorage JSON round-trip in router.js unchanged.
+export const num = (val) => {
+  const parsed = parseInt(val, 10);
+  return Number.isFinite(parsed) ? parsed : null;
+};
 
 // Shared numeric fields present on every enrollment row (national/state/county).
 // Callers spread this plus their own geo-specific fields (state, county, etc.).

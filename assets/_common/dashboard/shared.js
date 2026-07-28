@@ -17,6 +17,13 @@ export const sortRows = (rows, cols, sortState) => {
   return [...rows].sort((a, b) => {
     const av = getSortValue(a);
     const bv = getSortValue(b);
+    // A suppressed count's sortValue is null -- always sorts last,
+    // regardless of asc/desc, rather than falling into the string-compare
+    // branch below (typeof null === 'object', which alphabetizes "null"
+    // against stringified numbers and produces an inconsistent position).
+    if (av == null && bv == null) return 0;
+    if (av == null) return 1;
+    if (bv == null) return -1;
     if (typeof av === 'number' && typeof bv === 'number') return (av - bv) * dir;
     return String(av).localeCompare(String(bv)) * dir;
   });

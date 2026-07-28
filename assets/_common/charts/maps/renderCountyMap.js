@@ -1,6 +1,6 @@
 import * as d3 from 'd3';
 import renderSrTable from '../accessibility';
-import { createTooltip, moveTooltip, DEFAULT_BREAKPOINTS, NO_DATA_FILL, DEFAULT_COLORS } from '../utils';
+import { createTooltip, moveTooltip, DEFAULT_BREAKPOINTS, NO_DATA_FILL, DEFAULT_COLORS, formatCount, formatPercent } from '../utils';
 import { joinCountyData, filterCountiesByState } from './joinCountyData';
 import renderTierHistogram from './renderTierHistogram';
 
@@ -31,8 +31,6 @@ function renderCountyMap(
   countyRows,
   config = {},
 ) {
-  const formatNumber = (value) => (value == null ? 'No data' : value.toLocaleString());
-
   const {
     metricLabel = 'MA',
     metricPercent = (d) => d.maPercent,
@@ -45,8 +43,8 @@ function renderCountyMap(
     title = `${stateFeature.properties.name} counties`,
     tableColumns = [
       { label: 'County', value: (d) => d.county },
-      { label: `${metricLabel} %`, value: (d) => (Number.isFinite(metricPercent(d)) ? `${metricPercent(d)}%` : 'No data') },
-      { label: 'Total enrollees', value: (d) => formatNumber(totalCount(d)) },
+      { label: `${metricLabel} %`, value: (d) => formatPercent(metricPercent(d)) },
+      { label: 'Total enrollees', value: (d) => formatCount(totalCount(d)) },
     ],
   } = config;
 
@@ -111,10 +109,12 @@ function renderCountyMap(
   const tooltip = createTooltip(container).classed('county-map-tooltip', true);
 
   const isSelected = (entry) => Boolean(entry.data) && entry.data.county === selectedCounty;
-  // Matches the grid's isRowSelectable check
-  // a county with suppressed/no data (e.g. Kalawao County, HI) 
-  // is still shown on the map but shouldn't be selectable (only hover)
-  const isSelectable = (entry) => Boolean(entry.data) && Number.isFinite(metricPercent(entry.data));
+  // Any county with a joined data row is selectable, even if CMS suppressed
+  // its metric (e.g. Bethel Census Area, AK) or its total (e.g. Kalawao
+  // County, HI) -- the trend card still has something real to show (or, for
+  // a fully-suppressed county, honestly shows nothing rather than blocking
+  // the click). Only a shape with no matching row at all stays unselectable.
+  const isSelectable = (entry) => Boolean(entry.data);
 
   const getDisplayedFill = (entry) => {
   const fill = getCountyFill(entry);
@@ -155,9 +155,9 @@ function renderCountyMap(
 
       tooltip.style('display', 'block').style('opacity', 1).html(`
         <div class="chart-tooltip__row"><span class="chart-tooltip__label">County</span><span>${row.county}</span></div>
-        <div class="chart-tooltip__row"><span class="chart-tooltip__label">${metricLabel} %</span><span>${Number.isFinite(percent) ? `${percent}%` : 'No data'}</span></div>
-        <div class="chart-tooltip__row"><span class="chart-tooltip__label">${metricLabel}</span><span>${formatNumber(count)}</span></div>
-        <div class="chart-tooltip__row chart-tooltip__row--spaced"><span class="chart-tooltip__label">TOTAL</span><span>${formatNumber(totalCount(row))}</span></div>
+        <div class="chart-tooltip__row"><span class="chart-tooltip__label">${metricLabel} %</span><span>${formatPercent(percent)}</span></div>
+        <div class="chart-tooltip__row"><span class="chart-tooltip__label">${metricLabel}</span><span>${formatCount(count)}</span></div>
+        <div class="chart-tooltip__row chart-tooltip__row--spaced"><span class="chart-tooltip__label">TOTAL</span><span>${formatCount(totalCount(row))}</span></div>
       `);
 
       moveTooltip(tooltip, container.node(), event);

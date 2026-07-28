@@ -60,7 +60,7 @@ function renderTierHistogram(
   }
 
   const values = data
-    .map((row) => Number(metricPercent(row)))
+    .map((row) => metricPercent(row))
     .filter((value) => Number.isFinite(value));
 
   const rawMax = d3.max(values) ?? 100;

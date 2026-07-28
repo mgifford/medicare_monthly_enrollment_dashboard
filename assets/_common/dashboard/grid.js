@@ -184,7 +184,6 @@ export default function initGrid(state, mappableStateNames) {
     });
     renderDrawerRows(countyDrawerEls.tbody, rows, cols, {
       emptyMessage: countyDrawerSearchTerm ? `No counties match "${countyDrawerSearchTerm}".` : 'No data available.',
-      isRowSelectable: (row) => rowTotal(type, row) > 0,
       isRowSelected: (row) => state.selectedCounty === row.county,
       onSelectRow: (row) => {
         document.dispatchEvent(new CustomEvent('dashboard:countyselect', {
@@ -345,7 +344,6 @@ export default function initGrid(state, mappableStateNames) {
 
     renderTable('#county-table', cols, rows, {
       onRowClick: (row) => selectCountyFromGrid(row.county),
-      isRowSelectable: (row) => rowTotal(type, row) > 0,
       isRowSelected: (row) => state.selectedCounty === row.county,
       sortState: state.grid.countyGridSort,
       onSort: (index) => {
@@ -377,8 +375,8 @@ export default function initGrid(state, mappableStateNames) {
     try {
       const { year, month } = state.mapConfigs[type].options;
       // Suppressed/no-data counties (e.g. Kalawao County, HI) are kept here
-      // -- they're still shown flagged and unselectable in the grid rather
-      // than silently dropped, since they're still visible on the map.
+      // -- shown flagged (via the "Suppressed"/"No data" tag) but still
+      // selectable, matching the map, rather than silently dropped.
       state.grid.currentCountyRows = await requestDataset('countyEnrollment', { state: stateAbbr, year, month });
 
       renderCountyGridTable(type);

@@ -1,7 +1,7 @@
 import * as d3 from 'd3';
 import * as topojson from 'topojson-client';
 import renderSrTable from '../accessibility';
-import { createTooltip, moveTooltip, DEFAULT_BREAKPOINTS, DEFAULT_COLORS, NO_DATA_FILL, computeJenksBreaks } from '../utils';
+import { createTooltip, moveTooltip, DEFAULT_BREAKPOINTS, DEFAULT_COLORS, NO_DATA_FILL, computeJenksBreaks, formatCount, formatPercent } from '../utils';
 import renderCountyMap from './renderCountyMap';
 import requestDataset from '../../../../src/router';
 import renderTierHistogram from './renderTierHistogram';
@@ -150,9 +150,9 @@ function renderStateMap(containerSelector, data, config = {}) {
     totalCount = (d) => d.totalEnrollees,
     tableColumns = [
       { label: 'State', value: (d) => d.stateName },
-      { label: `${metricLabel} %`, value: (d) => (Number.isFinite(metricPercent(d)) ? `${metricPercent(d)}%` : 'No data') },
-      { label: `${comparisonLabel} %`, value: (d) => (Number.isFinite(comparisonPercent(d)) ? `${comparisonPercent(d)}%` : 'No data') },
-      { label: 'Total enrollees', value: (d) => totalCount(d).toLocaleString() },
+      { label: `${metricLabel} %`, value: (d) => formatPercent(metricPercent(d)) },
+      { label: `${comparisonLabel} %`, value: (d) => formatPercent(comparisonPercent(d)) },
+      { label: 'Total enrollees', value: (d) => formatCount(totalCount(d)) },
     ],
     comboBoxSelector,
     backButtonSelector,
@@ -388,15 +388,13 @@ function renderStateMap(containerSelector, data, config = {}) {
             return;
           }
 
-          const formatPercent = (value) => (Number.isFinite(value) ? `${value}%` : 'No data');
-
           tooltip.style('display', 'block').style('opacity', 1).html(`
             <div class="chart-tooltip__row"><span class="chart-tooltip__label">State</span><span>${row.stateName}</span></div>
             <div class="chart-tooltip__row"><span class="chart-tooltip__label">${metricLabel} %</span><span>${formatPercent(metricPercent(row))}</span></div>
-            <div class="chart-tooltip__row"><span class="chart-tooltip__label">${metricLabel}</span><span>${metricCount(row).toLocaleString()}</span></div>
+            <div class="chart-tooltip__row"><span class="chart-tooltip__label">${metricLabel}</span><span>${formatCount(metricCount(row))}</span></div>
             <div class="chart-tooltip__row"><span class="chart-tooltip__label">${comparisonLabel} %</span><span>${formatPercent(comparisonPercent(row))}</span></div>
-            <div class="chart-tooltip__row"><span class="chart-tooltip__label">${comparisonLabel}</span><span>${comparisonCount(row).toLocaleString()}</span></div>
-            <div class="chart-tooltip__row chart-tooltip__row--spaced"><span class="chart-tooltip__label">TOTAL</span><span>${totalCount(row).toLocaleString()}</span></div>
+            <div class="chart-tooltip__row"><span class="chart-tooltip__label">${comparisonLabel}</span><span>${formatCount(comparisonCount(row))}</span></div>
+            <div class="chart-tooltip__row chart-tooltip__row--spaced"><span class="chart-tooltip__label">TOTAL</span><span>${formatCount(totalCount(row))}</span></div>
           `);
           moveTooltip(tooltip, container.node(), event);
         })

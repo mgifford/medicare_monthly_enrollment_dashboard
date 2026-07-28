@@ -59,6 +59,24 @@ export function formatCompactNumber(d) {
   return d3.format('.2~s')(d);
 }
 
+// One place to change these two strings
+// used across the maps, grid, and trend charts
+export const SUPPRESSED_LABEL = 'Suppressed';
+export const NO_DATA_LABEL = '-';
+
+// Raw enrollment counts are null when CMS suppresses a small count for
+// privacy (see num() in src/utils.js) -- shown as "Suppressed"
+// "-" is shown for a suppressed/zero-total percent
+export function formatCount(n) {
+  return Number.isFinite(n) ? n.toLocaleString() : SUPPRESSED_LABEL;
+}
+
+// Percent is NaN both when the total is 0 and when the count feeding it is
+// suppressed, shown as "-"
+export function formatPercent(v) {
+  return Number.isFinite(v) ? `${v}%` : NO_DATA_LABEL;
+}
+
 export function createTooltip(container) {
   container.style('position', 'relative');
   return container
