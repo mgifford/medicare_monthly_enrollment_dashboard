@@ -298,6 +298,9 @@ function renderStateMap(containerSelector, data, config = {}) {
           metricLabel,
           metricPercent,
           metricCount,
+          comparisonLabel,
+          comparisonPercent,
+          comparisonCount,
           totalCount,
           breakpoints: countyBreakpoints,
           colors: resolvedColors,
@@ -362,7 +365,7 @@ function renderStateMap(containerSelector, data, config = {}) {
           await showCountyView(stateFeature, stateData);
         },
       );
-      svg
+      const statePaths = svg
         .append('g')
         .selectAll('path')
         .data(features)
@@ -370,16 +373,22 @@ function renderStateMap(containerSelector, data, config = {}) {
         .attr('d', path)
         .attr('fill', getStateFill)
         .attr('stroke', '#fff')
-        .style('cursor', 'pointer')
-        .on('mouseenter', function highlightCurrent(event, d){
+        .attr('stroke-width', 1)
+        .style('cursor', 'pointer');
+        
+      const hoverOutline = svg.append('path')
+        .attr('fill', 'none')
+        .attr('stroke', '#111')
+        .attr('stroke-width', 3)
+        .style('pointer-events', 'none')
+        .style('opacity', 0);
+
+      statePaths
+        .on('mouseenter', function highlightCurrent(event, d) {
           const currentFill = getStateFill(d);
-          
-          d3.select(this)
-            .raise()
-            .attr('stroke', '#111')
-            .attr('stroke-width', 3)
-            .attr('fill', d3.color(currentFill).brighter(0.7).formatHex());
-          })
+          d3.select(this).attr('fill', d3.color(currentFill).brighter(0.7).formatHex());
+          hoverOutline.attr('d', path(d)).style('opacity', 1);
+        })
         .on('mousemove', (event, d) => {
           const row = dataByName.get(d.properties.name);
           if (!row) {
@@ -398,11 +407,9 @@ function renderStateMap(containerSelector, data, config = {}) {
           moveTooltip(tooltip, container.node(), event);
         })
         .on('mouseleave', function selectHighlight(event, entry) {
-            d3.select(this)
-              .attr('fill', getStateFill(entry))
-              .attr('stroke', '#fff')
-              .attr('stroke-width', 1);
-        
+          d3.select(this).attr('fill', getStateFill(entry));
+          hoverOutline.style('opacity', 0);
+
           tooltip.style('opacity', 0).style('display', 'none');
         })
         .on('click', async (event, d) => {

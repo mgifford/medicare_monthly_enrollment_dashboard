@@ -11,6 +11,7 @@ import {
 } from './shared';
 import { DASHBOARD_TREND_CHARTS } from '../charts/index';
 import createRequestGuard from '../requestGuard';
+import DASHBOARD_LABELS from '../labels';
 
 // Owns the national/state/county trend cluster: the line/bar charts, the
 // desktop "expand" overlay, the mobile bottom-sheet drawer, and the mobile
@@ -33,7 +34,7 @@ export default function initTrend(state, yearlyWithLatest, monthly) {
 
   state.trend.nationalTrendData = { yearly: yearlyWithLatest, monthly };
 
-  const programLabel = (type) => (type === 'drug' ? 'Prescription Drug' : 'Hospital / Medical');
+  const programLabel = (type) => (type === 'drug' ? DASHBOARD_LABELS.prescriptionDrug : DASHBOARD_LABELS.hospitalMedical).programName;
 
   const trendContextLabel = () => {
     if (state.trend.trendScope === 'county' && state.trend.trendArea?.county) {

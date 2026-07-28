@@ -3,15 +3,6 @@
 
 $bullet-spacing: 1.25rem;
 
-// Self-hosted (not USWDS-bundled)
-@font-face {
-  font-family: 'Montserrat';
-  font-style: normal;
-  font-weight: 600;
-  font-display: swap;
-  src: url('../_fonts/montserrat/montserrat-semibold.woff2') format('woff2');
-}
-
 // Custom styles for the Medicare Enrollment Dashboard
 
 .dashboard-root {

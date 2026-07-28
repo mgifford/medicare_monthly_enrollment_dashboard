@@ -59,7 +59,6 @@
   <meta property="og:type" content="article" />
   <link rel="canonical" href="{{ page.url }}" />
   <meta property="og:url" content="{{ page.url }}" />
-  <script async="" src={{ "/assets/js/uswds-init.js" | url }}></script>
 
   <!-- Favicon
        ================================================== -->
@@ -82,5 +81,8 @@
   {% else %}
     <link rel="preload" as="style" href="{{ assetPaths['styles.css'] }}" />
     <link rel="stylesheet" href="{{ assetPaths['styles.css'] }}" type="text/css" />
+
+    <link rel="preload" as="font" type="font/woff2" href="{{ assetPaths['PublicSans-Regular.woff2'] }}" crossorigin>
+    <link rel="preload" as="font" type="font/woff2" href="{{ assetPaths['PublicSans-Bold.woff2'] }}" crossorigin>
   {% endif%}
 </head>

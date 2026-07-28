@@ -15,7 +15,7 @@ function buildMapConfigs() {
     hospital: {
       selector: '#medicare-enrollment-state-map',
       options: {
-        title: 'Medicare Advantage enrollment by state',
+        title: hospitalLabels.screenReaderMapTitle,
         metricLabel: hospitalLabels.type1.label,
         metricPercent: (d) => d[hospitalLabels.type1.percentKey],
         metricCount: (d) => d[hospitalLabels.type1.key],
@@ -32,6 +32,7 @@ function buildMapConfigs() {
     drug: {
       selector: '#medicare-mapd-state-map',
       options: {
+        title: drugLabels.screenReaderMapTitle,
         metricLabel: drugLabels.type1.label,
         metricPercent: (d) => d[drugLabels.type1.percentKey],
         metricCount: (d) => d[drugLabels.type1.key],

@@ -4,6 +4,10 @@
 // edit the strings below -- nothing else in the codebase needs to change.
 //
 // Field guide:
+//   programName - short name for this program (tab button, trend titles)
+//   screenReaderMapTitle - screen-reader-only title for this program's
+//                 state/county map (not shown to sighted users)
+//                 (visual map labels are statically defind in html))
 //   label       - short display text (table headers, legends, hero card)
 //   labelLong   - full display text (hero card's accessible table, tooltips)
 //   chartLabel  - optional override of `label` just for trend chart legends
@@ -22,7 +26,9 @@
 // "type2" (its comparison metric).
 const DASHBOARD_LABELS = {
   hospitalMedical: {
+    programName: 'Hospital / Medical',
     heroTitle: 'Medicare enrollment by program type',
+    screenReaderMapTitle: 'Medicare Advantage enrollment by state',
     mapColors: ['#f1eef6', '#d7b5d8', '#df65b0', '#dd1c77', '#980043'],
     total: { key: 'totalEnrollees', label: 'TOTAL', color: '#1b1b1b' },
     type1: {
@@ -43,7 +49,9 @@ const DASHBOARD_LABELS = {
     },
   },
   prescriptionDrug: {
+    programName: 'Prescription Drug',
     heroTitle: 'Medicare Prescription Drug enrollment by plan type',
+    screenReaderMapTitle: 'Medicare Prescription Drug enrollment by state',
     mapColors: ['#edf8fb', '#b2e2e2', '#66c2a4', '#2ca25f', '#006d2c'],
     total: { key: 'drugTotal', label: 'TOTAL', color: '#1b1b1b' },
     type1: {

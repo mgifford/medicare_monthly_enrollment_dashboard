@@ -70,9 +70,8 @@ const countyNameColumnFor = (type) => ({
   },
 });
 
-function buildAreaColumns(labels) {
+function buildMetricColumns(labels) {
   return [
-    stateNameColumn,
     countCol('TOTAL', (d) => d[labels.total.key]),
     countCol(labels.type1.label, (d) => d[labels.type1.key]),
     countCol(labels.type2.label, (d) => d[labels.type2.key]),
@@ -81,15 +80,12 @@ function buildAreaColumns(labels) {
   ];
 }
 
+function buildAreaColumns(labels) {
+  return [stateNameColumn, ...buildMetricColumns(labels)];
+}
+
 function buildCountyColumns(type, labels) {
-  return [
-    countyNameColumnFor(type),
-    countCol('TOTAL', (d) => d[labels.total.key]),
-    countCol(labels.type1.label, (d) => d[labels.type1.key]),
-    countCol(labels.type2.label, (d) => d[labels.type2.key]),
-    { label: `${labels.type1.label} %`, value: (d) => roundPct(d[labels.type1.percentKey]), sortValue: (d) => d[labels.type1.percentKey] },
-    { label: `${labels.type2.label} %`, value: (d) => roundPct(d[labels.type2.percentKey]), sortValue: (d) => d[labels.type2.percentKey] },
-  ];
+  return [countyNameColumnFor(type), ...buildMetricColumns(labels)];
 }
 
 const hospitalAreaColumns = buildAreaColumns(hospitalLabels);
