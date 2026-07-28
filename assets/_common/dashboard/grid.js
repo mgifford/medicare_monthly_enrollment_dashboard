@@ -15,13 +15,8 @@ import {
   filterAndSortDrawerRows,
 } from './shared';
 
-// Owns the area (state) grid + county grid, both mobile drawers, and the
-// desktop "expand" overlay for the merged Enrollment Table card. Reads/writes
-// state.selectedState/selectedCounty/grid.*, and reaches into state.mapConfigs
-// (built by map.js) for the county fetch's year/month and the county-select
-// dispatch target. Doesn't touch trend directly -- the global dashboard:*
-// listeners that also need to update the trend card live in allAreas.js,
-// calling back into the functions this returns.
+// Owns the state/county grids, drawers, and overlay. Trend-card syncing
+// happens via the dashboard:* listeners in dashboard/index.js instead.
 export default function initGrid(state, mappableStateNames) {
   // Shared by the desktop grids and both mobile drawers
   const selectStateFromGrid = (stateName) => {
@@ -77,7 +72,7 @@ export default function initGrid(state, mappableStateNames) {
   const drawerEls = makeDrawerEls('all-areas');
   const overlayEls = makeOverlayEls('enrollment');
 
-  let drawerSort = { index: 0, direction: 'asc' }; // State A→Z, matches desktop table's default
+  let drawerSort = { index: 0, direction: 'asc' };
   let drawerSearchTerm = '';
 
   const updateDrawerTriggerValue = () => {

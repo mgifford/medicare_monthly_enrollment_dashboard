@@ -1,16 +1,17 @@
 import cmsGet from '../api/cmsClient';
-import { monthOrder, parseEnrollmentFields } from '../utils';
+import { parseEnrollmentFields, sortDescByPeriod } from '../utils';
 
-// All 50 states for a single period — used for the All Areas map and country-by-state table
 export async function fetchAllStates(options = {}, { signal } = {}) {
-  const year = options.year || '2024';
-  const month = options.month || 'Year';
+  const { year, month } = options;
+
+  if (!year || !month) {
+    throw new Error('fetchAllStates requires options.year and options.month');
+  }
 
   const queryParams = new URLSearchParams({
     'filter[BENE_GEO_LVL]': 'State',
     'filter[YEAR]': year,
     'filter[MONTH]': month,
-    size: '60',
   });
 
   const rawData = await cmsGet(queryParams, { signal });
@@ -37,7 +38,6 @@ export async function fetchStateEnrollment(options = {}, { signal } = {}) {
     'filter[BENE_STATE_ABRVTN]': state,
     'sort[YEAR]': 'DESC',
     'sort[MONTH]': 'DESC',
-    size: '100',
   });
 
   const rawData = await cmsGet(queryParams, { signal });
@@ -50,17 +50,8 @@ export async function fetchStateEnrollment(options = {}, { signal } = {}) {
     ...parseEnrollmentFields(row),
   }));
 
-  const yearly = parsedRows
-    .filter((row) => row.month === 'Year')
-    .sort((a, b) => b.year - a.year);
-
-  const monthly = parsedRows
-    .filter((row) => row.month !== 'Year')
-    .sort((a, b) => {
-      if (b.year !== a.year) return b.year - a.year;
-      return monthOrder[b.month] - monthOrder[a.month];
-    })
-    .slice(0, 12);
+  const yearly = sortDescByPeriod(parsedRows.filter((row) => row.month === 'Year'));
+  const monthly = sortDescByPeriod(parsedRows.filter((row) => row.month !== 'Year')).slice(0, 12);
 
   return { yearly, monthly };
 }

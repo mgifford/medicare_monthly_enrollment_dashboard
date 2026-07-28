@@ -8,9 +8,9 @@
 //   labelLong   - full display text (hero card's accessible table, tooltips)
 //   chartLabel  - optional override of `label` just for trend chart legends
 //                 and tooltips (falls back to `label` if omitted)
-//   colorKey    - must match a key in LINE_CHART_COLORS
-//                 (assets/_common/charts/utils.js) -- adding a brand-new
-//                 program needs a color added there first
+//   color       - hex color for this series' line/legend/hero swatch
+//   mapColors   - 5 hex colors, low-to-high, for this program's map
+//                 choropleth scale
 //   dash        - 'dashed' | 'dotted', the line chart's stroke pattern for
 //                 this program (keeps type1 vs type2 tellable apart without
 //                 relying on color alone)
@@ -23,13 +23,14 @@
 const DASHBOARD_LABELS = {
   hospitalMedical: {
     heroTitle: 'Medicare enrollment by program type',
-    total: { key: 'totalEnrollees', label: 'TOTAL', colorKey: 'total' },
+    mapColors: ['#f1eef6', '#d7b5d8', '#df65b0', '#dd1c77', '#980043'],
+    total: { key: 'totalEnrollees', label: 'TOTAL', color: '#1b1b1b' },
     type1: {
       key: 'maCount',
       percentKey: 'maPercent',
       label: 'MA',
       labelLong: 'Medicare Advantage (MA) & Other Health Plans',
-      colorKey: 'ma',
+      color: '#961D56',
       dash: 'dashed',
     },
     type2: {
@@ -37,20 +38,21 @@ const DASHBOARD_LABELS = {
       percentKey: 'omPercent',
       label: 'OM',
       labelLong: 'Original Medicare (OM)',
-      colorKey: 'om',
+      color: '#0074D9',
       dash: 'dotted',
     },
   },
   prescriptionDrug: {
     heroTitle: 'Medicare Prescription Drug enrollment by plan type',
-    total: { key: 'drugTotal', label: 'TOTAL', colorKey: 'total' },
+    mapColors: ['#edf8fb', '#b2e2e2', '#66c2a4', '#2ca25f', '#006d2c'],
+    total: { key: 'drugTotal', label: 'TOTAL', color: '#1b1b1b' },
     type1: {
       key: 'mapdCount',
       percentKey: 'mapdPercent',
       label: 'MAPD',
       chartLabel: 'MAPD',
       labelLong: 'Medicare Advantage Prescription Drug Plans (MAPD)',
-      colorKey: 'mapd',
+      color: '#006d2c',
       dash: 'dashed',
     },
     type2: {
@@ -58,7 +60,7 @@ const DASHBOARD_LABELS = {
       percentKey: 'pdpPercent',
       label: 'PDP',
       labelLong: 'Stand-Alone Prescription Drug Plans (PDP)',
-      colorKey: 'pdp',
+      color: '#E69F00',
       dash: 'dotted',
     },
   },

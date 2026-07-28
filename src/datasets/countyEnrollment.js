@@ -1,5 +1,5 @@
 import cmsGet from '../api/cmsClient';
-import { monthOrder, parseEnrollmentFields } from '../utils';
+import { parseEnrollmentFields, sortDescByPeriod } from '../utils';
 
 const COUNTY_COLUMNS = [
   'BENE_STATE_ABRVTN',
@@ -56,12 +56,10 @@ async function fetchCountiesForState(options = {}, { signal } = {}) {
     return data.map(parseCountyRow);
   }
 
-  const latestYear = data[0].YEAR;
-  const latestMonth = data[0].MONTH;
+  const parsedData = data.map(parseCountyRow);
+  const [latest] = sortDescByPeriod(parsedData);
 
-  return data
-    .filter((row) => row.YEAR === latestYear && row.MONTH === latestMonth)
-    .map(parseCountyRow);
+  return parsedData.filter((row) => row.year === latest.year && row.month === latest.month);
 }
 
 // Fetches once and returns both yearly/monthly slices
@@ -79,23 +77,13 @@ export async function fetchCountyEnrollment(options = {}, { signal } = {}) {
     'sort[YEAR]': 'DESC',
     'sort[MONTH]': 'DESC',
     column: COUNTY_COLUMNS.join(','),
-    size: '600',
   });
 
   const rawData = await cmsGet(queryParams, { signal });
   const parsedRows = rawData.map(parseCountyRow);
 
-  const yearly = parsedRows
-    .filter((row) => row.month === 'Year')
-    .sort((a, b) => b.year - a.year);
-
-  const monthly = parsedRows
-    .filter((row) => row.month !== 'Year')
-    .sort((a, b) => {
-      if (b.year !== a.year) return b.year - a.year;
-      return monthOrder[b.month] - monthOrder[a.month];
-    })
-    .slice(0, 12);
+  const yearly = sortDescByPeriod(parsedRows.filter((row) => row.month === 'Year'));
+  const monthly = sortDescByPeriod(parsedRows.filter((row) => row.month !== 'Year')).slice(0, 12);
 
   return { yearly, monthly };
 }

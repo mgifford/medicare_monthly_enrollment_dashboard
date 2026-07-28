@@ -13,20 +13,21 @@ export const monthOrder = {
   'December': 12
 };
 
-// NaN when totalVal is 0, OR when count itself is suppressed (see num()
-// below) -- a real 0% and "we don't know" need to stay distinguishable,
-// since consumers like computeJenksBreaks and renderTierHistogram already
-// filter out NaN as "no data" rather than counting it as a real data point.
-// Percent displays don't need to tell these two NaN causes apart (they both
-// just show "-") -- the count field sitting next to the percent is what
-// carries the "Suppressed" vs. real-zero distinction, via formatCount().
+// Sorts by most recent first because
+// the API sorts MONTH alphabetically instead of chronologically
+export function sortDescByPeriod(rows) {
+  return [...rows].sort((a, b) => {
+    if (Number(b.year) !== Number(a.year)) return Number(b.year) - Number(a.year);
+    return monthOrder[b.month] - monthOrder[a.month];
+  });
+}
+
+// Returns NaN when we can't calculate a real percent
 export const getPercent = (count, totalVal) =>
   (totalVal > 0 && Number.isFinite(count) ? parseFloat(((count / totalVal) * 100).toFixed(2)) : NaN);
 
-// null (not 0) for non-numeric input -- CMS uses '*' to suppress small
-// beneficiary counts for privacy, and a suppressed count must stay
-// distinguishable from a genuine 0. null (unlike NaN) survives the
-// sessionStorage JSON round-trip in router.js unchanged.
+// CMS writes '*' instead of a number to hide small counts for privacy.
+// Returns null so "hidden" and a real zero don't look the same.
 export const num = (val) => {
   const parsed = parseInt(val, 10);
   return Number.isFinite(parsed) ? parsed : null;

@@ -1,5 +1,4 @@
 import DASHBOARD_LABELS from '../labels';
-import { LINE_CHART_COLORS } from '../charts/utils';
 import { renderEnrollmentHero } from '../charts/index';
 
 const hospitalLabels = DASHBOARD_LABELS.hospitalMedical;
@@ -18,7 +17,7 @@ function buildHeroCardConfigs(yearlyWithLatest) {
       ],
       total: currentYear[hospitalLabels.total.key],
       options: {
-        colors: [LINE_CHART_COLORS[hospitalLabels.type2.colorKey], LINE_CHART_COLORS[hospitalLabels.type1.colorKey]],
+        colors: [hospitalLabels.type2.color, hospitalLabels.type1.color],
         title: `${hospitalLabels.heroTitle}, ${currentYear.year}`,
         tableColumns: [
           { label: 'Program', value: (d) => d.name },
@@ -33,7 +32,7 @@ function buildHeroCardConfigs(yearlyWithLatest) {
       ],
       total: currentYear[drugLabels.total.key],
       options: {
-        colors: [LINE_CHART_COLORS[drugLabels.type2.colorKey], LINE_CHART_COLORS[drugLabels.type1.colorKey]],
+        colors: [drugLabels.type2.color, drugLabels.type1.color],
         title: `${drugLabels.heroTitle}, ${currentYear.year}`,
         tableColumns: [
           { label: 'Plan type', value: (d) => d.name },

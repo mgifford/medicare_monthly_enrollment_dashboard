@@ -1,15 +1,16 @@
 import cmsGet from '../api/cmsClient';
-import { monthOrder, parseEnrollmentFields } from '../utils';
+import { parseEnrollmentFields, sortDescByPeriod } from '../utils';
 
 async function fetchNationalData(options = {}, { signal } = {}) {
   const type = options.type || 'monthly';
 
+  // yearly rows come pre-aggregated by the API under MONTH: "Year"
   const queryParams = new URLSearchParams({
     'filter[BENE_GEO_LVL]': 'National',
     'sort[YEAR]': 'DESC',
     'sort[MONTH]': 'DESC',
     'size': '100',
-    ...(type === 'yearly' && { 'filter[MONTH]': 'Year' }), // yearly rows come pre-aggregated by the API under MONTH: "Year"
+    ...(type === 'yearly' && { 'filter[MONTH]': 'Year' }), 
   });
 
   const rawData = await cmsGet(queryParams, { signal });
@@ -21,17 +22,11 @@ async function fetchNationalData(options = {}, { signal } = {}) {
   }));
 
   if (type === 'yearly') {
-    return parsedRows.sort((a, b) => b.year - a.year);
+    return sortDescByPeriod(parsedRows);
   }
 
   if (type === 'monthly') {
-    return parsedRows
-      .filter((row) => row.month !== 'Year')
-      .sort((a, b) => {
-        if (b.year !== a.year) return b.year - a.year;
-        return monthOrder[b.month] - monthOrder[a.month];
-      })
-      .slice(0, 12);
+    return sortDescByPeriod(parsedRows.filter((row) => row.month !== 'Year')).slice(0, 12);
   }
 
   return parsedRows;

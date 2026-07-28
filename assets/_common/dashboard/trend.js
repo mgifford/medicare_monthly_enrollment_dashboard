@@ -10,11 +10,13 @@ import {
   createPopup,
 } from './shared';
 import { DASHBOARD_TREND_CHARTS } from '../charts/index';
+import createRequestGuard from '../requestGuard';
 
 // Owns the national/state/county trend cluster: the line/bar charts, the
 // desktop "expand" overlay, the mobile bottom-sheet drawer, and the mobile
 // carousel that swaps between them.
 export default function initTrend(state, yearlyWithLatest, monthly) {
+  const trendRequest = createRequestGuard();
   const barLegend = { legendSelector: '#national-trend-bar-legend' };
   const lineLegend = { legendSelector: '#national-trend-line-legend' };
 
@@ -109,9 +111,6 @@ export default function initTrend(state, yearlyWithLatest, monthly) {
     }
   };
 
-  // Updates the mobile carousel's page-3 trigger card -- runs on every
-  // renderTrend(), independent of whether the drawer is actually open,
-  // since the trigger itself is always in the DOM while on mobile.
   const updateTrendDrawerTrigger = () => {
     const desc = document.querySelector('#trend-mobile-trigger-desc');
     if (desc) desc.textContent = `Open to view the full ${state.trend.activeTrendRange} trend data table.`;
@@ -164,8 +163,7 @@ export default function initTrend(state, yearlyWithLatest, monthly) {
   const showTrendForScope = async (scope, area) => {
     state.trend.trendScope = scope;
     state.trend.trendArea = area;
-    state.trend.trendRequestToken += 1;
-    const token = state.trend.trendRequestToken;
+    const { signal, isStale } = trendRequest.next();
 
     if (scope !== 'national') {
       const cache = scope === 'state' ? state.trend.stateTrendCache : state.trend.countyTrendCache;
@@ -173,28 +171,25 @@ export default function initTrend(state, yearlyWithLatest, monthly) {
 
       if (!cache.has(key)) {
         showTrendLoading();
-        state.trend.trendAbortController?.abort();
-        state.trend.trendAbortController = new AbortController();
-        const { signal } = state.trend.trendAbortController;
         const service = scope === 'state' ? 'stateEnrollment' : 'countyTrend';
         const params = scope === 'state'
           ? { state: area.state }
           : { state: area.state, county: area.county };
         try {
           const trendData = await requestDataset(service, params, { signal });
-          if (token !== state.trend.trendRequestToken) return;
+          if (isStale()) return;
           cache.set(key, trendData);
         } catch (error) {
           // Superseded by a newer selection -- nothing to cache or render;
           // the newer call already has its own request in flight.
           if (error?.name === 'AbortError') return;
-          if (token !== state.trend.trendRequestToken) return;
+          if (isStale()) return;
           cache.set(key, { yearly: [], monthly: [] });
         }
       }
     }
 
-    if (token !== state.trend.trendRequestToken) return;
+    if (isStale()) return;
     renderTrend();
   };
 

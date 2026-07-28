@@ -17,10 +17,7 @@ export const sortRows = (rows, cols, sortState) => {
   return [...rows].sort((a, b) => {
     const av = getSortValue(a);
     const bv = getSortValue(b);
-    // A suppressed count's sortValue is null -- always sorts last,
-    // regardless of asc/desc, rather than falling into the string-compare
-    // branch below (typeof null === 'object', which alphabetizes "null"
-    // against stringified numbers and produces an inconsistent position).
+    // A suppressed count's sortValue is null -- always sorts last
     if (av == null && bv == null) return 0;
     if (av == null) return 1;
     if (bv == null) return -1;
@@ -104,7 +101,7 @@ export const syncColumnHeights = () => {
   side.style.height = target;
 };
 
-export const getFocusableEls = (container) => Array.from(
+const getFocusableEls = (container) => Array.from(
   container.querySelectorAll('button, [href], input, [tabindex]:not([tabindex="-1"])'),
 );
 

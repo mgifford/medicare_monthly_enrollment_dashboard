@@ -23,8 +23,6 @@ export default function createDashboardState() {
       activeTrendView: 'line', // mobile carousel: 'line' | 'bar' | 'grid'
       trendScope: 'national',
       trendArea: null,
-      trendRequestToken: 0,
-      trendAbortController: null,
       overlayTrendView: 'line',
       trendOverlayOpen: false,
       trendDrawerOpen: false,

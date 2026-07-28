@@ -11,8 +11,11 @@ const functionRegistry = {
 };
 
 // Tracks in-flight requests by cache key so concurrent callers for the same
-// dataset share one fetch instead of racing duplicate network requests 
+// dataset share one fetch instead of racing duplicate network requests
 const pendingRequests = new Map();
+
+// A tab left open longer than this refetches
+const CACHE_MAX_AGE_MS = 60 * 60 * 1000;
 
 // signal is a per-caller cancellation handle
 // If two callers request the exact same cache key concurrently,
@@ -27,7 +30,10 @@ async function requestDataset(serviceName, options = {}, { signal } = {}) {
   const cacheKey = `${serviceName}:${JSON.stringify(options)}`;
 
   const cached = sessionStorage.getItem(cacheKey);
-  if (cached) return JSON.parse(cached);
+  if (cached) {
+    const { data, cachedAt } = JSON.parse(cached);
+    if (Date.now() - cachedAt < CACHE_MAX_AGE_MS) return data;
+  }
 
   if (pendingRequests.has(cacheKey)) {
     return pendingRequests.get(cacheKey);
@@ -37,7 +43,7 @@ async function requestDataset(serviceName, options = {}, { signal } = {}) {
     const data = await targetFunction(options, { signal });
 
     try {
-      sessionStorage.setItem(cacheKey, JSON.stringify(data));
+      sessionStorage.setItem(cacheKey, JSON.stringify({ data, cachedAt: Date.now() }));
     } catch {
       // sessionStorage full/unavailable -- caching is best-effort, not required
     }

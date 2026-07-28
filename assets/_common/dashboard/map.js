@@ -1,5 +1,5 @@
 import usStates from '../../../_data/usStates.json';
-import { DRUG_COLORS, computeJenksBreaks } from '../charts/utils';
+import { computeJenksBreaks } from '../charts/utils';
 import { renderStateMap } from '../charts/index';
 import DASHBOARD_LABELS from '../labels';
 
@@ -23,6 +23,7 @@ function buildMapConfigs() {
         comparisonPercent: (d) => d[hospitalLabels.type2.percentKey],
         comparisonCount: (d) => d[hospitalLabels.type2.key],
         totalCount: (d) => d[hospitalLabels.total.key],
+        colors: hospitalLabels.mapColors,
         comboBoxSelector: '#medicare-state-selector',
         backButtonSelector: '#medicare-map-back',
         histogramSelector: '#medicare-tier-histogram',
@@ -34,7 +35,7 @@ function buildMapConfigs() {
         metricLabel: drugLabels.type1.label,
         metricPercent: (d) => d[drugLabels.type1.percentKey],
         metricCount: (d) => d[drugLabels.type1.key],
-        colors: DRUG_COLORS,
+        colors: drugLabels.mapColors,
         comparisonLabel: drugLabels.type2.label,
         comparisonPercent: (d) => d[drugLabels.type2.percentKey],
         comparisonCount: (d) => d[drugLabels.type2.key],

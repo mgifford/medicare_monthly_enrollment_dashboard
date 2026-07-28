@@ -5,12 +5,12 @@ import { createTooltip, moveTooltip, DEFAULT_BREAKPOINTS, DEFAULT_COLORS, NO_DAT
 import renderCountyMap from './renderCountyMap';
 import requestDataset from '../../../../src/router';
 import renderTierHistogram from './renderTierHistogram';
+import createRequestGuard from '../../requestGuard';
 
-// us-atlas's states-10m.json is unprojected (raw lon/lat), so we project it
-// ourselves at render time. 950 (vs. the us-atlas README's suggested 1300)
-// is chosen specifically to keep Alaska/Hawaii fully inside the frame at
-// this viewport size (paired with height=620 below) — bump it up if you
-// want the mainland states larger and don't mind clipping the insets.
+// us-atlas's states-10m.json is unprojected (raw lon/lat),
+// so it is projected at render time.
+// 950 (vs. the us-atlas README's suggested 1300)
+// is chosen specifically to keep Alaska/Hawaii fully inside the frame.
 // Only the national map uses this — renderCountyMap.js's per-state
 // drill-down map is untouched, it auto-fits via fitSize regardless.
 const PROJECTION_SCALE = 950;
@@ -129,7 +129,7 @@ function renderStateMap(containerSelector, data, config = {}) {
   // Reaching here always means this container is back on the national view.
   delete countyViewRegistry[containerSelector];
 
-  let currentCountyRequestId = 0;
+  const countyRequest = createRequestGuard();
   if (!data?.length) {
     return {
       success: false,
@@ -267,18 +267,17 @@ function renderStateMap(containerSelector, data, config = {}) {
   const showCountyView = async (stateFeature, stateData) => {
     syncComboBox(stateData.stateName);
 
-    currentCountyRequestId += 1;
-    const requestId = currentCountyRequestId;
+    const { signal, isStale } = countyRequest.next();
 
     tooltip.style('opacity', 0).style('display', 'none');
 
     try {
       const [countyFeatures, countyRows] = await Promise.all([
         getCountyFeatures(),
-        requestDataset('countyEnrollment', { state: stateData.state, year, month }),
+        requestDataset('countyEnrollment', { state: stateData.state, year, month }, { signal }),
       ]);
 
-      if (requestId !== currentCountyRequestId) return;
+      if (isStale()) return;
 
       const countyValues = countyRows.map(metricPercent);
       const countyBreakpoints = computeJenksBreaks(countyValues, resolvedColors.length);
@@ -316,10 +315,10 @@ function renderStateMap(containerSelector, data, config = {}) {
         backButtonEl.onclick = onBackFn;
       }
     } catch (error) {
-      if (requestId !== currentCountyRequestId) return;
+      if (error?.name === 'AbortError') return;
+      if (isStale()) return;
       container.append('p').attr('role', 'alert').text('County map could not be loaded.');
     }
-
   };
 
   const emitStateChange = (stateData) => {

@@ -12,14 +12,6 @@ const TREND_CHART_HEIGHT = 270;
 export const DEFAULT_BREAKPOINTS = [17, 34, 51, 67];
 export const  NO_DATA_FILL = '#eee';
 export const DEFAULT_COLORS = ['#f1eef6', '#d7b5d8', '#df65b0', '#dd1c77', '#980043'];
-export const DRUG_COLORS = ['#edf8fb', '#b2e2e2', '#66c2a4', '#2ca25f', '#006d2c'];
-export const LINE_CHART_COLORS = {
-  ma:'#961D56',
-  om: '#0074D9',
-  mapd:'#006d2c',
-  pdp: '#E69F00',
-  total: '#1b1b1b'
-};
 
 export function computeJenksBreaks(values, numClasses = DEFAULT_COLORS.length) {
   const clean = values.filter((v) => v !== null && v !== undefined && !Number.isNaN(v));

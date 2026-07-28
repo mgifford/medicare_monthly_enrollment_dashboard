@@ -25,14 +25,8 @@
   <!-- Resource hints
        ================================================== -->
   {% comment -%}
-    The dashboard's hero/map/trend cards fetch enrollment data from this API
-    as soon as their JS runs -- preconnecting here lets the browser start
-    DNS/TLS negotiation in parallel with asset loading instead of waiting
-    until the JS bundle executes to even begin the connection. crossorigin
-    is required here because cmsClient.js's fetch() is a cross-origin,
-    no-credentials request -- without it, the browser sets up a connection
-    that doesn't match how that request actually negotiates, and ends up
-    opening a second one anyway.
+    The dashboard's hero/map/trend cards fetch enrollment data 
+    from this API as soon as their JS runs.
   {% endcomment %}
   <link rel="preconnect" href="https://data.cms.gov" crossorigin />
   <!-- Title and meta description
