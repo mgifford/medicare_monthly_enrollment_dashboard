@@ -181,7 +181,7 @@ function renderCountyMap(
 
       moveTooltip(tooltip, container.node(), event);
     })
-    .on('mouseleave', function leftoverOutline (event, entry) {
+    .on('mouseleave', function clearHighlight(event, entry) {
       d3.select(this).attr('fill', getDisplayedFill(entry));
       hoverOutline.style('opacity', 0);
 

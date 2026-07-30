@@ -17,9 +17,10 @@ const pendingRequests = new Map();
 // A tab left open longer than this refetches
 const CACHE_MAX_AGE_MS = 60 * 60 * 1000;
 
-// signal is a per-caller cancellation handle
-// If two callers request the exact same cache key concurrently,
-// the fetch is aborted
+// signal is a per-caller cancellation handle, but it only takes effect for the
+// caller that actually starts the request. If a request for the same cache key
+// is already in flight, later callers join that promise and their signal is
+// ignored.
 async function requestDataset(serviceName, options = {}, { signal } = {}) {
   const targetFunction = functionRegistry[serviceName];
 

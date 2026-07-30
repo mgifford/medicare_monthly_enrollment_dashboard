@@ -15,8 +15,8 @@
 .chart-block .table-container { overflow: visible; margin-top: 0; display: flex; flex-direction: column; }
 .chart-block .chart-figure { height: 267px; }
 .chart-block__head { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 4px 14px; margin-bottom: 4px; }
-.chart-block h4 { font-size: .82rem; font-weight: 700; margin: 0; }
-.chart-block h4 span { color: var(--ink-2); font-weight: 500; font-size: .74rem; }
+.chart-block h3, .chart-block h4 { font-size: .82rem; font-weight: 700; margin: 0; }
+.chart-block h3 span, .chart-block h4 span { color: var(--ink-2); font-weight: 500; font-size: .74rem; }
 .chart-svg { width: 100%; height: auto; display: block; overflow: visible; }
 .chart-block .chart-svg { height: 100%; }
 

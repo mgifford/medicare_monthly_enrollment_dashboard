@@ -30,9 +30,6 @@ module.exports = function (config) {
   // Copy the robots.txt file to the output
   config.addPassthroughCopy('robots.txt');
 
-  // Copy USWDS init JS so we can load it in HEAD to prevent banner flashing
-  config.addPassthroughCopy({ './node_modules/@uswds/uswds/dist/js/uswds-init.js': 'assets/js/uswds-init.js' });
-
   // Specific scripts to guides
   config.addPassthroughCopy("./assets/_common/dashboard/*");
   config.addPassthroughCopy("./assets/**/js/*");

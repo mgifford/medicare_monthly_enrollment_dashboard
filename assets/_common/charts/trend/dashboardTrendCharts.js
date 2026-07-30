@@ -13,7 +13,7 @@ const monthTick = (d) => d.month.slice(0, 3);
 function buildSeries({ total, type1, type2 }) {
   return [
     { key: total.key, label: total.label, color: total.color, primary: true },
-    { key: type1.key, label: type1.chartLabel || type1.label, color: type1.color, dash: type1.dash },
+    { key: type1.key, label: type1.label, color: type1.color, dash: type1.dash },
     { key: type2.key, label: type2.label, color: type2.color, dash: type2.dash },
   ];
 }
@@ -21,7 +21,7 @@ function buildSeries({ total, type1, type2 }) {
 function buildSegments({ type1, type2 }) {
   return [
     { key: type2.percentKey, countKey: type2.key, label: type2.label, color: type2.color },
-    { key: type1.percentKey, countKey: type1.key, label: type1.chartLabel || type1.label, color: type1.color },
+    { key: type1.percentKey, countKey: type1.key, label: type1.label, color: type1.color },
   ];
 }
 

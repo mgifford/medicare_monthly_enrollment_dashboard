@@ -10,8 +10,6 @@
 //                 (visual map labels are statically defind in html))
 //   label       - short display text (table headers, legends, hero card)
 //   labelLong   - full display text (hero card's accessible table, tooltips)
-//   chartLabel  - optional override of `label` just for trend chart legends
-//                 and tooltips (falls back to `label` if omitted)
 //   color       - hex color for this series' line/legend/hero swatch
 //   mapColors   - 5 hex colors, low-to-high, for this program's map
 //                 choropleth scale
@@ -58,7 +56,6 @@ const DASHBOARD_LABELS = {
       key: 'mapdCount',
       percentKey: 'mapdPercent',
       label: 'MAPD',
-      chartLabel: 'MAPD',
       labelLong: 'Medicare Advantage Prescription Drug Plans (MAPD)',
       color: '#006d2c',
       dash: 'dashed',
