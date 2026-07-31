@@ -5,7 +5,12 @@
 // carousel panel (trend.js) -- it's a shared pattern, not grid-specific.
 @use '../tokens' as *;
 
-.card { background: var(--surface); border: 1px solid var(--border); border-radius: 15px; box-shadow: var(--shadow); }
+.card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 15px;
+  box-shadow: var(--shadow);
+}
 
 // Shared by every card's header row (title + a control button/tabs on the
 // right) -- consolidates what used to be ~5 near-identical hand-authored
@@ -104,7 +109,7 @@
   color: var(--ink);
 }
 
-.data-grid-view-tabs .data-grid-view-tab[aria-selected="true"] {
+.data-grid-view-tabs .data-grid-view-tab[aria-selected='true'] {
   font-weight: 700;
   border-color: var(--border);
 }
@@ -115,7 +120,7 @@
 }
 
 @media (forced-colors: active) {
-  .data-grid-view-tabs .data-grid-view-tab[aria-selected="true"] {
+  .data-grid-view-tabs .data-grid-view-tab[aria-selected='true'] {
     border: 2px solid CanvasText;
   }
 }

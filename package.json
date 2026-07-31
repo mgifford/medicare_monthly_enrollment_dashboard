@@ -16,6 +16,8 @@
     "dev:assets": "npm run assets:refresh && npm run assets:watch",
     "dev:debug": "DEBUG=* npx @11ty/eleventy --serve --watch",
     "dev:serve": "npx @11ty/eleventy --serve --watch",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
     "lint": "eslint .",
     "pa11y-ci:sitemap": "sleep 10; pa11y-ci --sitemap http://localhost:8080/sitemap.xml --sitemap-exclude \"/*.pdf\"  --sitemap-exclude \"/admin\" --sitemap-find \"^/\" --sitemap-replace \"http://localhost:8080/\"",
     "serve": "npx @11ty/eleventy --serve",
@@ -73,6 +75,12 @@
   },
   "mocha": {
     "timeout": 15000
+  },
+  "jest": {
+    "testPathIgnorePatterns": [
+      "/node_modules/",
+      "/_site/"
+    ]
   },
   "browserslist": [
     "defaults",

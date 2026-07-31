@@ -74,12 +74,16 @@ export default function initMap(state) {
     const config = state.mapConfigs[type];
     if (!config) return;
 
-    const mappableRows = state.grid.allStatesRows.filter((row) => mappableStateNames.has(row.stateName));
+    const mappableRows = state.grid.allStatesRows.filter((row) =>
+      mappableStateNames.has(row.stateName),
+    );
     const values = mappableRows.map(config.options.metricPercent);
     config.options.breakpoints = computeJenksBreaks(values);
     // DC is mappable/clickable but isn't one of the 50 states
     // so it's excluded here only
-    config.options.histogramData = mappableRows.filter((row) => row.stateName !== 'District of Columbia');
+    config.options.histogramData = mappableRows.filter(
+      (row) => row.stateName !== 'District of Columbia',
+    );
 
     renderStateMap(config.selector, state.grid.allStatesRows, config.options);
   };

@@ -6,10 +6,29 @@
 // dependency is fine here (see dashboard/template's reuse-packaging goal,
 // which those files avoid).
 
-.page-header { display: flex; flex-direction: column; gap: 6px; margin: 4px 0 14px; }
-.page-header__title { margin: 0; font-size: 1.6rem; font-weight: 800; letter-spacing: -.02em; color: var(--ink); }
-.page-header__meta { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 6px 16px; }
-.page-header__updated { margin: 0; }
+.page-header {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin: 4px 0 14px;
+}
+.page-header__title {
+  margin: 0;
+  font-size: 1.6rem;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  color: var(--ink);
+}
+.page-header__meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 6px 16px;
+}
+.page-header__updated {
+  margin: 0;
+}
 
 .dashboard-columns {
   display: grid;

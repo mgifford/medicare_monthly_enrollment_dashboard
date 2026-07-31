@@ -2,15 +2,25 @@ import * as d3 from 'd3';
 import { ckmeans } from 'simple-statistics';
 
 const MONTH_ORDER = {
-  January: 1, February: 2, March: 3, April: 4, May: 5, June: 6,
-  July: 7, August: 8, September: 9, October: 10, November: 11, December: 12,
+  January: 1,
+  February: 2,
+  March: 3,
+  April: 4,
+  May: 5,
+  June: 6,
+  July: 7,
+  August: 8,
+  September: 9,
+  October: 10,
+  November: 11,
+  December: 12,
 };
 
 const TREND_CHART_WIDTH = 560;
 const TREND_CHART_HEIGHT = 270;
 
 export const DEFAULT_BREAKPOINTS = [17, 34, 51, 67];
-export const  NO_DATA_FILL = '#eee';
+export const NO_DATA_FILL = '#eee';
 export const DEFAULT_COLORS = ['#f1eef6', '#d7b5d8', '#df65b0', '#dd1c77', '#980043'];
 
 export function computeJenksBreaks(values, numClasses = DEFAULT_COLORS.length) {
@@ -25,7 +35,10 @@ export function computeJenksBreaks(values, numClasses = DEFAULT_COLORS.length) {
 }
 
 export const TREND_MARGIN = {
-  top: 12, right: 100, bottom: 30, left: 44,
+  top: 12,
+  right: 100,
+  bottom: 30,
+  left: 44,
 };
 
 export function sortYearlyAscending(data) {
@@ -105,7 +118,9 @@ export function moveTooltip(tooltip, containerNode, event) {
 export function buildLegendHtml(items) {
   return items
     .map((it) => {
-      const classes = ['key', it.dot && 'dot', it.dashStyle && `key--${it.dashStyle}`].filter(Boolean).join(' ');
+      const classes = ['key', it.dot && 'dot', it.dashStyle && `key--${it.dashStyle}`]
+        .filter(Boolean)
+        .join(' ');
       return `<span class="item"><span class="${classes}" style="--legend-color:${it.color}"></span>${it.label}</span>`;
     })
     .join('');
@@ -164,7 +179,10 @@ export function appendTrendFigure(container, title) {
   const tooltip = container.append('div').attr('class', 'tt').attr('aria-hidden', 'true');
 
   return {
-    svg, tooltip, width, height,
+    svg,
+    tooltip,
+    width,
+    height,
   };
 }
 

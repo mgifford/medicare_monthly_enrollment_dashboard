@@ -9,8 +9,8 @@ async function fetchNationalData(options = {}, { signal } = {}) {
     'filter[BENE_GEO_LVL]': 'National',
     'sort[YEAR]': 'DESC',
     'sort[MONTH]': 'DESC',
-    'size': '100',
-    ...(type === 'yearly' && { 'filter[MONTH]': 'Year' }), 
+    size: '100',
+    ...(type === 'yearly' && { 'filter[MONTH]': 'Year' }),
   });
 
   const rawData = await cmsGet(queryParams, { signal });

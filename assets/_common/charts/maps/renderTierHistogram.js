@@ -29,14 +29,7 @@ const HISTOGRAM_MARGIN = {
 function renderTierHistogram(
   containerSelector,
   data,
-  {
-    metricPercent,
-    metricLabel,
-    breakpoints,
-    colors,
-    areaLabel,
-    contextLabel = '',
-  },
+  { metricPercent, metricLabel, breakpoints, colors, areaLabel, contextLabel = '' },
 ) {
   const container = d3.select(containerSelector);
 
@@ -45,11 +38,11 @@ function renderTierHistogram(
   container.selectAll('*').remove();
 
   if (
-    !Array.isArray(data)
-    || !data.length
-    || typeof metricPercent !== 'function'
-    || breakpoints?.length !== 4
-    || colors?.length !== 5
+    !Array.isArray(data) ||
+    !data.length ||
+    typeof metricPercent !== 'function' ||
+    breakpoints?.length !== 4 ||
+    colors?.length !== 5
   ) {
     container
       .append('p')
@@ -59,9 +52,7 @@ function renderTierHistogram(
     return;
   }
 
-  const values = data
-    .map((row) => metricPercent(row))
-    .filter((value) => Number.isFinite(value));
+  const values = data.map((row) => metricPercent(row)).filter((value) => Number.isFinite(value));
 
   const rawMax = d3.max(values) ?? 100;
   // Max value for areas with too few data points (ex. 1-4 counties)
@@ -70,29 +61,28 @@ function renderTierHistogram(
   const noDataCount = data.length - values.length;
   const edges = [0, ...breakpoints, domainMax];
 
-  const tiers = colors.map((color, index) => {
-    const lower = edges[index];
-    const upper = edges[index + 1];
-    const isLastTier = index === colors.length - 1;
+  const tiers = colors
+    .map((color, index) => {
+      const lower = edges[index];
+      const upper = edges[index + 1];
+      const isLastTier = index === colors.length - 1;
 
-    const count = values.filter(
-      (value) => value >= lower && (isLastTier ? value <= upper : value < upper),
-    ).length;
+      const count = values.filter(
+        (value) => value >= lower && (isLastTier ? value <= upper : value < upper),
+      ).length;
 
-    return {
-      lower,
-      upper,
-      color,
-      count,
-      label: `${lower}%–${upper}%`,
-    };
-  })
-  .filter((tier) => tier.count > 0);
+      return {
+        lower,
+        upper,
+        color,
+        count,
+        label: `${lower}%–${upper}%`,
+      };
+    })
+    .filter((tier) => tier.count > 0);
 
- const title = `${contextLabel}: ${metricLabel} Enrollment Distribution Count`;
- const countLabel = `Number of ${areaLabel.toLowerCase()}`;
-
-
+  const title = `${contextLabel}: ${metricLabel} Enrollment Distribution Count`;
+  const countLabel = `Number of ${areaLabel.toLowerCase()}`;
 
   const figure = container
     .append('div')
@@ -112,36 +102,19 @@ function renderTierHistogram(
     .attr('aria-hidden', 'true')
     .attr('focusable', 'false');
 
-  const innerWidth =
-    HISTOGRAM_WIDTH
-    - HISTOGRAM_MARGIN.left
-    - HISTOGRAM_MARGIN.right;
+  const innerWidth = HISTOGRAM_WIDTH - HISTOGRAM_MARGIN.left - HISTOGRAM_MARGIN.right;
 
-  const innerHeight =
-    HISTOGRAM_HEIGHT
-    - HISTOGRAM_MARGIN.top
-    - HISTOGRAM_MARGIN.bottom;
+  const innerHeight = HISTOGRAM_HEIGHT - HISTOGRAM_MARGIN.top - HISTOGRAM_MARGIN.bottom;
 
   const chart = svg
     .append('g')
-    .attr(
-      'transform',
-      `translate(${HISTOGRAM_MARGIN.left},${HISTOGRAM_MARGIN.top})`,
-    );
+    .attr('transform', `translate(${HISTOGRAM_MARGIN.left},${HISTOGRAM_MARGIN.top})`);
 
-  const x = d3
-    .scaleLinear()
-    .domain([0, domainMax])
-    .range([0, innerWidth]);
+  const x = d3.scaleLinear().domain([0, domainMax]).range([0, innerWidth]);
 
   const maxCount = d3.max(tiers, (tier) => tier.count) || 1;
 
-  const y = d3
-    .scaleLinear()
-    .domain([0, maxCount])
-    .nice()
-    .range([innerHeight, 0]);
-
+  const y = d3.scaleLinear().domain([0, maxCount]).nice().range([innerHeight, 0]);
 
   chart
     .selectAll('.map-tier-histogram__bar')
@@ -150,10 +123,7 @@ function renderTierHistogram(
     .attr('class', 'map-tier-histogram__bar')
     .attr('x', (tier) => x(tier.lower) + 1)
     .attr('y', (tier) => y(tier.count))
-    .attr(
-      'width',
-      (tier) => Math.max(0, x(tier.upper) - x(tier.lower) - 2),
-    )
+    .attr('width', (tier) => Math.max(0, x(tier.upper) - x(tier.lower) - 2))
     .attr('height', (tier) => innerHeight - y(tier.count))
     .attr('fill', (tier) => tier.color);
 
@@ -162,10 +132,7 @@ function renderTierHistogram(
     .data(tiers)
     .join('text')
     .attr('class', 'map-tier-histogram__count')
-    .attr(
-      'x',
-      (tier) => x(tier.lower) + ((x(tier.upper) - x(tier.lower)) / 2),
-    )
+    .attr('x', (tier) => x(tier.lower) + (x(tier.upper) - x(tier.lower)) / 2)
     .attr('y', (tier) => y(tier.count) - 7)
     .attr('text-anchor', 'middle')
     .text((tier) => tier.count);
@@ -182,15 +149,9 @@ function renderTierHistogram(
     .attr('transform', `translate(0,${innerHeight})`)
     .call(xAxis);
 
-  container
-  .append('p')
-  .attr('class', 'map-tier-histogram__title')
-  .text(title);
+  container.append('p').attr('class', 'map-tier-histogram__title').text(title);
 
-  container
-    .append('p')
-    .attr('class', 'map-tier-histogram__subtitle')
-    .text(countLabel);
+  container.append('p').attr('class', 'map-tier-histogram__subtitle').text(countLabel);
 }
 
 export default renderTierHistogram;

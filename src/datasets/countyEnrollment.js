@@ -32,7 +32,7 @@ async function fetchCountiesForState(options = {}, { signal } = {}) {
   const { state, year, month } = options;
 
   if (!state) {
-    throw new Error('fetchCountiesForState requires options.state (e.g. \'NY\')');
+    throw new Error("fetchCountiesForState requires options.state (e.g. 'NY')");
   }
 
   const hasPeriod = Boolean(year && month);
@@ -44,7 +44,7 @@ async function fetchCountiesForState(options = {}, { signal } = {}) {
     'sort[YEAR]': 'DESC',
     'sort[MONTH]': 'DESC',
     column: COUNTY_COLUMNS.join(','),
-      size: hasPeriod ? '300' : '5000',
+    size: hasPeriod ? '300' : '5000',
   });
 
   const rawData = await cmsGet(queryParams, { signal });
@@ -67,7 +67,9 @@ export async function fetchCountyEnrollment(options = {}, { signal } = {}) {
   const { state, county } = options;
 
   if (!state || !county) {
-    throw new Error('fetchCountyEnrollment requires options.state and options.county (e.g. { state: \'NY\', county: \'Kings\' })');
+    throw new Error(
+      "fetchCountyEnrollment requires options.state and options.county (e.g. { state: 'NY', county: 'Kings' })",
+    );
   }
 
   const queryParams = new URLSearchParams({

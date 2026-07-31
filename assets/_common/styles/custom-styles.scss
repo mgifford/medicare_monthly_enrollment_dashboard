@@ -1,5 +1,5 @@
 @use '../../_common/styles/brand-colors' as *;
-@use 'uswds-core' as * ;
+@use 'uswds-core' as *;
 
 $bullet-spacing: 1.25rem;
 
@@ -13,7 +13,12 @@ $bullet-spacing: 1.25rem;
 }
 
 // Set heading colors
-h1, h2, h3, h4, h5, h6 {
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
   color: color('primary-darker');
 }
 

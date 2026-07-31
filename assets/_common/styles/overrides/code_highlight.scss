@@ -1,8 +1,8 @@
-@use 'uswds-core' as * ;
+@use 'uswds-core' as *;
 
 // Overrides to the default Prism theme to provide better color contrast
 
-pre[class*="language-"] {
+pre[class*='language-'] {
   @include u-radius('md');
 }
 
@@ -30,7 +30,6 @@ pre[class*="language-"] {
   color: color('indigo-warm-60v');
 }
 
-
 .token.comment,
 .token.prolog,
 .token.doctype,
@@ -40,7 +39,6 @@ pre[class*="language-"] {
 
 .token.regex,
 .token.important,
-.token.variable { 
+.token.variable {
   color: color('orange-60v');
 }
-

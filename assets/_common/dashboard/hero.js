@@ -12,8 +12,16 @@ function buildHeroCardConfigs(yearlyWithLatest) {
   return {
     hospital: {
       data: [
-        { name: hospitalLabels.type2.label, label: hospitalLabels.type2.labelLong, value: currentYear[hospitalLabels.type2.percentKey] },
-        { name: hospitalLabels.type1.label, label: hospitalLabels.type1.labelLong, value: currentYear[hospitalLabels.type1.percentKey] },
+        {
+          name: hospitalLabels.type2.label,
+          label: hospitalLabels.type2.labelLong,
+          value: currentYear[hospitalLabels.type2.percentKey],
+        },
+        {
+          name: hospitalLabels.type1.label,
+          label: hospitalLabels.type1.labelLong,
+          value: currentYear[hospitalLabels.type1.percentKey],
+        },
       ],
       total: currentYear[hospitalLabels.total.key],
       options: {
@@ -27,8 +35,16 @@ function buildHeroCardConfigs(yearlyWithLatest) {
     },
     drug: {
       data: [
-        { name: drugLabels.type2.label, label: drugLabels.type2.labelLong, value: currentYear[drugLabels.type2.percentKey] },
-        { name: drugLabels.type1.label, label: drugLabels.type1.labelLong, value: currentYear[drugLabels.type1.percentKey] },
+        {
+          name: drugLabels.type2.label,
+          label: drugLabels.type2.labelLong,
+          value: currentYear[drugLabels.type2.percentKey],
+        },
+        {
+          name: drugLabels.type1.label,
+          label: drugLabels.type1.labelLong,
+          value: currentYear[drugLabels.type1.percentKey],
+        },
       ],
       total: currentYear[drugLabels.total.key],
       options: {
@@ -69,7 +85,9 @@ export default function initHeroCard(yearlyWithLatest) {
       renderEnrollmentHeroCard(dashboardType);
       // Lets future features (state maps, tables, etc.) react to the
       // dataset swap without this handler needing to know about them.
-      document.dispatchEvent(new CustomEvent('dashboard:typechange', { detail: { type: dashboardType } }));
+      document.dispatchEvent(
+        new CustomEvent('dashboard:typechange', { detail: { type: dashboardType } }),
+      );
     });
   });
 }

@@ -30,7 +30,7 @@ export async function fetchStateEnrollment(options = {}, { signal } = {}) {
   const { state } = options;
 
   if (!state) {
-    throw new Error('fetchStateEnrollment requires options.state (e.g. \'NY\')');
+    throw new Error("fetchStateEnrollment requires options.state (e.g. 'NY')");
   }
 
   const queryParams = new URLSearchParams({

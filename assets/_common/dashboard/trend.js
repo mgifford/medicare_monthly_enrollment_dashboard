@@ -3,12 +3,7 @@ import requestDataset from '../../../src/router';
 import renderTable from '../tables/renderTable';
 import { sortYearlyAscending, sortMonthlyAscending, observeResize } from '../charts/utils';
 import { buildTrendGridColumns } from '../tables/gridColumns';
-import {
-  toggleSort,
-  makeDrawerEls,
-  makeOverlayEls,
-  createPopup,
-} from './shared';
+import { toggleSort, makeDrawerEls, makeOverlayEls, createPopup } from './shared';
 import { DASHBOARD_TREND_CHARTS } from '../charts/index';
 import createRequestGuard from '../requestGuard';
 import DASHBOARD_LABELS from '../labels';
@@ -23,18 +18,32 @@ export default function initTrend(state, yearlyWithLatest, monthly) {
 
   const trendChartFns = {
     hospital: {
-      yearly: { line: DASHBOARD_TREND_CHARTS.hospital.yearlyLine, bar: DASHBOARD_TREND_CHARTS.hospital.yearlyBar },
-      monthly: { line: DASHBOARD_TREND_CHARTS.hospital.monthlyLine, bar: DASHBOARD_TREND_CHARTS.hospital.monthlyBar },
+      yearly: {
+        line: DASHBOARD_TREND_CHARTS.hospital.yearlyLine,
+        bar: DASHBOARD_TREND_CHARTS.hospital.yearlyBar,
+      },
+      monthly: {
+        line: DASHBOARD_TREND_CHARTS.hospital.monthlyLine,
+        bar: DASHBOARD_TREND_CHARTS.hospital.monthlyBar,
+      },
     },
     drug: {
-      yearly: { line: DASHBOARD_TREND_CHARTS.drug.yearlyLine, bar: DASHBOARD_TREND_CHARTS.drug.yearlyBar },
-      monthly: { line: DASHBOARD_TREND_CHARTS.drug.monthlyLine, bar: DASHBOARD_TREND_CHARTS.drug.monthlyBar },
+      yearly: {
+        line: DASHBOARD_TREND_CHARTS.drug.yearlyLine,
+        bar: DASHBOARD_TREND_CHARTS.drug.yearlyBar,
+      },
+      monthly: {
+        line: DASHBOARD_TREND_CHARTS.drug.monthlyLine,
+        bar: DASHBOARD_TREND_CHARTS.drug.monthlyBar,
+      },
     },
   };
 
   state.trend.nationalTrendData = { yearly: yearlyWithLatest, monthly };
 
-  const programLabel = (type) => (type === 'drug' ? DASHBOARD_LABELS.prescriptionDrug : DASHBOARD_LABELS.hospitalMedical).programName;
+  const programLabel = (type) =>
+    (type === 'drug' ? DASHBOARD_LABELS.prescriptionDrug : DASHBOARD_LABELS.hospitalMedical)
+      .programName;
 
   const trendContextLabel = () => {
     if (state.trend.trendScope === 'county' && state.trend.trendArea?.county) {
@@ -47,8 +56,12 @@ export default function initTrend(state, yearlyWithLatest, monthly) {
   };
 
   const currentTrendBucket = () => {
-    if (state.trend.trendScope === 'state' && state.trend.trendArea) return state.trend.stateTrendCache.get(state.trend.trendArea.state);
-    if (state.trend.trendScope === 'county' && state.trend.trendArea) return state.trend.countyTrendCache.get(`${state.trend.trendArea.state}|${state.trend.trendArea.county}`);
+    if (state.trend.trendScope === 'state' && state.trend.trendArea)
+      return state.trend.stateTrendCache.get(state.trend.trendArea.state);
+    if (state.trend.trendScope === 'county' && state.trend.trendArea)
+      return state.trend.countyTrendCache.get(
+        `${state.trend.trendArea.state}|${state.trend.trendArea.county}`,
+      );
     return state.trend.nationalTrendData;
   };
 
@@ -64,21 +77,28 @@ export default function initTrend(state, yearlyWithLatest, monthly) {
   // Shared by the desktop overlay's grid view and the mobile trend drawer.
   const renderTrendGrid = (selector) => {
     const data = currentTrendBucket()?.[state.trend.activeTrendRange];
-    const ascending = state.trend.activeTrendRange === 'yearly'
-      ? sortYearlyAscending(data || [])
-      : sortMonthlyAscending(data || []);
+    const ascending =
+      state.trend.activeTrendRange === 'yearly'
+        ? sortYearlyAscending(data || [])
+        : sortMonthlyAscending(data || []);
     const sorted = state.trend.trendGridSort.direction === 'asc' ? ascending : ascending.reverse();
     if (!sorted.length) {
-      document.querySelector(selector).innerHTML = '<p class="data-grid-placeholder">No trend data available for this selection.</p>';
+      document.querySelector(selector).innerHTML =
+        '<p class="data-grid-placeholder">No trend data available for this selection.</p>';
     } else {
-      renderTable(selector, buildTrendGridColumns(state.trend.activeTrendType, state.trend.activeTrendRange), sorted, {
-        sortState: state.trend.trendGridSort,
-        sortableIndex: 0,
-        onSort: () => {
-          state.trend.trendGridSort = toggleSort(state.trend.trendGridSort, 0);
-          renderTrendGrid(selector);
+      renderTable(
+        selector,
+        buildTrendGridColumns(state.trend.activeTrendType, state.trend.activeTrendRange),
+        sorted,
+        {
+          sortState: state.trend.trendGridSort,
+          sortableIndex: 0,
+          onSort: () => {
+            state.trend.trendGridSort = toggleSort(state.trend.trendGridSort, 0);
+            renderTrendGrid(selector);
+          },
         },
-      });
+      );
     }
   };
 
@@ -100,9 +120,11 @@ export default function initTrend(state, yearlyWithLatest, monthly) {
     const data = currentTrendBucket()?.[state.trend.activeTrendRange];
     const hasData = Boolean(data && data.length);
     const fns = trendChartFns[state.trend.activeTrendType][state.trend.activeTrendRange];
-    const host = state.trend.overlayTrendView === 'line' ? '#trend-overlay-line' : '#trend-overlay-bar';
+    const host =
+      state.trend.overlayTrendView === 'line' ? '#trend-overlay-line' : '#trend-overlay-bar';
     if (!hasData) {
-      document.querySelector(host).innerHTML = '<p class="data-grid-placeholder">No trend data available for this selection.</p>';
+      document.querySelector(host).innerHTML =
+        '<p class="data-grid-placeholder">No trend data available for this selection.</p>';
       return;
     }
     if (state.trend.overlayTrendView === 'line') {
@@ -114,7 +136,8 @@ export default function initTrend(state, yearlyWithLatest, monthly) {
 
   const updateTrendDrawerTrigger = () => {
     const desc = document.querySelector('#trend-mobile-trigger-desc');
-    if (desc) desc.textContent = `Open to view the full ${state.trend.activeTrendRange} trend data table.`;
+    if (desc)
+      desc.textContent = `Open to view the full ${state.trend.activeTrendRange} trend data table.`;
   };
 
   const renderTrendDrawer = () => {
@@ -135,7 +158,8 @@ export default function initTrend(state, yearlyWithLatest, monthly) {
     if (state.trend.trendDrawerOpen) renderTrendDrawer();
   };
 
-  const trendLoadingHtml = '<p class="data-grid-placeholder trend-loading" role="status" aria-live="polite"><span class="trend-loading__spinner" aria-hidden="true"></span>Loading trend…</p>';
+  const trendLoadingHtml =
+    '<p class="data-grid-placeholder trend-loading" role="status" aria-live="polite"><span class="trend-loading__spinner" aria-hidden="true"></span>Loading trend…</p>';
 
   const showTrendLoading = () => {
     d3.select('#national-trend-sub').text(trendContextLabel());
@@ -173,9 +197,8 @@ export default function initTrend(state, yearlyWithLatest, monthly) {
       if (!cache.has(key)) {
         showTrendLoading();
         const service = scope === 'state' ? 'stateEnrollment' : 'countyTrend';
-        const params = scope === 'state'
-          ? { state: area.state }
-          : { state: area.state, county: area.county };
+        const params =
+          scope === 'state' ? { state: area.state } : { state: area.state, county: area.county };
         try {
           const trendData = await requestDataset(service, params, { signal });
           if (isStale()) return;
@@ -208,7 +231,9 @@ export default function initTrend(state, yearlyWithLatest, monthly) {
   overlayRangeTabs.forEach((tab) => {
     tab.addEventListener('click', () => {
       state.trend.activeTrendRange = tab.dataset.range;
-      trendRangeTabs.forEach((t) => t.setAttribute('aria-selected', String(t.dataset.range === state.trend.activeTrendRange)));
+      trendRangeTabs.forEach((t) =>
+        t.setAttribute('aria-selected', String(t.dataset.range === state.trend.activeTrendRange)),
+      );
       syncOverlayControls();
       renderTrend();
     });
@@ -224,14 +249,18 @@ export default function initTrend(state, yearlyWithLatest, monthly) {
   });
 
   observeResize('#chartsView', renderTrend);
-  observeResize('#trend-overlay-body', () => { if (state.trend.trendOverlayOpen) renderTrendOverlay(); });
+  observeResize('#trend-overlay-body', () => {
+    if (state.trend.trendOverlayOpen) renderTrendOverlay();
+  });
 
   // ---- Mobile trend-card carousel (line chart / bar placeholder / grid)
   // Independent of activeTrendRange(yearly/monthly)/activeDashboardType
 
   const trendCarouselTrack = document.querySelector('#chartsView');
   const trendPanels = Array.from(document.querySelectorAll('#chartsView > .trend-panel'));
-  const trendDots = Array.from(document.querySelectorAll('#trend-carousel-dots .trend-carousel-dot'));
+  const trendDots = Array.from(
+    document.querySelectorAll('#trend-carousel-dots .trend-carousel-dot'),
+  );
 
   const trendPanelFor = (view) => trendPanels.find((panel) => panel.dataset.view === view);
 
@@ -257,16 +286,22 @@ export default function initTrend(state, yearlyWithLatest, monthly) {
   // Passive: never calls preventDefault, so it can't interfere with the
   // native scroll-snap touch gesture.
   if (trendCarouselTrack && trendPanels.length) {
-    trendCarouselTrack.addEventListener('scroll', () => {
-      const { scrollLeft } = trendCarouselTrack;
-      const closest = trendPanels.reduce((best, panel) => (
-        Math.abs(panel.offsetLeft - scrollLeft) < Math.abs(best.offsetLeft - scrollLeft) ? panel : best
-      ));
-      if (closest.dataset.view !== state.trend.activeTrendView) {
-        state.trend.activeTrendView = closest.dataset.view;
-        setActiveTrendDot(state.trend.activeTrendView);
-      }
-    }, { passive: true });
+    trendCarouselTrack.addEventListener(
+      'scroll',
+      () => {
+        const { scrollLeft } = trendCarouselTrack;
+        const closest = trendPanels.reduce((best, panel) =>
+          Math.abs(panel.offsetLeft - scrollLeft) < Math.abs(best.offsetLeft - scrollLeft)
+            ? panel
+            : best,
+        );
+        if (closest.dataset.view !== state.trend.activeTrendView) {
+          state.trend.activeTrendView = closest.dataset.view;
+          setActiveTrendDot(state.trend.activeTrendView);
+        }
+      },
+      { passive: true },
+    );
   }
 
   const trendOverlayEls = makeOverlayEls('trend'); // tabsSlot resolves to null (no tabs-slot markup) and is unused

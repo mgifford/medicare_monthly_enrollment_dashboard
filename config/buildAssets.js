@@ -33,17 +33,13 @@ async function createAssetPaths() {
   const assetsFiles = await Promise.all(
     assetDirs.map(async (dir) => {
       const files = [];
-      for await (const f of getFilesInDirectory(
-        path.join(__dirname, '../_site/assets', dir),
-      )) {
+      for await (const f of getFilesInDirectory(path.join(__dirname, '../_site/assets', dir))) {
         files.push(f);
       }
       return files.map((file) => {
         const { name, ext } = path.parse(file);
         const publicDir = '_site/';
-        const assetDirs = file.slice(
-          file.indexOf(publicDir) + publicDir.length,
-        );
+        const assetDirs = file.slice(file.indexOf(publicDir) + publicDir.length);
         const hashedAt = name.lastIndexOf('-');
         const originalName = name.slice(0, hashedAt);
         const key = `${originalName}${ext}`;
@@ -61,10 +57,7 @@ async function createAssetPaths() {
 
 esbuild
   .build({
-    entryPoints: [
-      'assets/_common/styles/styles.scss',
-      'assets/_common/dashboard/app.js',
-    ],
+    entryPoints: ['assets/_common/styles/styles.scss', 'assets/_common/dashboard/app.js'],
     entryNames: '[dir]/[name]-[hash]',
     assetNames: 'fonts/[name]-[hash]',
     outdir: '_site/assets/',
@@ -82,10 +75,7 @@ esbuild
     target: ['chrome58', 'firefox57', 'safari11', 'edge18'],
     plugins: [
       sassPlugin({
-        loadPaths: [
-          './node_modules/@uswds',
-          './node_modules/@uswds/uswds/packages',
-        ],
+        loadPaths: ['./node_modules/@uswds', './node_modules/@uswds/uswds/packages'],
       }),
     ],
     bundle: true,

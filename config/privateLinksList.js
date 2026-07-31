@@ -1,5 +1,3 @@
-const privateLinks = [
-  'cms.gov'
-];
+const privateLinks = ['cms.gov'];
 
 module.exports = privateLinks;

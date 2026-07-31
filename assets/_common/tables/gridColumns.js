@@ -41,9 +41,10 @@ const stateNameColumn = {
   label: 'State',
   value: (d) => d.stateName,
   sortValue: (d) => d.stateName,
-  html: (d) => (mappableStateNames.has(d.stateName)
-    ? d.stateName
-    : `${d.stateName} <span class="data-grid-unmappable-note" title="Not part of the state map — this area can't be selected."><svg class="data-grid-unmappable-note__icon" aria-hidden="true" focusable="false"><use xlink:href="#svg-warning"></use></svg>Not on map</span>`),
+  html: (d) =>
+    mappableStateNames.has(d.stateName)
+      ? d.stateName
+      : `${d.stateName} <span class="data-grid-unmappable-note" title="Not part of the state map — this area can't be selected."><svg class="data-grid-unmappable-note__icon" aria-hidden="true" focusable="false"><use xlink:href="#svg-warning"></use></svg>Not on map</span>`,
 };
 
 // Counties with no usable total (ex. Kalawao County, HI, where CMS
@@ -75,8 +76,16 @@ function buildMetricColumns(labels) {
     countCol('TOTAL', (d) => d[labels.total.key]),
     countCol(labels.type1.label, (d) => d[labels.type1.key]),
     countCol(labels.type2.label, (d) => d[labels.type2.key]),
-    { label: `${labels.type1.label} %`, value: (d) => roundPct(d[labels.type1.percentKey]), sortValue: (d) => d[labels.type1.percentKey] },
-    { label: `${labels.type2.label} %`, value: (d) => roundPct(d[labels.type2.percentKey]), sortValue: (d) => d[labels.type2.percentKey] },
+    {
+      label: `${labels.type1.label} %`,
+      value: (d) => roundPct(d[labels.type1.percentKey]),
+      sortValue: (d) => d[labels.type1.percentKey],
+    },
+    {
+      label: `${labels.type2.label} %`,
+      value: (d) => roundPct(d[labels.type2.percentKey]),
+      sortValue: (d) => d[labels.type2.percentKey],
+    },
   ];
 }
 
@@ -94,14 +103,19 @@ const hospitalCountyColumns = buildCountyColumns('hospital', hospitalLabels);
 const drugCountyColumns = buildCountyColumns('drug', drugLabels);
 
 export const areaColumnsFor = (type) => (type === 'drug' ? drugAreaColumns : hospitalAreaColumns);
-export const countyColumnsFor = (type) => (type === 'drug' ? drugCountyColumns : hospitalCountyColumns);
+export const countyColumnsFor = (type) =>
+  type === 'drug' ? drugCountyColumns : hospitalCountyColumns;
 
 // range is passed explicitly (rather than read from caller-side state) so
 // this stays a pure function of its arguments.
 export function buildTrendGridColumns(type, range) {
-  const periodCols = range === 'monthly'
-    ? [{ label: 'Year', value: (d) => d.year }, { label: 'Month', value: (d) => d.month }]
-    : [{ label: 'Year', value: (d) => d.year }];
+  const periodCols =
+    range === 'monthly'
+      ? [
+          { label: 'Year', value: (d) => d.year },
+          { label: 'Month', value: (d) => d.month },
+        ]
+      : [{ label: 'Year', value: (d) => d.year }];
 
   const { total, type1, type2 } = dashboardLabelsFor(type);
 

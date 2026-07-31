@@ -1,38 +1,33 @@
 @use 'brand-colors' as *;
 @use 'uswds-core' as * with (
-
   /*---------------------------------------------------------
   # Meta Settings
   ----------------------------------------------------------*/
-  $theme-show-notifications: false,
+    $theme-show-notifications: false,
   $theme-font-path: '../../../node_modules/@uswds/uswds/dist/fonts',
   $theme-image-path: '../../../node_modules/@uswds/uswds/dist/img',
-
 
   /*---------------------------------------------------------
   # Global Settings
   ----------------------------------------------------------*/
-  $theme-global-link-styles: true,
-
+    $theme-global-link-styles: true,
 
   /*---------------------------------------------------------
   # Typography Settings
   ----------------------------------------------------------*/
-  $theme-font-type-sans: 'public-sans',
+    $theme-font-type-sans: 'public-sans',
   $theme-font-type-cond: 'source-sans-pro',
   $theme-font-role-heading: 'sans',
   $theme-body-font-size: 'md',
   $theme-font-weight-semibold: 700,
 
-
   /*---------------------------------------------------------
   # Color Settings
   ----------------------------------------------------------*/
-
-  /*------------------------------------------------
+    /*------------------------------------------------
   ## Primary color
   -------------------------------------------------*/
-  $theme-color-primary-darkest: 'blue-warm-80v',
+    $theme-color-primary-darkest: 'blue-warm-80v',
   $theme-color-primary-darker: 'blue-warm-80v',
   $theme-color-primary-dark: 'blue-warm-70v',
   $theme-color-primary: 'blue-60v',
@@ -42,13 +37,13 @@
 
   /*------------------------------------------------
   ## Ink color
-  -------------------------------------------------*/ 
-  $theme-color-base-ink: 'blue-90',
+  -------------------------------------------------*/
+    $theme-color-base-ink: 'blue-90',
 
   /*------------------------------------------------
   ## Accent color
   -------------------------------------------------*/
-  $theme-color-accent-cool-darkest: 'cyan-80v',
+    $theme-color-accent-cool-darkest: 'cyan-80v',
   $theme-color-accent-cool-darker: 'cyan-70v',
   $theme-color-accent-cool-dark: 'cyan-50v',
   $theme-color-accent-cool: $brand-color-bright,
@@ -59,32 +54,27 @@
   /*------------------------------------------------
   ## Error color
   -------------------------------------------------*/
-  $theme-color-error-lighter: 'red-warm-5v',
-   
+    $theme-color-error-lighter: 'red-warm-5v',
+
   /*---------------------------------------------------------
   # Component Settings
   ----------------------------------------------------------*/
-
-  /*------------------------------------------------
+    /*------------------------------------------------
   ## Header width
   -------------------------------------------------*/
-  $theme-header-logo-text-width: 70%,
+    $theme-header-logo-text-width: 70%,
 
   /*------------------------------------------------
   ## Buttons
   -------------------------------------------------*/
-  $theme-button-font-family: 'cond',
+    $theme-button-font-family: 'cond',
 
   /*---------------------------------------------------------
   # Utility Settings
   ----------------------------------------------------------*/
-  $theme-utility-breakpoints: (
-    'tablet-lg': true,
-  ),
-
+    $theme-utility-breakpoints: ('tablet-lg': true),
   /*------------------------------------------------
   ## Tables
-  -------------------------------------------------*/ 
-  $theme-table-header-background-color: base-lightest,
-
+  -------------------------------------------------*/
+    $theme-table-header-background-color: base-lightest
 );

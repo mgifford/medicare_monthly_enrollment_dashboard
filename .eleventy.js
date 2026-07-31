@@ -1,18 +1,18 @@
 const fs = require('fs');
-const { EleventyRenderPlugin } = require("@11ty/eleventy");
+const { EleventyRenderPlugin } = require('@11ty/eleventy');
 const pluginRss = require('@11ty/eleventy-plugin-rss');
 const pluginNavigation = require('@11ty/eleventy-navigation');
 const markdownIt = require('markdown-it');
 const markdownItAttrs = require('markdown-it-attrs');
 const markdownItAnchor = require('markdown-it-anchor');
 const markdownItFootnote = require('markdown-it-footnote');
-const { readableDate, htmlDateString, head, min, filterTagList } = require("./config/filters");
-const { headingLinks } = require("./config/headingLinks");
-const { contrastRatio, humanReadableContrastRatio } = require("./config/wcagColorContrast");
+const { readableDate, htmlDateString, head, min, filterTagList } = require('./config/filters');
+const { headingLinks } = require('./config/headingLinks');
+const { contrastRatio, humanReadableContrastRatio } = require('./config/wcagColorContrast');
 const privateLinks = require('./config/privateLinksList.js');
-const svgSprite = require("eleventy-plugin-svg-sprite");
-const syntaxHighlight = require("@11ty/eleventy-plugin-syntaxhighlight");
-const yaml = require("js-yaml");
+const svgSprite = require('eleventy-plugin-svg-sprite');
+const syntaxHighlight = require('@11ty/eleventy-plugin-syntaxhighlight');
+const yaml = require('js-yaml');
 
 const { imageShortcode, imageWithClassShortcode, imageUrl } = require('./config');
 
@@ -24,22 +24,22 @@ module.exports = function (config) {
 
   config.addPlugin(EleventyRenderPlugin);
 
-  config.addPassthroughCopy("assets");
-  config.addPassthroughCopy("src");
+  config.addPassthroughCopy('assets');
+  config.addPassthroughCopy('src');
 
   // Copy the robots.txt file to the output
   config.addPassthroughCopy('robots.txt');
 
   // Specific scripts to guides
-  config.addPassthroughCopy("./assets/_common/dashboard/*");
-  config.addPassthroughCopy("./assets/**/js/*");
+  config.addPassthroughCopy('./assets/_common/dashboard/*');
+  config.addPassthroughCopy('./assets/**/js/*');
 
   config.addPassthroughCopy({ './assets/_common/_img/favicons/favicon.ico': './favicon.ico' });
   config.addPassthroughCopy({ './assets/_common/_img/favicons': './img/favicons' });
 
   // Set download paths
   // Place files for download in assets/{guide}/dist/{filename.ext}
-  config.addPassthroughCopy("./assets/**/dist/*");
+  config.addPassthroughCopy('./assets/**/dist/*');
 
   // Add plugins
   config.addPlugin(pluginRss);
@@ -47,23 +47,23 @@ module.exports = function (config) {
 
   //// SVG Sprite Plugin for USWDS USWDS icons
   config.addPlugin(svgSprite, {
-    path: "./node_modules/@uswds/uswds/dist/img/uswds-icons",
+    path: './node_modules/@uswds/uswds/dist/img/uswds-icons',
     svgSpriteShortcode: 'uswds_icons_sprite',
-    svgShortcode: 'uswds_icons'
+    svgShortcode: 'uswds_icons',
   });
 
   //// SVG Sprite Plugin for USWDS USA icons
   config.addPlugin(svgSprite, {
-    path: "./node_modules/@uswds/uswds/dist/img/usa-icons",
+    path: './node_modules/@uswds/uswds/dist/img/usa-icons',
     svgSpriteShortcode: 'usa_icons_sprite',
-    svgShortcode: 'usa_icons'
+    svgShortcode: 'usa_icons',
   });
 
   // Plugin to style code blocks
   config.addPlugin(syntaxHighlight);
 
   // Allow yaml to be used in the _data dir
-  config.addDataExtension("yaml", contents => yaml.load(contents));
+  config.addDataExtension('yaml', (contents) => yaml.load(contents));
 
   // Filters
   // Add filter function defintions to config/filters.js, then add the functions
@@ -84,11 +84,11 @@ module.exports = function (config) {
     return new URL(relativeUrl, host).href;
   });
 
-  config.addFilter("makeUppercase", (value) => {
+  config.addFilter('makeUppercase', (value) => {
     return value.toUpperCase();
   });
 
-  config.addFilter("capitalize", (value) => {
+  config.addFilter('capitalize', (value) => {
     return value.charAt(0).toUpperCase() + value.slice(1);
   });
 
@@ -112,22 +112,24 @@ module.exports = function (config) {
     html: true,
     breaks: false,
     linkify: false,
-  }).use(markdownItAnchor, {
-    permalink: headingLinks,
-    slugify: config.getFilter('slugify'),
-  }).use(markdownItAttrs).use(markdownItFootnote);
+  })
+    .use(markdownItAnchor, {
+      permalink: headingLinks,
+      slugify: config.getFilter('slugify'),
+    })
+    .use(markdownItAttrs)
+    .use(markdownItFootnote);
   config.setLibrary('md', markdownLibrary);
 
   // Override Footnote opener
-  markdownLibrary.renderer.rules.footnote_block_open = () => (
-    '<section class="footnotes">\n' +
-    '<ol class="footnotes-list">\n'
-  );
+  markdownLibrary.renderer.rules.footnote_block_open = () =>
+    '<section class="footnotes">\n' + '<ol class="footnotes-list">\n';
 
   // Add icons for links with locked resources and external links
   // https://github.com/markdown-it/markdown-it/blob/master/docs/architecture.md
   // Token methods:  https://github.com/markdown-it/markdown-it/blob/master/lib/token.js#L125
-  const openDefaultRender = markdownLibrary.renderer.rules.link_open ||
+  const openDefaultRender =
+    markdownLibrary.renderer.rules.link_open ||
     function (tokens, idx, options, env, self) {
       return self.renderToken(tokens, idx, options);
     };
@@ -136,11 +138,12 @@ module.exports = function (config) {
     const token = tokens[idx];
     let prefixIcon = '';
     if (privateLinks.some((link) => token.attrGet('href').indexOf(link) >= 0)) {
-      prefixIcon = '<span class="usa-sr-only"> CMS only, </span>' +
+      prefixIcon =
+        '<span class="usa-sr-only"> CMS only, </span>' +
         '<svg class="usa-icon margin-top-2px margin-right-2px top-2px" ' +
         'aria-hidden="true" role="img">' +
         '<use xlink:href="#svg-lock_outline"></use>' +
-        '</svg>'
+        '</svg>';
     }
 
     // Check for external URLs. External means any site that is not a federal .gov url
@@ -150,21 +153,22 @@ module.exports = function (config) {
     const hrefValue = token.attrGet('href');
 
     // TODO: Update to .gov domain when site uses a gov domain
-    if (!(new URL(hrefValue, baseURL).hostname.endsWith(".io"))) {
+    if (!new URL(hrefValue, baseURL).hostname.endsWith('.io')) {
       // Add the external link class if it hasn't been added yet
-      if (!(token.attrGet('class')) || !(token.attrGet('class').includes('usa-link--external'))) {
+      if (!token.attrGet('class') || !token.attrGet('class').includes('usa-link--external')) {
         token.attrJoin('class', 'usa-link usa-link--external');
       }
 
       // Set rel=noreferrer if it hasn't been set yet
-      if (!(token.attrGet('rel')) || !(token.attrGet('rel').includes('noreferrer'))) {
+      if (!token.attrGet('rel') || !token.attrGet('rel').includes('noreferrer')) {
         token.attrJoin('rel', 'noreferrer');
       }
     }
     return openDefaultRender(tokens, idx, options, env, self) + `${prefixIcon}`;
   };
 
-  const defaultHtmlBlockRender = markdownLibrary.renderer.rules.html_block ||
+  const defaultHtmlBlockRender =
+    markdownLibrary.renderer.rules.html_block ||
     function (tokens, idx, options, env, self) {
       return self.renderToken(tokens, idx, options);
     };
@@ -180,7 +184,7 @@ module.exports = function (config) {
     if (htmlIncludesLinks) {
       const matches = content.match(hrefRE);
 
-      matches.forEach(anchorElement => {
+      matches.forEach((anchorElement) => {
         if (!anchorElement.includes('.gov')) {
           if (!anchorElement.includes('class=')) {
             if (!anchorElement.includes('usa-link--external')) {
@@ -208,10 +212,11 @@ module.exports = function (config) {
     }
 
     return defaultHtmlBlockRender(tokens, idx, options, env, self);
-  }
+  };
 
   // Also need to add icon links to any html style links
-  const inlineHTMLDefaultRender = markdownLibrary.renderer.rules.html_inline ||
+  const inlineHTMLDefaultRender =
+    markdownLibrary.renderer.rules.html_inline ||
     function (tokens, idx, options, env, self) {
       return self.renderToken(tokens, idx, options);
     };
@@ -227,11 +232,12 @@ module.exports = function (config) {
       // get the matching capture group
       const contentUrl = content.match(hrefRE)[1];
       if (privateLinks.some((privateLink) => contentUrl.indexOf(privateLink) >= 0)) {
-        const prefixIcon = '<span class="usa-sr-only"> CMS only, </span>' +
+        const prefixIcon =
+          '<span class="usa-sr-only"> CMS only, </span>' +
           '<svg class="usa-icon margin-top-2px margin-right-2px top-2px" ' +
           'aria-hidden="true" role="img">' +
           '<use xlink:href="#svg-lock_outline"></use>' +
-          '</svg>'
+          '</svg>';
         content = content.replace(/(<a\b[^>]*>)/i, `$1 ${prefixIcon}`);
         tokens[idx].content = content;
       }
@@ -264,7 +270,7 @@ module.exports = function (config) {
       }
     }
     return inlineHTMLDefaultRender(tokens, idx, options, env, self);
-  }
+  };
 
   // Override Browsersync defaults (used only with --serve)
   config.setBrowserSyncConfig({
@@ -287,7 +293,7 @@ module.exports = function (config) {
   // Set image shortcodes
   config.addLiquidShortcode('image', imageShortcode);
   config.addLiquidShortcode('image_with_class', imageWithClassShortcode);
-  config.addLiquidShortcode("uswds_icon", function (name) {
+  config.addLiquidShortcode('uswds_icon', function (name) {
     return `
     <svg class="usa-icon" aria-hidden="true" role="img">
       <use xlink:href="#svg-${name}"></use>
@@ -296,7 +302,7 @@ module.exports = function (config) {
 
   // If BASEURL env variable exists, update pathPrefix to the BASEURL
   if (process.env.BASEURL) {
-    pathPrefix = process.env.BASEURL
+    pathPrefix = process.env.BASEURL;
   }
 
   return {

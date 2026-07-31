@@ -39,8 +39,7 @@ async function init() {
     } = initGrid(state, mappableStateNames);
 
     const latestMonth = sortMonthlyAscending(monthly).at(-1);
-    d3.select('#dashboard-title-date')
-      .text(`${latestMonth.month} ${latestMonth.year}`);
+    d3.select('#dashboard-title-date').text(`${latestMonth.month} ${latestMonth.year}`);
 
     // Fires on any county selection source (map click, drawer row, or the
     // grid's own row click), so the grid's highlight always stays in sync.
@@ -50,9 +49,16 @@ async function init() {
 
       // Trend update updates first
       if (state.selectedCounty && state.selectedState) {
-        showTrendForScope('county', { state: state.selectedState.state, stateName: state.selectedState.stateName, county: state.selectedCounty });
+        showTrendForScope('county', {
+          state: state.selectedState.state,
+          stateName: state.selectedState.stateName,
+          county: state.selectedCounty,
+        });
       } else if (state.selectedState) {
-        showTrendForScope('state', { state: state.selectedState.state, stateName: state.selectedState.stateName });
+        showTrendForScope('state', {
+          state: state.selectedState.state,
+          stateName: state.selectedState.stateName,
+        });
       } else {
         showTrendForScope('national', null);
       }
@@ -116,7 +122,9 @@ async function init() {
       updateDrawerTriggerValue();
       renderAllAreasGrid(state.activeDashboardType);
       renderCountyGrid(stateAbbr, stateName, state.activeDashboardType);
-      scrollRowIntoView(document.querySelector('#all-areas-table tr.is-selected'), { smooth: true });
+      scrollRowIntoView(document.querySelector('#all-areas-table tr.is-selected'), {
+        smooth: true,
+      });
       showTrendForScope('state', { state: stateAbbr, stateName });
     });
 
@@ -129,7 +137,8 @@ async function init() {
   } catch (error) {
     const root = document.querySelector('.dashboard-root');
     if (root) {
-      root.innerHTML = '<p class="data-grid-placeholder" role="alert">Dashboard failed to load. Please refresh the page to try again.</p>';
+      root.innerHTML =
+        '<p class="data-grid-placeholder" role="alert">Dashboard failed to load. Please refresh the page to try again.</p>';
     }
     throw new Error(`Failed to load national data: ${error.message}`);
   }

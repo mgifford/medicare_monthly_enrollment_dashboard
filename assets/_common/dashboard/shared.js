@@ -3,11 +3,10 @@
 
 // Flips {index, direction} for a newly-clicked column (resets to
 // ascending on a column switch). Shared by both drawers and both grids.
-export const toggleSort = (current, index) => (
+export const toggleSort = (current, index) =>
   current.index === index
     ? { index, direction: current.direction === 'asc' ? 'desc' : 'asc' }
-    : { index, direction: 'asc' }
-);
+    : { index, direction: 'asc' };
 
 export const sortRows = (rows, cols, sortState) => {
   const col = cols[sortState.index] || cols[0];
@@ -81,7 +80,8 @@ export const syncColumnHeights = () => {
   const side = document.querySelector('.dashboard-columns__side');
   if (!columnsEl || !main || !side) return;
 
-  const isTwoColumn = getComputedStyle(columnsEl).gridTemplateColumns.trim().split(/\s+/).length >= 2;
+  const isTwoColumn =
+    getComputedStyle(columnsEl).gridTemplateColumns.trim().split(/\s+/).length >= 2;
   if (!isTwoColumn) {
     main.style.height = '';
     side.style.height = '';
@@ -101,9 +101,8 @@ export const syncColumnHeights = () => {
   side.style.height = target;
 };
 
-const getFocusableEls = (container) => Array.from(
-  container.querySelectorAll('button, [href], input, [tabindex]:not([tabindex="-1"])'),
-);
+const getFocusableEls = (container) =>
+  Array.from(container.querySelectorAll('button, [href], input, [tabindex]:not([tabindex="-1"])'));
 
 export const makeDrawerEls = (prefix) => ({
   trigger: document.querySelector(`#${prefix}-mobile-trigger`),
@@ -130,8 +129,15 @@ export const makeOverlayEls = (prefix) => ({
 // Generic popup "chrome" shared by all 4 popups (2 drawers, 2 overlays).
 // Popup-specific behavior (render a list, reparent a DOM node) comes in via hooks.
 export const createPopup = ({
-  scrim, panel, trigger, isDisabled = () => false,
-  bodyLockClass, focusOnOpen, onBeforeOpen, onOpen, onClose,
+  scrim,
+  panel,
+  trigger,
+  isDisabled = () => false,
+  bodyLockClass,
+  focusOnOpen,
+  onBeforeOpen,
+  onOpen,
+  onClose,
 }) => {
   let lastFocusedEl = null;
   let onKeydown;
@@ -216,9 +222,12 @@ export const renderSortableDrawerHead = (theadRow, cols, sortState, onSortClick)
 
 // isRowSelectable defaults to "no restriction" (county's case); the
 // state grid overrides it with a mappable-state check.
-export const renderDrawerRows = (tbody, rows, cols, {
-  emptyMessage, isRowSelectable = () => true, isRowSelected = () => false, onSelectRow,
-}) => {
+export const renderDrawerRows = (
+  tbody,
+  rows,
+  cols,
+  { emptyMessage, isRowSelectable = () => true, isRowSelected = () => false, onSelectRow },
+) => {
   if (!tbody) return;
   tbody.innerHTML = '';
 
