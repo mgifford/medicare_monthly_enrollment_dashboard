@@ -127,6 +127,10 @@ async function init() {
     observeResize('.dashboard-columns__main', syncColumnHeights);
     observeResize('.dashboard-columns__side', syncColumnHeights);
   } catch (error) {
+    const root = document.querySelector('.dashboard-root');
+    if (root) {
+      root.innerHTML = '<p class="data-grid-placeholder" role="alert">Dashboard failed to load. Please refresh the page to try again.</p>';
+    }
     throw new Error(`Failed to load national data: ${error.message}`);
   }
 }

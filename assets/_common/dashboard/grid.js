@@ -14,10 +14,12 @@ import {
   renderDrawerRows,
   filterAndSortDrawerRows,
 } from './shared';
+import createRequestGuard from '../requestGuard';
 
 // Owns the state/county grids, drawers, and overlay. Trend-card syncing
 // happens via the dashboard:* listeners in dashboard/index.js instead.
 export default function initGrid(state, mappableStateNames) {
+  const countyGridRequest = createRequestGuard();
   // Shared by the desktop grids and both mobile drawers
   const selectStateFromGrid = (stateName) => {
     if (state.selectedState?.stateName === stateName) {
@@ -357,6 +359,8 @@ export default function initGrid(state, mappableStateNames) {
     state.selectedCounty = null;
     if (countyDrawerEls.panel?.classList.contains('is-open')) state.popups.closeCountyDrawer();
 
+    const { signal, isStale } = countyGridRequest.next();
+
     if (!stateAbbr) {
       state.grid.currentCountyRows = [];
       updateCountyDrawerTriggerValue();
@@ -372,12 +376,16 @@ export default function initGrid(state, mappableStateNames) {
       // Suppressed/no-data counties (e.g. Kalawao County, HI) are kept here
       // -- shown flagged (via the "Suppressed"/"No data" tag) but still
       // selectable, matching the map, rather than silently dropped.
-      state.grid.currentCountyRows = await requestDataset('countyEnrollment', { state: stateAbbr, year, month });
+      const countyRows = await requestDataset('countyEnrollment', { state: stateAbbr, year, month }, { signal });
+      if (isStale()) return;
+      state.grid.currentCountyRows = countyRows;
 
       renderCountyGridTable(type);
       updateCountyDrawerTriggerValue();
       requestAnimationFrame(() => bindScrollAffordance(host));
-    } catch {
+    } catch (error) {
+      if (error?.name === 'AbortError') return;
+      if (isStale()) return;
       state.grid.currentCountyRows = [];
       updateCountyDrawerTriggerValue();
       host.innerHTML = '<p class="data-grid-placeholder" role="alert">County data could not be loaded.</p>';
