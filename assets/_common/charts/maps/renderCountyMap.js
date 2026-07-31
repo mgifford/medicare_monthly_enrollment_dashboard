@@ -1,6 +1,6 @@
 import * as d3 from 'd3';
-import renderSrTable from './accessibility';
-import { createTooltip, moveTooltip, DEFAULT_BREAKPOINTS, NO_DATA_FILL, DEFAULT_COLORS } from './utils';
+import renderSrTable from '../accessibility';
+import { createTooltip, moveTooltip, DEFAULT_BREAKPOINTS, NO_DATA_FILL, DEFAULT_COLORS, formatCount, formatPercent } from '../utils';
 import { joinCountyData, filterCountiesByState } from './joinCountyData';
 import renderTierHistogram from './renderTierHistogram';
 
@@ -19,6 +19,13 @@ const MOBILE_MEDIA_QUERY = '(max-width: 63.99em)';
  * @param {string} [config.metricLabel] - Display label for the colored metric.
  * @param {Function} [config.metricPercent] - (row) => percent value for coloring and tooltip.
  * @param {Function} [config.metricCount] - (row) => raw count for tooltip.
+ * @param {string} [config.comparisonLabel] - Display label for the tooltip's
+ *   non-colored comparison row (e.g. "OM" for the MA map, "PDP" for the
+ *   MAPD map). Defaults to "OM".
+ * @param {Function} [config.comparisonPercent] - (row) => percent value for
+ *   the comparison row. Defaults to OM% (d => d.omPercent).
+ * @param {Function} [config.comparisonCount] - (row) => raw count for the
+ *   comparison row. Defaults to OM count (d => d.omCount).
  * @param {number[]} [config.breakpoints] - 4 cutoffs defining 5 color bands.
  * @param {string[]} [config.colors] - 5 hex colors, low-to-high.
  * @param {string} [config.title] - Accessible name for the sr-only table.
@@ -31,24 +38,30 @@ function renderCountyMap(
   countyRows,
   config = {},
 ) {
-  const formatNumber = (value) => (value == null ? 'No data' : value.toLocaleString());
-
   const {
     metricLabel = 'MA',
     metricPercent = (d) => d.maPercent,
     metricCount = (d) => d.maCount,
+    comparisonLabel = 'OM',
+    comparisonPercent = (d) => d.omPercent,
+    comparisonCount = (d) => d.omCount,
+    totalCount = (d) => d.totalEnrollees,
     breakpoints,
     colors,
-    selectedCounty = null,
+    selectedCounty: initialSelectedCounty = null,
     histogramSelector,
     title = `${stateFeature.properties.name} counties`,
     tableColumns = [
       { label: 'County', value: (d) => d.county },
-      { label: `${metricLabel} %`, value: (d) => `${metricPercent(d) ?? 'No data'}%` },
-      { label: 'Total enrollees', value: (d) => formatNumber(d.totalEnrollees) },
+      { label: `${metricLabel} %`, value: (d) => formatPercent(metricPercent(d)) },
+      { label: `${comparisonLabel} %`, value: (d) => formatPercent(comparisonPercent(d)) },
+      { label: 'Total enrollees', value: (d) => formatCount(totalCount(d)) },
     ],
   } = config;
 
+  // Mutable so updateSelection can change the path 
+  // without re-running the rest of this function
+  let selectedCounty = initialSelectedCounty;
 
   const resolvedBreakpoints =
     breakpoints && breakpoints.length === 4 ? breakpoints : DEFAULT_BREAKPOINTS;
@@ -89,7 +102,7 @@ function renderCountyMap(
 
   if (!stateCounties.length) {
     container.append('p').attr('role', 'alert').text('No county shapes found for this state.');
-    return;
+    return { updateSelection: () => {} };
   }
 
   const joined = joinCountyData(stateCounties, countyRows);
@@ -107,6 +120,12 @@ function renderCountyMap(
   const tooltip = createTooltip(container).classed('county-map-tooltip', true);
 
   const isSelected = (entry) => Boolean(entry.data) && entry.data.county === selectedCounty;
+  // Any county with a joined data row is selectable, even if CMS suppressed
+  // its metric (e.g. Bethel Census Area, AK) or its total (e.g. Kalawao
+  // County, HI) -- the trend card still has something real to show (or, for
+  // a fully-suppressed county, honestly shows nothing rather than blocking
+  // the click). Only a shape with no matching row at all stays unselectable.
+  const isSelectable = (entry) => Boolean(entry.data);
 
   const getDisplayedFill = (entry) => {
   const fill = getCountyFill(entry);
@@ -125,14 +144,20 @@ function renderCountyMap(
     .attr('fill', getDisplayedFill)
     .attr('stroke', (entry) => (isSelected(entry) ? '#111' : '#fff'))
     .attr('stroke-width', (entry) => (isSelected(entry) ? 3 : 0.75))
-    .style('cursor', 'pointer')
+    .style('cursor', (entry) => (isSelectable(entry) ? 'pointer' : 'default'));
+
+  const hoverOutline = svg.append('path')
+    .attr('fill', 'none')
+    .attr('stroke', '#111')
+    .attr('stroke-width', 3)
+    .style('pointer-events', 'none')
+    .style('opacity', 0);
+
+  countyPaths
     .on('mouseenter', function highlightCurrent(event, entry){
       const currentFill = getCountyFill(entry);
-      d3.select(this)
-        .raise()
-        .attr('stroke', '#111')
-        .attr('stroke-width', 3)
-        .attr('fill', d3.color(currentFill).brighter(0.7).formatHex());
+      d3.select(this).attr('fill', d3.color(currentFill).brighter(0.7).formatHex());
+      hoverOutline.attr('d', path(entry.feature)).style('opacity', 1);
     })
     .on('mousemove', (event, entry) => {
       const row = entry.data;
@@ -147,25 +172,23 @@ function renderCountyMap(
 
       tooltip.style('display', 'block').style('opacity', 1).html(`
         <div class="chart-tooltip__row"><span class="chart-tooltip__label">County</span><span>${row.county}</span></div>
-        <div class="chart-tooltip__row"><span class="chart-tooltip__label">${metricLabel} %</span><span>${Number.isFinite(percent) ? `${percent}%` : 'No data'}</span></div>
-        <div class="chart-tooltip__row"><span class="chart-tooltip__label">${metricLabel}</span><span>${formatNumber(count)}</span></div>
-        <div class="chart-tooltip__row chart-tooltip__row--spaced"><span class="chart-tooltip__label">TOTAL</span><span>${formatNumber(row.totalEnrollees)}</span></div>
+        <div class="chart-tooltip__row"><span class="chart-tooltip__label">${metricLabel} %</span><span>${formatPercent(percent)}</span></div>
+        <div class="chart-tooltip__row"><span class="chart-tooltip__label">${metricLabel}</span><span>${formatCount(count)}</span></div>
+        <div class="chart-tooltip__row"><span class="chart-tooltip__label">${comparisonLabel} %</span><span>${formatPercent(comparisonPercent(row))}</span></div>
+        <div class="chart-tooltip__row"><span class="chart-tooltip__label">${comparisonLabel}</span><span>${formatCount(comparisonCount(row))}</span></div>
+        <div class="chart-tooltip__row chart-tooltip__row--spaced"><span class="chart-tooltip__label">TOTAL</span><span>${formatCount(totalCount(row))}</span></div>
       `);
 
       moveTooltip(tooltip, container.node(), event);
     })
-    .on('mouseleave', function leftoverOutline (event, entry) {
-      // Revert to the selected-state stroke, not a flat reset — otherwise
-      // leaving the selected county erases its highlight until re-render.
-      d3.select(this)
-        .attr('fill', getDisplayedFill(entry))
-        .attr('stroke', isSelected(entry) ? '#111' : '#fff')
-        .attr('stroke-width', isSelected(entry) ? 3 : 0.75);
+    .on('mouseleave', function clearHighlight(event, entry) {
+      d3.select(this).attr('fill', getDisplayedFill(entry));
+      hoverOutline.style('opacity', 0);
 
       tooltip.style('opacity', 0).style('display', 'none');
     })
     .on('click', (event, entry) => {
-      if (!entry.data) return;
+      if (!isSelectable(entry)) return;
       document.dispatchEvent(new CustomEvent('dashboard:countyselect', {
         detail: { containerSelector, county: entry.data.county },
       }));
@@ -179,6 +202,22 @@ function renderCountyMap(
     tableColumns,
     joined.filter((entry) => entry.data !== undefined).map((entry) => entry.data),
   );
+
+  // Cheap path for "only the selection changed" (same state, same data) --
+  // re-applies fill/stroke/raise on the already-bound paths instead of
+  // rebuilding the histogram, sr-only table, and county-shape geometry,
+  // which for a large state (Texas has 254 counties) is the expensive part
+  // of a full re-render and was blocking the trend card from updating.
+  const updateSelection = (newSelectedCounty) => {
+    selectedCounty = newSelectedCounty;
+    countyPaths
+      .attr('fill', getDisplayedFill)
+      .attr('stroke', (entry) => (isSelected(entry) ? '#111' : '#fff'))
+      .attr('stroke-width', (entry) => (isSelected(entry) ? 3 : 0.75));
+    countyPaths.filter((entry) => isSelected(entry)).raise();
+  };
+
+  return { updateSelection };
 }
 
 export default renderCountyMap;

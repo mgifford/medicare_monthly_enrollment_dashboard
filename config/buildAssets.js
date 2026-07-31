@@ -63,18 +63,19 @@ esbuild
   .build({
     entryPoints: [
       'assets/_common/styles/styles.scss',
-      'assets/_common/js/app.js',
+      'assets/_common/dashboard/app.js',
     ],
     entryNames: '[dir]/[name]-[hash]',
+    assetNames: 'fonts/[name]-[hash]',
     outdir: '_site/assets/',
     format: 'iife',
     loader: {
       '.jpg': 'dataurl',
       '.png': 'dataurl',
       '.svg': 'dataurl',
-      '.ttf': 'dataurl',
-      '.woff': 'dataurl',
-      '.woff2': 'dataurl',
+      '.ttf': 'file',
+      '.woff': 'file',
+      '.woff2': 'file',
     },
     minify: process.env.ELEVENTY_ENV === 'production',
     sourcemap: process.env.ELEVENTY_ENV !== 'production',

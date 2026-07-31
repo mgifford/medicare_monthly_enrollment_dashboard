@@ -1,0 +1,231 @@
+// Generic "popup" chrome: the two full-screen backdrops (bottom-sheet
+// drawer + centered overlay) and their shared header/close-button/search/
+// scrollable-list internals. No project ids below.
+@use 'card' as *;
+@use '../tokens' as *;
+
+// Shared by the two full-screen popup backdrops -- identical fade
+// choreography for both.
+@mixin modal-scrim {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  background: rgba(16, 16, 24, 0.45);
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.25s ease, visibility 0s linear 0.25s;
+
+  &.is-open {
+    opacity: 1;
+    visibility: visible;
+    transition: opacity 0.25s ease, visibility 0s linear 0s;
+  }
+}
+
+// Shared by the two popup panels themselves. $fade: true additionally
+// animates opacity (used by the centered overlay, which fades+scales;
+// the bottom-sheet drawer only slides, so it leaves this off).
+@mixin modal-panel($closed-transform, $open-transform, $duration: 0.25s, $fade: false) {
+  position: fixed;
+  z-index: 1001;
+  display: flex;
+  flex-direction: column;
+  max-height: 85vh;
+  background: var(--surface);
+  box-shadow: var(--shadow);
+  visibility: hidden;
+  transform: $closed-transform;
+
+  @if $fade {
+    opacity: 0;
+    transition: opacity $duration ease, transform $duration ease, visibility 0s linear $duration;
+  } @else {
+    transition: transform $duration ease, visibility 0s linear $duration;
+  }
+
+  &.is-open {
+    visibility: visible;
+    transform: $open-transform;
+
+    @if $fade {
+      opacity: 1;
+      transition: opacity $duration ease, transform $duration ease, visibility 0s linear 0s;
+    } @else {
+      transition: transform $duration ease, visibility 0s linear 0s;
+    }
+  }
+}
+
+// ---- Bottom-sheet drawer (mobile) ----
+
+.data-grid-drawer-overlay {
+  @include modal-scrim;
+}
+
+.data-grid-drawer {
+  @include modal-panel(translateY(100%), none);
+  left: 0;
+  right: 0;
+  bottom: 0;
+  border-radius: 15px 15px 0 0;
+}
+
+body.data-grid-drawer-open {
+  overflow: hidden;
+}
+
+// Guards against a stranded open drawer if the viewport crosses into desktop
+// while it's open.
+@media (min-width: $bp-desktop-min) {
+  .data-grid-drawer,
+  .data-grid-drawer-overlay {
+    display: none !important;
+  }
+}
+
+.data-grid-drawer__handle {
+  flex: none;
+  width: 40px;
+  height: 4px;
+  margin: 10px auto 0;
+  border-radius: 999px;
+  background: var(--baseline);
+}
+
+.data-grid-drawer__header {
+  flex: none;
+  @include card-header-row(10px 14px, center, 0);
+  border-bottom: 1px solid var(--border);
+}
+
+.data-grid-drawer__title {
+  @include card-title(0.95rem);
+}
+
+.data-grid-drawer__close {
+  border: 0;
+  background: transparent;
+  padding: 8px;
+  line-height: 0;
+  color: var(--ink-2);
+  cursor: pointer;
+}
+
+.data-grid-drawer__search-wrap {
+  flex: none;
+  padding: 10px 14px;
+}
+
+.data-grid-drawer__search {
+  width: 100%;
+  padding: 8px 12px;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: var(--surface-2);
+  font: inherit;
+  font-size: 0.84rem;
+  color: var(--ink);
+}
+
+.data-grid-drawer__list-wrap {
+  flex: 1;
+  min-height: 0;
+  overflow: auto;
+  -webkit-overflow-scrolling: touch;
+  padding: 0 14px 14px;
+  // Reserves space for the sticky thead so scrollIntoView doesn't park a row underneath it.
+  scroll-padding-top: 36px;
+}
+
+.data-grid-drawer__empty {
+  text-align: center !important;
+  white-space: normal !important;
+  color: var(--ink-2);
+  padding: 24px 14px !important;
+}
+
+// Drawer is inherently narrow, so numbers stay abbreviated unconditionally
+// -- applies to any .data-grid-drawer regardless of what's inside it.
+.data-grid-drawer .num-full {
+  display: none;
+}
+
+.data-grid-drawer .num-abbr {
+  display: inline;
+}
+
+// ---- Centered overlay (desktop "expand") ----
+
+.data-grid-overlay-scrim {
+  @include modal-scrim;
+}
+
+.data-grid-overlay {
+  @include modal-panel(
+    translate(-50%, -50%) scale(0.97),
+    translate(-50%, -50%) scale(1),
+    0.2s,
+    $fade: true
+  );
+  top: 50%;
+  left: 50%;
+  width: min(calc(100% - 100px), 1500px);
+  border-radius: 15px;
+}
+
+body.data-grid-overlay-open {
+  overflow: hidden;
+}
+
+// Defense-in-depth backstop; JS also force-closes this on leaving desktop.
+@media (max-width: $bp-tablet-max) {
+  .data-grid-overlay,
+  .data-grid-overlay-scrim {
+    display: none !important;
+  }
+}
+
+.data-grid-overlay__header {
+  flex: none;
+  padding: 14px 18px 0;
+  border-bottom: 1px solid var(--border);
+}
+
+.data-grid-overlay__header-row {
+  @include card-header-row(0 0 14px);
+}
+
+.data-grid-overlay__tabs-slot {
+  padding-bottom: 12px;
+}
+
+.data-grid-overlay__tabs-slot:empty {
+  display: none;
+}
+
+.data-grid-overlay__title {
+  @include card-title;
+}
+
+.data-grid-overlay__close {
+  border: 0;
+  background: transparent;
+  padding: 8px;
+  line-height: 0;
+  color: var(--ink-2);
+  cursor: pointer;
+}
+
+.data-grid-overlay__body {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.data-grid-overlay__sub {
+  margin: 3px 0 0;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--ink-2);
+}

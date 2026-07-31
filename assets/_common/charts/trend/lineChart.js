@@ -1,14 +1,16 @@
 import * as d3 from 'd3';
-import renderSrTable from './accessibility';
+import renderSrTable from '../accessibility';
 import {
   appendTrendFigure,
   buildLegendHtml,
   resolveLegendTarget,
   selectTickRows,
-  formatMillions,
+  formatCompactNumber,
+  formatCount,
   formatPeriod,
+  SUPPRESSED_LABEL,
   TREND_MARGIN,
-} from './utils';
+} from '../utils';
 
 const PRIMARY_STROKE_WIDTH = 3;
 const DEFAULT_STROKE_WIDTH = 2;
@@ -45,7 +47,7 @@ function renderLineChart(selector, data, config) {
     xTickFormat = xAccessor,
     title,
     tableColumns,
-    yTickFormat = formatMillions,
+    yTickFormat = formatCompactNumber,
     legendSelector,
   } = config;
 
@@ -58,7 +60,9 @@ function renderLineChart(selector, data, config) {
   const xLabels = data.map(xAccessor);
   const xScale = d3.scalePoint().domain(xLabels).range([MARGIN.left, W - MARGIN.right]).padding(0.5);
 
-  const yMax = d3.max(data, (d) => d3.max(series, (s) => d[s.key] || 0)) * 1.08;
+  // d3.max skips null/NaN (suppressed) values on its own -- only a series
+  // that's suppressed at every single period falls through to the ?? 0.
+  const yMax = (d3.max(data, (d) => d3.max(series, (s) => d[s.key])) ?? 0) * 1.08;
   const yScale = d3.scaleLinear().domain([0, yMax]).nice().range([H - MARGIN.bottom, MARGIN.top]);
 
   yScale.ticks(5).forEach((t) => {
@@ -90,17 +94,31 @@ function renderLineChart(selector, data, config) {
 
   const lastRow = data[data.length - 1];
   const lineGenerator = d3.line()
+    .defined((d) => Number.isFinite(d.v))
     .x((d) => xScale(d.x))
     .y((d) => yScale(d.v))
     .curve(d3.curveMonotoneX);
   const areaGenerator = d3.area()
+    .defined((d) => Number.isFinite(d.v))
     .x((d) => xScale(d.x))
     .y0(yScale(0))
     .y1((d) => yScale(d.v))
     .curve(d3.curveMonotoneX);
 
+  // A suppressed period's row still exists, but its value doesn't -- find
+  // each series' own most recent real value (not just the last row, which
+  // might itself be suppressed) to anchor its end marker/label/legend text.
+  const lastFiniteRow = (s) => {
+    for (let i = data.length - 1; i >= 0; i -= 1) {
+      if (Number.isFinite(data[i][s.key])) return data[i];
+    }
+    return null;
+  };
+
   series.forEach((s) => {
-    const points = data.map((d) => ({ x: xAccessor(d), v: d[s.key] || 0 }));
+    // Keep the raw (possibly null) value -- defined() above skips it,
+    // producing a visual gap instead of a fake dip to 0.
+    const points = data.map((d) => ({ x: xAccessor(d), v: d[s.key] }));
 
     if (s.primary) {
       svg.append('path')
@@ -117,40 +135,50 @@ function renderLineChart(selector, data, config) {
       .style('stroke-dasharray', DASH_PATTERNS[s.dash] || null)
       .attr('d', lineGenerator(points));
 
-    svg.append('circle')
-      .attr('class', 'marker-ring')
-      .attr('cx', xScale(xAccessor(lastRow)))
-      .attr('cy', yScale(lastRow[s.key] || 0))
-      .attr('r', s.primary ? 5 : 4.5)
-      .attr('fill', s.color);
+    const markerRow = lastFiniteRow(s);
+    if (markerRow) {
+      svg.append('circle')
+        .attr('class', 'marker-ring')
+        .attr('cx', xScale(xAccessor(markerRow)))
+        .attr('cy', yScale(markerRow[s.key]))
+        .attr('r', s.primary ? 5 : 4.5)
+        .attr('fill', s.color);
+    }
   });
 
   if (legendSelector) {
-    const legendItems = series.map((s) => ({
-      label: `${s.label} ${yTickFormat(lastRow[s.key] || 0)}`,
-      color: s.color,
-      dot: !s.dash,
-      dashStyle: s.dash,
-    }));
+    const legendItems = series.map((s) => {
+      const markerRow = lastFiniteRow(s);
+      return {
+        label: `${s.label} ${markerRow ? yTickFormat(markerRow[s.key]) : SUPPRESSED_LABEL}`,
+        color: s.color,
+        dot: !s.dash,
+        dashStyle: s.dash,
+      };
+    });
     resolveLegendTarget(container, legendSelector).html(buildLegendHtml(legendItems));
   } else {
     const endLabelX = xScale(xAccessor(lastRow)) + 10;
     const endLabels = series
-      .map((s) => ({ s, y: yScale(lastRow[s.key] || 0) }))
+      .map((s) => {
+        const markerRow = lastFiniteRow(s);
+        return markerRow ? { s, markerRow, y: yScale(markerRow[s.key]) } : null;
+      })
+      .filter(Boolean)
       .sort((a, b) => a.y - b.y);
     endLabels.forEach((entry, i) => {
       if (i > 0 && entry.y - endLabels[i - 1].y < END_LABEL_MIN_GAP) {
         entry.y = endLabels[i - 1].y + END_LABEL_MIN_GAP;
       }
     });
-    endLabels.forEach(({ s, y }) => {
+    endLabels.forEach(({ s, markerRow, y }) => {
       svg.append('text')
         .attr('class', 'end-label')
         .attr('x', endLabelX)
         .attr('y', y + 4)
         .style('fill', s.color)
         .style('font-weight', s.primary ? 800 : 700)
-        .text(`${s.label} ${yTickFormat(lastRow[s.key] || 0)}`);
+        .text(`${s.label} ${yTickFormat(markerRow[s.key])}`);
     });
   }
 
@@ -181,16 +209,18 @@ function renderLineChart(selector, data, config) {
       crosshair.attr('x1', dx).attr('x2', dx).style('opacity', 1);
       focusDots.selectAll('*').remove();
       series.forEach((s) => {
+        if (!Number.isFinite(d[s.key])) return;
         focusDots.append('circle')
           .attr('class', 'marker-ring')
-          .attr('cx', dx).attr('cy', yScale(d[s.key] || 0))
+          .attr('cx', dx).attr('cy', yScale(d[s.key]))
           .attr('r', 4).attr('fill', s.color);
       });
 
-      tooltip.html(`<div class="tt-h">${xAccessor(d)}</div>${series.map((s) => `<div class="tt-row"><span class="lab"><span class="k" style="background:${s.color}"></span>${s.label}</span><span class="val">${yTickFormat(d[s.key] || 0)}</span></div>`).join('')}`);
+      tooltip.html(`<div class="tt-h">${xAccessor(d)}</div>${series.map((s) => `<div class="tt-row"><span class="lab"><span class="k" style="background:${s.color}"></span>${s.label}</span><span class="val">${Number.isFinite(d[s.key]) ? yTickFormat(d[s.key]) : formatCount(d[s.key])}</span></div>`).join('')}`);
       const rect = svg.node().getBoundingClientRect();
+      const totalY = Number.isFinite(d[totalSeries.key]) ? yScale(d[totalSeries.key]) : MARGIN.top;
       tooltip.style('left', `${(dx * rect.width) / W}px`);
-      tooltip.style('top', `${(yScale(d[totalSeries.key] || 0) * rect.height) / H}px`);
+      tooltip.style('top', `${(totalY * rect.height) / H}px`);
       tooltip.style('opacity', 1);
     })
     .on('mouseleave', () => {

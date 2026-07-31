@@ -1,13 +1,15 @@
 import * as d3 from 'd3';
-import renderSrTable from './accessibility';
+import renderSrTable from '../accessibility';
 import {
   appendTrendFigure,
   buildLegendHtml,
   resolveLegendTarget,
   selectTickRows,
   formatPeriod,
+  NO_DATA_FILL,
+  NO_DATA_LABEL,
   TREND_MARGIN,
-} from './utils';
+} from '../utils';
 
 const BAR_MAX_WIDTH = 24;
 const SEGMENT_GAP = 2;
@@ -17,7 +19,7 @@ const MARGIN = { ...TREND_MARGIN, right: 16 };
 /**
  * Renders a stacked bar chart showing percent-of-total enrollment trends (0–100%).
  * Assumes exactly two segments: segments[0] stacks on the bottom (square),
- * segments[1] stacks on top (rounded top corners) — matches the mockup's MA/FFS split.
+ * segments[1] stacks on top (rounded top corners) — matches the mockup's MA/OM split.
  *
  * @param {string} selector - DOM container selector
  * @param {Array}  data      - Enrollment data rows (pre-sorted ascending)
@@ -99,8 +101,13 @@ function renderStackedBarChart(selector, data, config) {
   const columns = svg.append('g');
 
   data.forEach((d) => {
-    const pctBottom = Number(d[bottom.key]) || 0;
-    const pctTop = Number(d[top.key]) || 0;
+    // A suppressed count feeds a NaN percent (see getPercent in
+    // src/utils.js) -- a 100%-stacked bar needs both proportions to mean
+    // anything, so treat either side being non-finite as "no data for this
+    // whole period" rather than silently zeroing just the missing segment.
+    const hasData = Number.isFinite(d[bottom.key]) && Number.isFinite(d[top.key]);
+    const pctBottom = hasData ? d[bottom.key] : 0;
+    const pctTop = hasData ? d[top.key] : 0;
     const yBase = yScale(0);
     const yBottomTop = yScale(pctBottom);
     const yTopEdge = yScale(100);
@@ -108,26 +115,34 @@ function renderStackedBarChart(selector, data, config) {
 
     const col = columns.append('g').style('cursor', 'pointer');
 
-    col.append('rect')
-      .attr('x', barX(d)).attr('width', barWidth)
-      .attr('y', yBottomTop).attr('height', Math.max(0, yBase - yBottomTop))
-      .attr('fill', `url(#${hatchId})`);
+    if (hasData) {
+      col.append('rect')
+        .attr('x', barX(d)).attr('width', barWidth)
+        .attr('y', yBottomTop).attr('height', Math.max(0, yBase - yBottomTop))
+        .attr('fill', `url(#${hatchId})`);
 
-    col.append('rect')
-      .attr('x', barX(d)).attr('width', barWidth)
-      .attr('y', yTopEdge).attr('height', topHeight)
-      .attr('fill', top.color)
-      .attr('rx', 4).attr('ry', 4);
-    col.append('rect')
-      .attr('x', barX(d)).attr('width', barWidth)
-      .attr('y', yTopEdge + Math.min(4, topHeight)).attr('height', Math.max(0, topHeight - 4))
-      .attr('fill', top.color);
+      col.append('rect')
+        .attr('x', barX(d)).attr('width', barWidth)
+        .attr('y', yTopEdge).attr('height', topHeight)
+        .attr('fill', top.color)
+        .attr('rx', 4).attr('ry', 4);
+      col.append('rect')
+        .attr('x', barX(d)).attr('width', barWidth)
+        .attr('y', yTopEdge + Math.min(4, topHeight)).attr('height', Math.max(0, topHeight - 4))
+        .attr('fill', top.color);
+    } else {
+      col.append('rect')
+        .attr('x', barX(d)).attr('width', barWidth)
+        .attr('y', yTopEdge).attr('height', Math.max(0, yBase - yTopEdge))
+        .attr('fill', NO_DATA_FILL)
+        .attr('rx', 4).attr('ry', 4);
+    }
 
     col.on('mousemove', () => {
       tooltip.html(
         `<div class="tt-h">${xAccessor(d)}</div>`
-        + `<div class="tt-row"><span class="lab"><span class="k" style="background:${top.color}"></span>${top.label}</span><span class="val">${Math.round(pctTop)}%</span></div>`
-        + `<div class="tt-row"><span class="lab"><span class="k" style="background:${bottom.color}"></span>${bottom.label}</span><span class="val">${Math.round(pctBottom)}%</span></div>`,
+        + `<div class="tt-row"><span class="lab"><span class="k" style="background:${top.color}"></span>${top.label}</span><span class="val">${hasData ? `${Math.round(pctTop)}%` : NO_DATA_LABEL}</span></div>`
+        + `<div class="tt-row"><span class="lab"><span class="k" style="background:${bottom.color}"></span>${bottom.label}</span><span class="val">${hasData ? `${Math.round(pctBottom)}%` : NO_DATA_LABEL}</span></div>`,
       );
       const rect = svg.node().getBoundingClientRect();
       tooltip.style('left', `${((barX(d) + barWidth / 2) * rect.width) / W}px`);

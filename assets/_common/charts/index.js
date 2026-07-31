@@ -1,19 +1,4 @@
-export { default as renderLineChart } from './lineChart';
-export { default as renderStackedBarChart } from './stackedBarChart';
-export { default as renderEnrollmentHero } from './enrollmentHero';
-export { default as renderStateMap } from './renderStateMap';
+export { default as renderEnrollmentHero } from './hero/enrollmentHero';
+export { default as renderStateMap } from './maps/renderStateMap';
 export { default as mergeLatestMonthlyIntoYearly } from './yearlyLatest';
-
-export {
-  renderHospitalYearlyLineChart,
-  renderHospitalMonthlyLineChart,
-  renderHospitalYearlyStackedBarChart,
-  renderHospitalMonthlyStackedBarChart,
-} from './hospitalMedical';
-
-export {
-  renderDrugYearlyLineChart,
-  renderDrugMonthlyLineChart,
-  renderDrugYearlyStackedBarChart,
-  renderDrugMonthlyStackedBarChart,
-} from './prescriptionDrug';
+export { default as DASHBOARD_TREND_CHARTS } from './trend/dashboardTrendCharts';

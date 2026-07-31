@@ -1,7 +1,14 @@
 import * as d3 from 'd3';
-import renderSrTable from './accessibility';
+import renderSrTable from '../accessibility';
 
 const SLOTS = ['A', 'B'];
+
+// The larger bar is scaled down to this width (leaves visual margin instead
+// of ever spanning the full card), and the smaller bar is scaled by the same
+// factor -- so their true ratio (and thus a near-even split) stays accurate.
+const HERO_BAR_MAX_WIDTH = 80;
+// Floor so a very small share (e.g. a few percent) doesn't visually vanish.
+const HERO_BAR_MIN_WIDTH = 4;
 
 function formatMillions(n) {
   return `${(n / 1000000).toFixed(1)}M`;
@@ -48,15 +55,19 @@ function renderEnrollmentHero(containerSelector, data, totalEnrollment, config =
 
   container.select('#heroTotal').text(formatMillions(totalEnrollment));
 
+  const largerValue = Math.max(data[0].value, data[1].value, 1);
+  const widthScale = HERO_BAR_MAX_WIDTH / largerValue;
+
   SLOTS.forEach((slot, i) => {
     const datum = data[i];
     const color = colors[i];
     const amount = (datum.value / 100) * totalEnrollment;
+    const width = Math.max(Math.max(datum.value, 0) * widthScale, HERO_BAR_MIN_WIDTH);
 
     container.select(`#heroName${slot}`).text(datum.label ?? datum.name);
     container.select(`#heroSeg${slot}`)
       .style('background', color)
-      .style('width', `${Math.max(datum.value, 0)}%`);
+      .style('width', `${width}%`);
     container.select(`#heroBig${slot}`).text(formatMillions(amount));
     container.select(`#heroSub${slot}`).text(`${Math.round(datum.value)}%`);
   });

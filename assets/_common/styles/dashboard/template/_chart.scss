@@ -1,0 +1,27 @@
+// Generic D3-chart drawing primitives (legend, gridlines, axis, tooltip) --
+// reusable by any line/bar chart, not tied to a specific dashboard card.
+
+.legend { display: flex; flex-wrap: wrap; gap: 6px 14px; }
+.legend .item { display: flex; align-items: center; gap: 7px; font-size: .77rem; color: var(--ink-2); font-weight: 600; }
+.legend .key { width: 22px; height: 4px; border-radius: 2px; background: var(--legend-color); }
+.legend .key.dot { width: 9px; height: 9px; border-radius: 50%; }
+.legend .key--dotted { background: repeating-linear-gradient(to right, var(--legend-color) 0 2px, transparent 2px 6px); border-radius: 0; }
+.legend .key--dashed { background: repeating-linear-gradient(to right, var(--legend-color) 0 8px, transparent 8px 13px); border-radius: 0; }
+.legend .key--hatched { background: repeating-linear-gradient(45deg, var(--legend-color) 0 2px, transparent 2px 5px); border-radius: 0; }
+
+.gridline { stroke: var(--grid); stroke-width: 1; }
+.axis-base { stroke: var(--baseline); stroke-width: 1; }
+.tick-txt { fill: var(--muted); font-size: 11px; font-variant-numeric: tabular-nums; }
+.end-label { fill: var(--ink); font-size: 12px; font-weight: 700; }
+.series-line { fill: none; stroke-width: 2; stroke-linejoin: round; stroke-linecap: round; }
+.marker-ring { stroke: var(--surface); stroke-width: 2; }
+.crosshair { stroke: var(--baseline); stroke-width: 1; stroke-dasharray: 3 3; }
+
+.tt { position: absolute; pointer-events: none; z-index: 5; opacity: 0; transform: translate(-50%, -120%);
+  background: var(--surface); color: var(--ink); border: 1px solid var(--border);
+  box-shadow: var(--shadow); border-radius: 10px; padding: 9px 11px; font-size: .78rem; min-width: 118px; transition: opacity .08s; }
+.tt .tt-h { font-weight: 700; margin-bottom: 6px; }
+.tt .tt-row { display: flex; align-items: center; justify-content: space-between; gap: 14px; }
+.tt .tt-row .lab { display: flex; align-items: center; gap: 7px; color: var(--ink-2); }
+.tt .tt-row .val { font-weight: 700; font-variant-numeric: tabular-nums; }
+.tt .k { width: 9px; height: 9px; border-radius: 2px; flex: none; }

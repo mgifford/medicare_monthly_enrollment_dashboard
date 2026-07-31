@@ -1,0 +1,21 @@
+// Dashboard styles, split into a reusable template layer (generic card/
+// table/modal/chart patterns -- copy these + _tokens.scss to reuse the
+// design elsewhere) and a data layer (this project's specific cards,
+// wiring template classes to its own ids/labels/colors). Forward order
+// matters: template must precede the data files so their more specific,
+// project-scoped overrides (e.g. grid.scss's responsive table tiers) win
+// the cascade where they overlap.
+
+@forward 'tokens';
+
+@forward 'template/base';
+@forward 'template/card';
+@forward 'template/table';
+@forward 'template/modal';
+@forward 'template/chart';
+
+@forward 'layout';
+@forward 'hero';
+@forward 'map';
+@forward 'grid';
+@forward 'trend';
