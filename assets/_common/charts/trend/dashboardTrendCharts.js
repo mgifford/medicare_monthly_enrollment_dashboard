@@ -1,11 +1,12 @@
 import renderLineChart from './lineChart';
 import renderStackedBarChart from './stackedBarChart';
+import { sortYearlyAscending, sortMonthlyAscending, formatPeriod } from '../utils';
 import {
-  sortYearlyAscending,
-  sortMonthlyAscending,
-  formatPeriod,
-} from '../utils';
-import { hospitalYearly, hospitalMonthly, drugYearly, drugMonthly } from '../../tables/chartTableColumns';
+  hospitalYearly,
+  hospitalMonthly,
+  drugYearly,
+  drugMonthly,
+} from '../../tables/chartTableColumns';
 import DASHBOARD_LABELS from '../../labels';
 
 const monthTick = (d) => d.month.slice(0, 3);
@@ -35,18 +36,40 @@ function makeChartFns({ labels, tableColumns }) {
   const { programName } = labels;
 
   return {
-    yearlyLine: (selector, data, extra = {}) => renderLineChart(selector, sortYearlyAscending(data), {
-      series, xAccessor: (d) => String(d.year), title: `${programName} Enrollment Count Yearly Trend`, tableColumns: tableColumns.yearly, ...extra,
-    }),
-    monthlyLine: (selector, data, extra = {}) => renderLineChart(selector, sortMonthlyAscending(data), {
-      series, xAccessor: formatPeriod, xTickFormat: monthTick, title: `${programName} Enrollment Count 12-Month Trend`, tableColumns: tableColumns.monthly, ...extra,
-    }),
-    yearlyBar: (selector, data, extra = {}) => renderStackedBarChart(selector, sortYearlyAscending(data), {
-      segments, xAccessor: (d) => String(d.year), title: `${programName} Percent of Total Enrollment Yearly Trend`, tableColumns: tableColumns.yearly, ...extra,
-    }),
-    monthlyBar: (selector, data, extra = {}) => renderStackedBarChart(selector, sortMonthlyAscending(data), {
-      segments, xAccessor: formatPeriod, xTickFormat: monthTick, title: `${programName} Percent of Total Enrollment 12-Month Trend`, tableColumns: tableColumns.monthly, ...extra,
-    }),
+    yearlyLine: (selector, data, extra = {}) =>
+      renderLineChart(selector, sortYearlyAscending(data), {
+        series,
+        xAccessor: (d) => String(d.year),
+        title: `${programName} Enrollment Count Yearly Trend`,
+        tableColumns: tableColumns.yearly,
+        ...extra,
+      }),
+    monthlyLine: (selector, data, extra = {}) =>
+      renderLineChart(selector, sortMonthlyAscending(data), {
+        series,
+        xAccessor: formatPeriod,
+        xTickFormat: monthTick,
+        title: `${programName} Enrollment Count 12-Month Trend`,
+        tableColumns: tableColumns.monthly,
+        ...extra,
+      }),
+    yearlyBar: (selector, data, extra = {}) =>
+      renderStackedBarChart(selector, sortYearlyAscending(data), {
+        segments,
+        xAccessor: (d) => String(d.year),
+        title: `${programName} Percent of Total Enrollment Yearly Trend`,
+        tableColumns: tableColumns.yearly,
+        ...extra,
+      }),
+    monthlyBar: (selector, data, extra = {}) =>
+      renderStackedBarChart(selector, sortMonthlyAscending(data), {
+        segments,
+        xAccessor: formatPeriod,
+        xTickFormat: monthTick,
+        title: `${programName} Percent of Total Enrollment 12-Month Trend`,
+        tableColumns: tableColumns.monthly,
+        ...extra,
+      }),
   };
 }
 

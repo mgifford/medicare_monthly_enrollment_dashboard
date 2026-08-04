@@ -29,11 +29,7 @@ async function imageUrl(src) {
   return `${pathPrefix}${data.url}`;
 }
 
-async function imageWithClassShortcode(
-  src,
-  cls,
-  alt,
-) {
+async function imageWithClassShortcode(src, cls, alt) {
   const url = await imageUrl(src);
   return `<img src="${url}" class="${cls}" alt="${alt}" loading="lazy" decoding="async">`;
 }

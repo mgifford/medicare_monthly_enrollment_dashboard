@@ -28,7 +28,8 @@ export default function initGrid(state, mappableStateNames) {
       return;
     }
 
-    const selectorId = state.activeDashboardType === 'drug' ? '#drug-state-selector' : '#medicare-state-selector';
+    const selectorId =
+      state.activeDashboardType === 'drug' ? '#drug-state-selector' : '#medicare-state-selector';
     const select = document.querySelector(selectorId);
     if (!select) return;
     select.value = stateName;
@@ -40,9 +41,14 @@ export default function initGrid(state, mappableStateNames) {
   const selectCountyFromGrid = (county) => {
     const config = state.mapConfigs[state.activeDashboardType];
     if (!config) return;
-    document.dispatchEvent(new CustomEvent('dashboard:countyselect', {
-      detail: { containerSelector: config.selector, county: state.selectedCounty === county ? null : county },
-    }));
+    document.dispatchEvent(
+      new CustomEvent('dashboard:countyselect', {
+        detail: {
+          containerSelector: config.selector,
+          county: state.selectedCounty === county ? null : county,
+        },
+      }),
+    );
   };
 
   const renderAllAreasGrid = (type = state.activeDashboardType) => {
@@ -103,7 +109,9 @@ export default function initGrid(state, mappableStateNames) {
       renderDrawerList(type);
     });
     renderDrawerRows(drawerEls.tbody, rows, cols, {
-      emptyMessage: drawerSearchTerm ? `No states match "${drawerSearchTerm}".` : 'No data available.',
+      emptyMessage: drawerSearchTerm
+        ? `No states match "${drawerSearchTerm}".`
+        : 'No data available.',
       isRowSelectable: (row) => mappableStateNames.has(row.stateName),
       isRowSelected: (row) => state.selectedState?.stateName === row.stateName,
       onSelectRow: (row) => {
@@ -121,7 +129,10 @@ export default function initGrid(state, mappableStateNames) {
     // Not the search input -- auto-focusing it pops the mobile keyboard
     // (and, on iOS Safari, zooms the page) the instant the drawer opens.
     focusOnOpen: () => drawerEls.closeBtn?.focus(),
-    onBeforeOpen: () => { state.popups.closeCountyDrawer(); state.popups.closeTrendDrawer(); },
+    onBeforeOpen: () => {
+      state.popups.closeCountyDrawer();
+      state.popups.closeTrendDrawer();
+    },
     onOpen: () => {
       renderDrawerList();
       drawerEls.tbody?.querySelector('tr.is-selected')?.scrollIntoView({ block: 'nearest' });
@@ -180,12 +191,19 @@ export default function initGrid(state, mappableStateNames) {
       renderCountyDrawerList(type);
     });
     renderDrawerRows(countyDrawerEls.tbody, rows, cols, {
-      emptyMessage: countyDrawerSearchTerm ? `No counties match "${countyDrawerSearchTerm}".` : 'No data available.',
+      emptyMessage: countyDrawerSearchTerm
+        ? `No counties match "${countyDrawerSearchTerm}".`
+        : 'No data available.',
       isRowSelected: (row) => state.selectedCounty === row.county,
       onSelectRow: (row) => {
-        document.dispatchEvent(new CustomEvent('dashboard:countyselect', {
-          detail: { containerSelector: state.mapConfigs[state.activeDashboardType].selector, county: row.county },
-        }));
+        document.dispatchEvent(
+          new CustomEvent('dashboard:countyselect', {
+            detail: {
+              containerSelector: state.mapConfigs[state.activeDashboardType].selector,
+              county: row.county,
+            },
+          }),
+        );
         state.popups.closeCountyDrawer();
       },
     });
@@ -200,7 +218,10 @@ export default function initGrid(state, mappableStateNames) {
     // Not the search input -- auto-focusing it pops the mobile keyboard
     // (and, on iOS Safari, zooms the page) the instant the drawer opens.
     focusOnOpen: () => countyDrawerEls.closeBtn?.focus(),
-    onBeforeOpen: () => { state.popups.closeDrawer(); state.popups.closeTrendDrawer(); },
+    onBeforeOpen: () => {
+      state.popups.closeDrawer();
+      state.popups.closeTrendDrawer();
+    },
     onOpen: () => {
       renderCountyDrawerList();
       countyDrawerEls.tbody?.querySelector('tr.is-selected')?.scrollIntoView({ block: 'nearest' });
@@ -220,9 +241,14 @@ export default function initGrid(state, mappableStateNames) {
   }
 
   countyDrawerEls.triggerClear?.addEventListener('click', () => {
-    document.dispatchEvent(new CustomEvent('dashboard:countyselect', {
-      detail: { containerSelector: state.mapConfigs[state.activeDashboardType].selector, county: null },
-    }));
+    document.dispatchEvent(
+      new CustomEvent('dashboard:countyselect', {
+        detail: {
+          containerSelector: state.mapConfigs[state.activeDashboardType].selector,
+          county: null,
+        },
+      }),
+    );
   });
 
   // ---- Desktop "expand" overlay for the merged Enrollment Table card.
@@ -231,9 +257,13 @@ export default function initGrid(state, mappableStateNames) {
   // Switching state/county view works the same way whether the card is expanded
   // or not — see setActiveGridView below. ----
 
-  const allAreasScrollWrapEl = document.querySelector('#all-areas-table')?.closest('.data-grid-scroll-wrap');
+  const allAreasScrollWrapEl = document
+    .querySelector('#all-areas-table')
+    ?.closest('.data-grid-scroll-wrap');
   const allAreasScrollWrapHome = allAreasScrollWrapEl?.parentElement;
-  const countyScrollWrapEl = document.querySelector('#county-table')?.closest('.data-grid-scroll-wrap');
+  const countyScrollWrapEl = document
+    .querySelector('#county-table')
+    ?.closest('.data-grid-scroll-wrap');
   const countyScrollWrapHome = countyScrollWrapEl?.parentElement;
 
   const viewTabsEl = document.querySelector('#enrollment-view-tabs');
@@ -251,7 +281,8 @@ export default function initGrid(state, mappableStateNames) {
   };
 
   const scrollWrapFor = (view) => (view === 'county' ? countyScrollWrapEl : allAreasScrollWrapEl);
-  const scrollWrapHomeFor = (view) => (view === 'county' ? countyScrollWrapHome : allAreasScrollWrapHome);
+  const scrollWrapHomeFor = (view) =>
+    view === 'county' ? countyScrollWrapHome : allAreasScrollWrapHome;
   const tableSelectorFor = (view) => (view === 'county' ? '#county-table' : '#all-areas-table');
 
   const enrollmentOverlayPopup = createPopup({
@@ -270,7 +301,9 @@ export default function initGrid(state, mappableStateNames) {
       overlayEls.tabsSlot.appendChild(viewTabsEl);
       overlayEls.body.appendChild(scrollWrapFor(activeGridView));
       bindScrollAffordance(document.querySelector(tableSelectorFor(activeGridView)));
-      scrollRowIntoView(document.querySelector(`${tableSelectorFor(activeGridView)} tr.is-selected`));
+      scrollRowIntoView(
+        document.querySelector(`${tableSelectorFor(activeGridView)} tr.is-selected`),
+      );
     },
     onClose: () => {
       scrollWrapHomeFor(activeGridView).appendChild(scrollWrapFor(activeGridView));
@@ -331,7 +364,9 @@ export default function initGrid(state, mappableStateNames) {
     }
 
     if (countyDrawerTitleEl) {
-      countyDrawerTitleEl.textContent = hasState ? `${stateName} ${countyDrawerBaseTitle}` : countyDrawerBaseTitle;
+      countyDrawerTitleEl.textContent = hasState
+        ? `${stateName} ${countyDrawerBaseTitle}`
+        : countyDrawerBaseTitle;
     }
   };
 
@@ -364,7 +399,8 @@ export default function initGrid(state, mappableStateNames) {
     if (!stateAbbr) {
       state.grid.currentCountyRows = [];
       updateCountyDrawerTriggerValue();
-      host.innerHTML = '<p class="data-grid-placeholder">Select a state on the map or from the dropdown to view county enrollment.</p>';
+      host.innerHTML =
+        '<p class="data-grid-placeholder">Select a state on the map or from the dropdown to view county enrollment.</p>';
       updateScrollAffordance(host);
       return;
     }
@@ -376,7 +412,11 @@ export default function initGrid(state, mappableStateNames) {
       // Suppressed/no-data counties (e.g. Kalawao County, HI) are kept here
       // -- shown flagged (via the "Suppressed"/"No data" tag) but still
       // selectable, matching the map, rather than silently dropped.
-      const countyRows = await requestDataset('countyEnrollment', { state: stateAbbr, year, month }, { signal });
+      const countyRows = await requestDataset(
+        'countyEnrollment',
+        { state: stateAbbr, year, month },
+        { signal },
+      );
       if (isStale()) return;
       state.grid.currentCountyRows = countyRows;
 
@@ -388,7 +428,8 @@ export default function initGrid(state, mappableStateNames) {
       if (isStale()) return;
       state.grid.currentCountyRows = [];
       updateCountyDrawerTriggerValue();
-      host.innerHTML = '<p class="data-grid-placeholder" role="alert">County data could not be loaded.</p>';
+      host.innerHTML =
+        '<p class="data-grid-placeholder" role="alert">County data could not be loaded.</p>';
     }
   };
 

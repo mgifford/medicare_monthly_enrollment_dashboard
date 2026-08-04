@@ -47,9 +47,6 @@ function setCurrentLink() {
 /**
  * Add the event listener to find the nearest heading on user scroll
  */
-if (
-  document.querySelector('.usa-sidenav')
-    && document.querySelectorAll('h2').length > 1
-) {
+if (document.querySelector('.usa-sidenav') && document.querySelectorAll('h2').length > 1) {
   window.addEventListener('scroll', setCurrentLink);
 }

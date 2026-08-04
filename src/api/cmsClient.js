@@ -1,12 +1,15 @@
 import { baseUrl } from '../config';
 
 const RETRY_DELAY_MS = 500;
-const wait = (ms) => new Promise((resolve) => { setTimeout(resolve, ms); });
+const wait = (ms) =>
+  new Promise((resolve) => {
+    setTimeout(resolve, ms);
+  });
 
 async function doFetch(queryParams, signal) {
   const response = await fetch(`${baseUrl}?${queryParams.toString()}`, {
     method: 'GET',
-    headers: { 'Accept': 'application/json' },
+    headers: { Accept: 'application/json' },
     signal,
   });
 

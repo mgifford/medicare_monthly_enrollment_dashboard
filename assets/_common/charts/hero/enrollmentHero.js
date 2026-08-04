@@ -50,7 +50,10 @@ function renderEnrollmentHero(containerSelector, data, totalEnrollment, config =
 
   const container = d3.select(containerSelector);
   if (container.empty()) {
-    return { success: false, error: `renderEnrollmentHero: no element matches "${containerSelector}".` };
+    return {
+      success: false,
+      error: `renderEnrollmentHero: no element matches "${containerSelector}".`,
+    };
   }
 
   container.select('#heroTotal').text(formatMillions(totalEnrollment));
@@ -65,15 +68,17 @@ function renderEnrollmentHero(containerSelector, data, totalEnrollment, config =
     const width = Math.max(Math.max(datum.value, 0) * widthScale, HERO_BAR_MIN_WIDTH);
 
     container.select(`#heroName${slot}`).text(datum.label ?? datum.name);
-    container.select(`#heroSeg${slot}`)
-      .style('background', color)
-      .style('width', `${width}%`);
+    container.select(`#heroSeg${slot}`).style('background', color).style('width', `${width}%`);
     container.select(`#heroBig${slot}`).text(formatMillions(amount));
     container.select(`#heroSub${slot}`).text(`${Math.round(datum.value)}%`);
   });
 
-  container.select('#heroSplitBar')
-    .attr('aria-label', `Enrollment split: ${data.map((d) => `${d.label ?? d.name} ${Math.round(d.value)}%`).join(', ')}`);
+  container
+    .select('#heroSplitBar')
+    .attr(
+      'aria-label',
+      `Enrollment split: ${data.map((d) => `${d.label ?? d.name} ${Math.round(d.value)}%`).join(', ')}`,
+    );
 
   // Re-rendered on every toggle, so drop the previous sr-only table first.
   container.select('.usa-sr-only.sr-only').remove();

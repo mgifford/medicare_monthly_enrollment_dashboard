@@ -3,9 +3,7 @@
  * Uses .usa-sr-only per Section 508 requirements; pairs with existing .sr-only in styles.css.
  */
 function renderSrTable(container, caption, columns, data) {
-  const wrapper = container
-    .append('div')
-    .attr('class', 'usa-sr-only sr-only');
+  const wrapper = container.append('div').attr('class', 'usa-sr-only sr-only');
 
   const table = wrapper.append('table');
 
@@ -21,12 +19,7 @@ function renderSrTable(container, caption, columns, data) {
     .attr('scope', 'col')
     .text((col) => col.label);
 
-  const rows = table
-    .append('tbody')
-    .selectAll('tr')
-    .data(data)
-    .enter()
-    .append('tr');
+  const rows = table.append('tbody').selectAll('tr').data(data).enter().append('tr');
 
   rows
     .selectAll('td')

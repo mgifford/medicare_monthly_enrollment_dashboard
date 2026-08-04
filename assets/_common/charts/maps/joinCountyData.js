@@ -28,7 +28,7 @@ function joinCountyData(countyFeatures, countyRows) {
   const rowByFips = new Map(
     countyRows
       .filter((row) => typeof row.fips === 'string' && /^\d{5}$/.test(row.fips))
-      .map((row) => [row.fips, row])
+      .map((row) => [row.fips, row]),
   );
 
   return countyFeatures.map((feature) => ({
@@ -51,8 +51,8 @@ function joinCountyData(countyFeatures, countyRows) {
 function filterCountiesByState(countyFeatures, stateFips) {
   const stateFipsString = String(stateFips).padStart(2, '0');
 
-  return countyFeatures.filter((county) =>
-    String(county.id).padStart(5, '0').slice(0, 2) === stateFipsString
+  return countyFeatures.filter(
+    (county) => String(county.id).padStart(5, '0').slice(0, 2) === stateFipsString,
   );
 }
 

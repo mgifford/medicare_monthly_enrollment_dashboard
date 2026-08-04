@@ -2,7 +2,8 @@
 @use 'template/card' as *;
 @use 'tokens' as *;
 
-#medicare-state-selector.usa-select, #drug-state-selector.usa-select,
+#medicare-state-selector.usa-select,
+#drug-state-selector.usa-select,
 .usa-combo-box__input {
   border-radius: 15px;
   border: 1px solid var(--baseline);
@@ -78,7 +79,9 @@
 }
 
 @media (max-width: $bp-phone-max) {
-  .usa-combo-box__input-button-separator { display: none; }
+  .usa-combo-box__input-button-separator {
+    display: none;
+  }
 }
 
 .map-card__divider {

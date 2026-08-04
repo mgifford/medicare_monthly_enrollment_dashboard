@@ -1,7 +1,16 @@
 import * as d3 from 'd3';
 import * as topojson from 'topojson-client';
 import renderSrTable from '../accessibility';
-import { createTooltip, moveTooltip, DEFAULT_BREAKPOINTS, DEFAULT_COLORS, NO_DATA_FILL, computeJenksBreaks, formatCount, formatPercent } from '../utils';
+import {
+  createTooltip,
+  moveTooltip,
+  DEFAULT_BREAKPOINTS,
+  DEFAULT_COLORS,
+  NO_DATA_FILL,
+  computeJenksBreaks,
+  formatCount,
+  formatPercent,
+} from '../utils';
 import renderCountyMap from './renderCountyMap';
 import requestDataset from '../../../../src/router';
 import renderTierHistogram from './renderTierHistogram';
@@ -20,14 +29,13 @@ const PROJECTION_SCALE = 950;
 const PROJECTION_SCALE_MOBILE = 1150;
 const MOBILE_MEDIA_QUERY = '(max-width: 63.99em)';
 
-
 // Module-level (not inside renderStateMap, which runs repeatedly) so
 // document only ever gets one dashboard:countyselect listener.
 const countyViewRegistry = {};
 
 // entry.rerender() is a full synchronous rebuild
 // expensive for state with many counties.
-// Coalescing into the next animation frame collapses 
+// Coalescing into the next animation frame collapses
 // a burst of clicks into a render of the final selection
 let countySelectFrame = null;
 
@@ -43,8 +51,8 @@ document.addEventListener('dashboard:countyselect', (event) => {
   });
 });
 
-// pendingX tracks an in-flight fetch so concurrent callers 
-// share one request instead of each firing their own 
+// pendingX tracks an in-flight fetch so concurrent callers
+// share one request instead of each firing their own
 let cachedCountyFeatures = null;
 let pendingCountyFeatures = null;
 
@@ -209,23 +217,18 @@ function renderStateMap(containerSelector, data, config = {}) {
     if (!select) return;
 
     const comboBox = select.closest('.usa-combo-box');
-    const comboBoxInput = comboBox?.querySelector(
-      '.usa-combo-box__input',
-    );
+    const comboBoxInput = comboBox?.querySelector('.usa-combo-box__input');
 
     const isCountyView = Boolean(stateName);
 
-    const usMapOption = select.querySelector(
-      'option[value="us-map"]',
-    );
+    const usMapOption = select.querySelector('option[value="us-map"]');
 
     // USWDS creates its own visible list from the original <select>.
     const usMapListOption = Array.from(
       comboBox?.querySelectorAll('.usa-combo-box__list-option') || [],
-    ).find((option) => (
-      option.dataset.value === 'us-map'
-      || option.textContent.trim() === 'U.S. Map'
-    ));
+    ).find(
+      (option) => option.dataset.value === 'us-map' || option.textContent.trim() === 'U.S. Map',
+    );
 
     // Hide U.S. Map on the national map and show it in county view.
     if (usMapOption) {
@@ -248,8 +251,7 @@ function renderStateMap(containerSelector, data, config = {}) {
 
   syncComboBox();
 
-  document.querySelectorAll('.usa-combo-box__clear-input')
-  .forEach((button) => button.remove());
+  document.querySelectorAll('.usa-combo-box__clear-input').forEach((button) => button.remove());
 
   container.style('position', 'relative');
   container.selectAll('*').remove();
@@ -335,36 +337,28 @@ function renderStateMap(containerSelector, data, config = {}) {
   getStateFeatures()
     .then((features) => {
       const featureByStateName = new Map(
-        features.map((stateFeature) => [
-          stateFeature.properties.name,
-          stateFeature,
-        ]),
+        features.map((stateFeature) => [stateFeature.properties.name, stateFeature]),
       );
 
-      d3.select(comboBoxSelector).on(
-        'change.state-map',
-        async (event) => {
-          const selectedValue = event.target.value;
+      d3.select(comboBoxSelector).on('change.state-map', async (event) => {
+        const selectedValue = event.target.value;
 
-          if (!selectedValue || selectedValue === 'us-map') {
-            document.dispatchEvent(
-              new CustomEvent('dashboard:stateclear'),
-            );
+        if (!selectedValue || selectedValue === 'us-map') {
+          document.dispatchEvent(new CustomEvent('dashboard:stateclear'));
 
-            renderStateMap(containerSelector, data, config);
-            return;
-          }
+          renderStateMap(containerSelector, data, config);
+          return;
+        }
 
-          const stateData = dataByName.get(selectedValue);
-          if (!stateData) return;
+        const stateData = dataByName.get(selectedValue);
+        if (!stateData) return;
 
-          const stateFeature = featureByStateName.get(selectedValue);
-          if (!stateFeature) return;
+        const stateFeature = featureByStateName.get(selectedValue);
+        if (!stateFeature) return;
 
-          emitStateChange(stateData);
-          await showCountyView(stateFeature, stateData);
-        },
-      );
+        emitStateChange(stateData);
+        await showCountyView(stateFeature, stateData);
+      });
       const statePaths = svg
         .append('g')
         .selectAll('path')
@@ -375,8 +369,9 @@ function renderStateMap(containerSelector, data, config = {}) {
         .attr('stroke', '#fff')
         .attr('stroke-width', 1)
         .style('cursor', 'pointer');
-        
-      const hoverOutline = svg.append('path')
+
+      const hoverOutline = svg
+        .append('path')
         .attr('fill', 'none')
         .attr('stroke', '#111')
         .attr('stroke-width', 3)

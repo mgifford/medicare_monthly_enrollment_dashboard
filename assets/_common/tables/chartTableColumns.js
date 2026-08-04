@@ -6,7 +6,10 @@ import { formatCount, formatPercent } from '../charts/utils';
 // type1/type2 labels differ, sourced from DASHBOARD_LABELS.
 function buildColumns({ total, type1, type2, hasMonth }) {
   const periodCols = hasMonth
-    ? [{ label: 'Year', value: (d) => d.year }, { label: 'Month', value: (d) => d.month }]
+    ? [
+        { label: 'Year', value: (d) => d.year },
+        { label: 'Month', value: (d) => d.month },
+      ]
     : [{ label: 'Year', value: (d) => d.year }];
 
   return [

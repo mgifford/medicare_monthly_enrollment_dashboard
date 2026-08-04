@@ -25,7 +25,9 @@ async function requestDataset(serviceName, options = {}, { signal } = {}) {
   const targetFunction = functionRegistry[serviceName];
 
   if (!targetFunction) {
-    throw new Error(`Dataset function '${serviceName}' not found. Available options: ${Object.keys(functionRegistry).join(', ')}`);
+    throw new Error(
+      `Dataset function '${serviceName}' not found. Available options: ${Object.keys(functionRegistry).join(', ')}`,
+    );
   }
 
   const cacheKey = `${serviceName}:${JSON.stringify(options)}`;

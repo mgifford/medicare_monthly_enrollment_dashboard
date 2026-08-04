@@ -13,12 +13,16 @@
   background: rgba(16, 16, 24, 0.45);
   opacity: 0;
   visibility: hidden;
-  transition: opacity 0.25s ease, visibility 0s linear 0.25s;
+  transition:
+    opacity 0.25s ease,
+    visibility 0s linear 0.25s;
 
   &.is-open {
     opacity: 1;
     visibility: visible;
-    transition: opacity 0.25s ease, visibility 0s linear 0s;
+    transition:
+      opacity 0.25s ease,
+      visibility 0s linear 0s;
   }
 }
 
@@ -38,9 +42,14 @@
 
   @if $fade {
     opacity: 0;
-    transition: opacity $duration ease, transform $duration ease, visibility 0s linear $duration;
+    transition:
+      opacity $duration ease,
+      transform $duration ease,
+      visibility 0s linear $duration;
   } @else {
-    transition: transform $duration ease, visibility 0s linear $duration;
+    transition:
+      transform $duration ease,
+      visibility 0s linear $duration;
   }
 
   &.is-open {
@@ -49,9 +58,14 @@
 
     @if $fade {
       opacity: 1;
-      transition: opacity $duration ease, transform $duration ease, visibility 0s linear 0s;
+      transition:
+        opacity $duration ease,
+        transform $duration ease,
+        visibility 0s linear 0s;
     } @else {
-      transition: transform $duration ease, visibility 0s linear 0s;
+      transition:
+        transform $duration ease,
+        visibility 0s linear 0s;
     }
   }
 }

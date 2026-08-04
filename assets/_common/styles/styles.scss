@@ -1,7 +1,7 @@
 /*---------------------------------------------------------
 USWDS Settings
 ----------------------------------------------------------*/
-@forward "uswds-theme-settings";
+@forward 'uswds-theme-settings';
 
 /*---------------------------------------------------------
 USWDS Source
@@ -18,20 +18,19 @@ of the full component library ("@forward 'uswds'"):
   - usa-combo-box: the state-picker's combo-box behavior (also
     forwards usa-select and usa-icon as its own dependencies).
 ----------------------------------------------------------*/
-@forward "uswds-global";
-@forward "usa-button";
-@forward "usa-combo-box";
+@forward 'uswds-global';
+@forward 'usa-button';
+@forward 'usa-combo-box';
 
 /*---------------------------------------------------------
 Custom styling
 ----------------------------------------------------------*/
-@forward "custom-styles.scss";
+@forward 'custom-styles.scss';
 
-@forward "overrides/code_highlight.scss";
+@forward 'overrides/code_highlight.scss';
 
 /*---------------------------------------------------------
 Dashboard styles (template + data layers) — forwarded last so
 they win the cascade over the general site styles above.
 ----------------------------------------------------------*/
-@forward "dashboard/index";
-
+@forward 'dashboard/index';

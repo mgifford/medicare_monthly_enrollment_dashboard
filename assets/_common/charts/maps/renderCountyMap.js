@@ -1,9 +1,16 @@
 import * as d3 from 'd3';
 import renderSrTable from '../accessibility';
-import { createTooltip, moveTooltip, DEFAULT_BREAKPOINTS, NO_DATA_FILL, DEFAULT_COLORS, formatCount, formatPercent } from '../utils';
+import {
+  createTooltip,
+  moveTooltip,
+  DEFAULT_BREAKPOINTS,
+  NO_DATA_FILL,
+  DEFAULT_COLORS,
+  formatCount,
+  formatPercent,
+} from '../utils';
 import { joinCountyData, filterCountiesByState } from './joinCountyData';
 import renderTierHistogram from './renderTierHistogram';
-
 
 const MOBILE_MEDIA_QUERY = '(max-width: 63.99em)';
 
@@ -59,7 +66,7 @@ function renderCountyMap(
     ],
   } = config;
 
-  // Mutable so updateSelection can change the path 
+  // Mutable so updateSelection can change the path
   // without re-running the rest of this function
   let selectedCounty = initialSelectedCounty;
 
@@ -128,12 +135,10 @@ function renderCountyMap(
   const isSelectable = (entry) => Boolean(entry.data);
 
   const getDisplayedFill = (entry) => {
-  const fill = getCountyFill(entry);
+    const fill = getCountyFill(entry);
 
-  return isSelected(entry)
-    ? d3.color(fill).brighter(0.7).formatHex()
-    : fill;
-};
+    return isSelected(entry) ? d3.color(fill).brighter(0.7).formatHex() : fill;
+  };
 
   const countyPaths = svg
     .append('g')
@@ -146,7 +151,8 @@ function renderCountyMap(
     .attr('stroke-width', (entry) => (isSelected(entry) ? 3 : 0.75))
     .style('cursor', (entry) => (isSelectable(entry) ? 'pointer' : 'default'));
 
-  const hoverOutline = svg.append('path')
+  const hoverOutline = svg
+    .append('path')
     .attr('fill', 'none')
     .attr('stroke', '#111')
     .attr('stroke-width', 3)
@@ -154,7 +160,7 @@ function renderCountyMap(
     .style('opacity', 0);
 
   countyPaths
-    .on('mouseenter', function highlightCurrent(event, entry){
+    .on('mouseenter', function highlightCurrent(event, entry) {
       const currentFill = getCountyFill(entry);
       d3.select(this).attr('fill', d3.color(currentFill).brighter(0.7).formatHex());
       hoverOutline.attr('d', path(entry.feature)).style('opacity', 1);
@@ -189,9 +195,11 @@ function renderCountyMap(
     })
     .on('click', (event, entry) => {
       if (!isSelectable(entry)) return;
-      document.dispatchEvent(new CustomEvent('dashboard:countyselect', {
-        detail: { containerSelector, county: entry.data.county },
-      }));
+      document.dispatchEvent(
+        new CustomEvent('dashboard:countyselect', {
+          detail: { containerSelector, county: entry.data.county },
+        }),
+      );
     });
 
   countyPaths.filter((entry) => isSelected(entry)).raise();

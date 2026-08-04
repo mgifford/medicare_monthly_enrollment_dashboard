@@ -1,7 +1,6 @@
 /* eslint-env jest */
 import mergeLatestMonthlyIntoYearly from './yearlyLatest';
 
-
 describe('mergeLatestMonthlyIntoYearly', () => {
   it('prepends the latest monthly row when monthly year is newer than yearly year', () => {
     const yearly = [{ year: '2025', Enrollees: 100 }];

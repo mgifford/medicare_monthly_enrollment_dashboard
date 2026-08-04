@@ -1,16 +1,16 @@
 export const monthOrder = {
-  'January': 1,
-  'February': 2,
-  'March': 3,
-  'April': 4,
-  'May': 5,
-  'June': 6,
-  'July': 7,
-  'August': 8,
-  'September': 9,
-  'October': 10,
-  'November': 11,
-  'December': 12
+  January: 1,
+  February: 2,
+  March: 3,
+  April: 4,
+  May: 5,
+  June: 6,
+  July: 7,
+  August: 8,
+  September: 9,
+  October: 10,
+  November: 11,
+  December: 12,
 };
 
 // Sorts by most recent first because
@@ -24,7 +24,7 @@ export function sortDescByPeriod(rows) {
 
 // Returns NaN when we can't calculate a real percent
 export const getPercent = (count, totalVal) =>
-  (totalVal > 0 && Number.isFinite(count) ? parseFloat(((count / totalVal) * 100).toFixed(2)) : NaN);
+  totalVal > 0 && Number.isFinite(count) ? parseFloat(((count / totalVal) * 100).toFixed(2)) : NaN;
 
 // CMS writes '*' instead of a number to hide small counts for privacy.
 // Returns null so "hidden" and a real zero don't look the same.
@@ -52,4 +52,3 @@ export function parseEnrollmentFields(row) {
     mapdPercent: getPercent(num(row.PRSCRPTN_DRUG_MAPD_BENES), drugTotal),
   };
 }
-
