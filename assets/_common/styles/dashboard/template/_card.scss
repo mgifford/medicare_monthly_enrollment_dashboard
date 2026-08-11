@@ -1,0 +1,314 @@
+// Generic card shell + the reusable "data-grid-card" component: a card with
+// a header (title + expand button/tabs), a body, and a mobile-only
+// "trigger" row that opens a drawer instead of showing the body inline.
+// Used by both the enrollment grid (grid.js) and the trend card's mobile
+// carousel panel (trend.js) -- it's a shared pattern, not grid-specific.
+@use '../tokens' as *;
+
+.card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 15px;
+  box-shadow: var(--shadow);
+}
+
+// Shared by every card's header row (title + a control button/tabs on the
+// right) -- consolidates what used to be ~5 near-identical hand-authored
+// copies (data-grid-card, map-card, data-grid-overlay, data-grid-drawer,
+// trend-head).
+@mixin card-header-row($padding, $align-items: center, $gap: 10px) {
+  display: flex;
+  align-items: $align-items;
+  justify-content: space-between;
+  gap: $gap;
+  padding: $padding;
+}
+
+@mixin card-title($size: 1.05rem) {
+  margin: 0;
+  font-size: $size;
+  font-weight: 700;
+  color: var(--ink);
+}
+
+.data-grid-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 15px;
+  box-shadow: var(--shadow);
+  overflow: hidden;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.data-grid-card__header {
+  @include card-header-row(12px 14px, flex-start);
+  background: var(--surface-2);
+}
+
+.data-grid-card__heading {
+  min-width: 0;
+}
+
+.data-grid-card__title {
+  @include card-title;
+}
+
+.data-grid-card__instruction {
+  margin: 6px 0 0;
+  font-size: 0.8125rem;
+  line-height: 1.4;
+  color: var(--ink-2);
+}
+
+.data-grid-card__expand {
+  flex: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border: 0;
+  border-radius: 8px;
+  background: transparent;
+  color: var(--ink-2);
+  cursor: pointer;
+}
+
+.data-grid-card__expand:hover {
+  background: rgba(20, 20, 28, 0.06);
+}
+
+.data-grid-card__expand:disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
+@media (max-width: $bp-tablet-max) {
+  .data-grid-card__expand {
+    display: none;
+  }
+}
+
+.data-grid-card__tabs-slot {
+  padding: 0 14px 12px;
+  background: var(--surface-2);
+  border-bottom: 1px solid var(--border);
+}
+
+.data-grid-view-tabs .data-grid-view-tab {
+  font-size: 0.8rem;
+  padding: 6px 14px;
+  border: 1px solid transparent;
+  font-weight: 600;
+}
+
+.data-grid-view-tabs .data-grid-view-tab:hover {
+  background: rgba(20, 20, 28, 0.06);
+  color: var(--ink);
+}
+
+.data-grid-view-tabs .data-grid-view-tab[aria-selected='true'] {
+  font-weight: 700;
+  border-color: var(--border);
+}
+
+.data-grid-view-tabs .data-grid-view-tab:focus-visible {
+  outline: 2px solid var(--focus);
+  outline-offset: 2px;
+}
+
+@media (forced-colors: active) {
+  .data-grid-view-tabs .data-grid-view-tab[aria-selected='true'] {
+    border: 2px solid CanvasText;
+  }
+}
+
+.data-grid-card__body {
+  padding: 0;
+  min-height: 0;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+@media (max-width: $bp-tablet-max) {
+  .data-grid-card__header {
+    padding: 10px 12px;
+  }
+
+  .data-grid-card th,
+  .data-grid-card td {
+    padding: 8px 7px;
+  }
+
+  .data-grid-card thead th {
+    padding: 8px 7px;
+  }
+}
+
+@media (max-width: $bp-narrow-max) {
+  .data-grid-card table {
+    font-size: 0.75rem;
+  }
+
+  .data-grid-card th,
+  .data-grid-card td {
+    padding: 7px 5px;
+  }
+
+  .data-grid-card thead th {
+    font-size: 0.625rem;
+    letter-spacing: 0.01em;
+    padding: 7px 5px;
+  }
+
+  .data-grid-card .num-full {
+    display: none;
+  }
+
+  .data-grid-card .num-abbr {
+    display: inline;
+  }
+}
+
+.data-grid-card__mobile-trigger {
+  display: none;
+}
+
+// Declared before the mobile media query (not after) so its equal-specificity
+// display:block rule wins there instead of this one hiding the divider always.
+.data-grid-card__mobile-divider {
+  display: none;
+}
+
+@media (max-width: $bp-tablet-max) {
+  // Unscoped so this still matches while reparented into a .data-grid-overlay.
+  .data-grid-scroll-wrap {
+    display: none;
+  }
+
+  // Visually hidden, not display:none, so the <h3> still labels the article.
+  .data-grid-card--enrollment .data-grid-card__header {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+  }
+
+  .data-grid-card__tabs-slot {
+    display: none;
+  }
+
+  .data-grid-card__mobile-trigger-clear:not([hidden]) {
+    display: flex;
+  }
+
+  .data-grid-card__mobile-divider {
+    display: block;
+    height: 1px;
+    margin: 0;
+    border: 0;
+    background: var(--border);
+  }
+}
+
+.data-grid-card__mobile-trigger:disabled {
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+.data-grid-card__mobile-trigger-top {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.data-grid-card__mobile-trigger-heading {
+  display: block;
+  min-width: 0;
+}
+
+.data-grid-card__mobile-trigger-title {
+  display: block;
+  @include card-title;
+}
+
+.data-grid-card__mobile-trigger-chevron {
+  flex: none;
+  margin-top: 4px;
+  color: var(--ink-2);
+}
+
+.data-grid-card__mobile-trigger-desc {
+  display: block;
+  margin-top: 8px;
+  font-size: 0.8125rem;
+  line-height: 1.5;
+  color: var(--ink-2);
+}
+
+.data-grid-card__mobile-trigger-divider {
+  display: block;
+  height: 1px;
+  margin: 14px 0;
+  background: var(--border);
+}
+
+.data-grid-card__mobile-trigger-status {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding-right: 28px; // leaves room for the clear button below, when shown
+}
+
+.data-grid-card__mobile-trigger-wrap {
+  position: relative;
+}
+
+// Desktop highlights the selected row instead (see tr.is-selected).
+.data-grid-card__mobile-trigger-clear {
+  display: none;
+  position: absolute;
+  right: 16px;
+  bottom: 14px;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  border: 0;
+  border-radius: 999px;
+  background: var(--surface-2);
+  color: var(--ink-2);
+  cursor: pointer;
+}
+
+.data-grid-card__mobile-trigger-dot {
+  display: inline-block;
+  flex: none;
+  width: 8px;
+  height: 8px;
+  border-radius: 999px;
+  background: var(--border);
+}
+
+.data-grid-card__mobile-trigger-dot.is-selected {
+  background: var(--brand-ink);
+}
+
+.data-grid-card__mobile-trigger-value {
+  font-size: 0.875rem;
+  color: var(--ink-2);
+}
+
+.data-grid-card__mobile-trigger-value.is-selected {
+  font-weight: 700;
+  color: var(--ink);
+}

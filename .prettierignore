@@ -1,0 +1,5 @@
+*.njk
+_includes/**/*.html
+.github/
+*.md
+package-lock.json

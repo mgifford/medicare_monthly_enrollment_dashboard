@@ -25,14 +25,20 @@ import * as d3 from 'd3';
  */
 function renderTable(selector, columnDefs, data, options = {}) {
   const {
-    onRowClick, isRowSelectable = () => true, isRowSelected = () => false, sortState, onSort, sortableIndex,
+    onRowClick,
+    isRowSelectable = () => true,
+    isRowSelected = () => false,
+    sortState,
+    onSort,
+    sortableIndex,
   } = options;
   const container = d3.select(selector);
   container.html('');
 
   const table = container.append('table');
 
-  const headerCells = table.append('thead')
+  const headerCells = table
+    .append('thead')
     .append('tr')
     .selectAll('th')
     .data(columnDefs)
@@ -51,7 +57,8 @@ function renderTable(selector, columnDefs, data, options = {}) {
       if (isActive) ariaSortValue = sortState.direction === 'asc' ? 'ascending' : 'descending';
       th.attr('aria-sort', ariaSortValue);
 
-      const button = th.append('button')
+      const button = th
+        .append('button')
         .attr('type', 'button')
         .attr('class', 'data-grid-sort-button')
         .classed('is-active', isActive)
@@ -59,7 +66,8 @@ function renderTable(selector, columnDefs, data, options = {}) {
 
       button.append('span').text(col.label);
       if (isActive) {
-        button.append('span')
+        button
+          .append('span')
           .attr('aria-hidden', 'true')
           .text(sortState.direction === 'asc' ? ' ▲' : ' ▼');
       }
@@ -68,11 +76,7 @@ function renderTable(selector, columnDefs, data, options = {}) {
     headerCells.text((col) => col.label);
   }
 
-  const rows = table.append('tbody')
-    .selectAll('tr')
-    .data(data)
-    .enter()
-    .append('tr');
+  const rows = table.append('tbody').selectAll('tr').data(data).enter().append('tr');
 
   rows.classed('is-selected', (row) => isRowSelected(row));
 
@@ -92,11 +96,14 @@ function renderTable(selector, columnDefs, data, options = {}) {
       });
   }
 
-  rows.selectAll('td')
-    .data((row) => columnDefs.map((col) => ({
-      text: col.value ? col.value(row) : null,
-      html: col.html ? col.html(row) : null,
-    })))
+  rows
+    .selectAll('td')
+    .data((row) =>
+      columnDefs.map((col) => ({
+        text: col.value ? col.value(row) : null,
+        html: col.html ? col.html(row) : null,
+      })),
+    )
     .enter()
     .append('td')
     .each(function renderCell(cell) {

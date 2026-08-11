@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "build": "npm run assets:build && npx @11ty/eleventy",
-    "assets:autoprefix": "postcss _site/assets/styles/*.css -r --use autoprefixer",
+    "assets:autoprefix": "postcss _site/assets/styles/*.css -r --use autoprefixer --no-map",
     "assets:build": "node ./config/buildAssets && npm run assets:autoprefix",
     "assets:clean": "rimraf _site/assets",
     "assets:refresh": "npm run assets:clean && npm run assets:build",
@@ -16,6 +16,8 @@
     "dev:assets": "npm run assets:refresh && npm run assets:watch",
     "dev:debug": "DEBUG=* npx @11ty/eleventy --serve --watch",
     "dev:serve": "npx @11ty/eleventy --serve --watch",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
     "lint": "eslint .",
     "pa11y-ci:sitemap": "sleep 10; pa11y-ci --sitemap http://localhost:8080/sitemap.xml --sitemap-exclude \"/*.pdf\"  --sitemap-exclude \"/admin\" --sitemap-find \"^/\" --sitemap-replace \"http://localhost:8080/\"",
     "serve": "npx @11ty/eleventy --serve",
@@ -73,5 +75,16 @@
   },
   "mocha": {
     "timeout": 15000
-  }
+  },
+  "jest": {
+    "testPathIgnorePatterns": [
+      "/node_modules/",
+      "/_site/"
+    ]
+  },
+  "browserslist": [
+    "defaults",
+    "not IE 11",
+    "not op_mini all"
+  ]
 }

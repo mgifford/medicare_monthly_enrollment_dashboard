@@ -22,6 +22,13 @@
   <meta name="HandheldFriendly" content="True" />
   <meta name="MobileOptimized" content="320" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <!-- Resource hints
+       ================================================== -->
+  {% comment -%}
+    The dashboard's hero/map/trend cards fetch enrollment data 
+    from this API as soon as their JS runs.
+  {% endcomment %}
+  <link rel="preconnect" href="https://data.cms.gov" crossorigin />
   <!-- Title and meta description
        ================================================== -->
 
@@ -52,7 +59,6 @@
   <meta property="og:type" content="article" />
   <link rel="canonical" href="{{ page.url }}" />
   <meta property="og:url" content="{{ page.url }}" />
-  <script async="" src={{ "/assets/js/uswds-init.js" | url }}></script>
 
   <!-- Favicon
        ================================================== -->
@@ -65,15 +71,14 @@
 
   <!-- CSS
        ================================================== -->
-  {% comment -%}
-    This prism CDN is for Prismjs, which is used in eleventy's syntax highlighting plugin. Eleventy recommends using one of Prism's CDN's to provide the css. More info in the docs: https://www.11ty.dev/docs/plugins/syntaxhighlight/
-  {% endcomment %}
-  <link href="https://unpkg.com/prismjs@1.20.0/themes/prism.css" rel="stylesheet">
   {% if tags[0] == "methods" %}
     <link rel="preload" as="style" href="{{ assetPaths['methods-styles.css'] }}" />
     <link rel="stylesheet" href="{{ assetPaths['methods-styles.css'] }}" type="text/css" />
   {% else %}
     <link rel="preload" as="style" href="{{ assetPaths['styles.css'] }}" />
     <link rel="stylesheet" href="{{ assetPaths['styles.css'] }}" type="text/css" />
+
+    <link rel="preload" as="font" type="font/woff2" href="{{ assetPaths['PublicSans-Regular.woff2'] }}" crossorigin>
+    <link rel="preload" as="font" type="font/woff2" href="{{ assetPaths['PublicSans-Bold.woff2'] }}" crossorigin>
   {% endif%}
 </head>

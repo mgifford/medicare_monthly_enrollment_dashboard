@@ -1,0 +1,253 @@
+// National/state/county trend card -- mirrors dashboard/trend.js.
+@use 'template/card' as *;
+@use 'tokens' as *;
+
+.trend-head {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-bottom: 2px;
+}
+// Title + button only, so the button can never wrap away from the top-right corner.
+.trend-head__top {
+  @include card-header-row(0, flex-start);
+  flex-wrap: nowrap;
+}
+.trend-head__heading {
+  min-width: 0;
+}
+.trend-head__controls {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+}
+#chartsView {
+  display: flex;
+  flex-direction: column;
+}
+.tabs {
+  display: inline-flex;
+  gap: 4px;
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 3px;
+}
+.tabs button {
+  appearance: none;
+  border: 0;
+  background: transparent;
+  font: inherit;
+  font-weight: 600;
+  font-size: 0.8rem;
+  color: var(--ink-2);
+  padding: 6px 12px;
+  border-radius: 8px;
+  cursor: pointer;
+}
+.tabs button[aria-selected='true'] {
+  background: var(--surface);
+  color: var(--ink);
+  box-shadow: 0 1px 2px rgba(16, 16, 24, 0.12);
+}
+.chart-block {
+  margin-top: 14px;
+  display: flex;
+  flex-direction: column;
+}
+.chart-block .table-container {
+  overflow: visible;
+  margin-top: 0;
+  display: flex;
+  flex-direction: column;
+}
+.chart-block .chart-figure {
+  height: 267px;
+}
+.chart-block__head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 4px 14px;
+  margin-bottom: 4px;
+}
+.chart-block h3,
+.chart-block h4 {
+  font-size: 0.82rem;
+  font-weight: 700;
+  margin: 0;
+}
+.chart-block h3 span,
+.chart-block h4 span {
+  color: var(--ink-2);
+  font-weight: 500;
+  font-size: 0.74rem;
+}
+.chart-svg {
+  width: 100%;
+  height: auto;
+  display: block;
+  overflow: visible;
+}
+.chart-block .chart-svg {
+  height: 100%;
+}
+
+@media (max-width: $bp-tablet-max) {
+  #chartsView {
+    flex-direction: row;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+  }
+
+  #chartsView::-webkit-scrollbar {
+    display: none;
+  }
+
+  .trend-panel {
+    flex: 0 0 100%;
+    min-width: 0;
+    scroll-snap-align: start;
+  }
+
+  .chart-block .chart-figure {
+    height: 220px;
+  }
+}
+
+// These panels only exist for the mobile carousel; desktop shows just the line chart inline.
+@media (min-width: $bp-desktop-min) {
+  .trend-panel--mobile-only {
+    display: none;
+  }
+}
+
+.trend-carousel-dots {
+  display: none;
+}
+
+@media (max-width: $bp-tablet-max) {
+  .trend-carousel-dots {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 8px;
+    margin-top: 10px;
+  }
+}
+
+.trend-carousel-dot {
+  appearance: none;
+  padding: 0;
+  border: 1.5px solid var(--border);
+  border-radius: 999px;
+  width: 8px;
+  height: 8px;
+  background: var(--surface-2);
+  cursor: pointer;
+}
+
+.trend-carousel-dot:hover {
+  background: rgba(20, 20, 28, 0.06);
+}
+
+.trend-carousel-dot:focus-visible {
+  outline: 2px solid var(--focus);
+  outline-offset: 2px;
+}
+
+// Active state changes shape (round -> pill) + size, not color alone
+.trend-carousel-dot[aria-pressed='true'] {
+  width: 20px;
+  border-radius: 5px;
+  background: var(--ink-2);
+  border-color: var(--ink-2);
+}
+
+@media (forced-colors: active) {
+  .trend-carousel-dot[aria-pressed='true'] {
+    border: 2px solid CanvasText;
+  }
+}
+
+// The trend card's own instance of the shared mobile-trigger pattern (see
+// template/_card.scss) -- grid.scss has the matching rule for the
+// enrollment grid's own .data-grid-card--enrollment instance.
+@media (max-width: $bp-tablet-max) {
+  #trend-panel-grid .data-grid-card__mobile-trigger {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    width: 100%;
+    padding: 16px;
+    background: transparent;
+    border: 0;
+    font: inherit;
+    text-align: left;
+    cursor: pointer;
+  }
+}
+
+#trend-overlay-body {
+  min-height: 220px;
+  padding: 16px 18px 18px;
+}
+
+#trend-overlay-body .data-grid-placeholder {
+  margin: auto;
+}
+
+.trend-overlay__toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px 14px;
+  flex-wrap: wrap;
+}
+
+#trend-overlay-body .trend-overlay__panel {
+  margin-top: 0;
+}
+
+#trend-overlay-body .chart-block .chart-figure {
+  height: clamp(300px, 50vh, 460px);
+}
+
+.trend-overlay__panel--grid {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.trend-loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  min-height: 260px;
+}
+
+.trend-loading__spinner {
+  width: 16px;
+  height: 16px;
+  border: 2px solid var(--border);
+  border-top-color: var(--brand);
+  border-radius: 50%;
+  animation: trend-spin 0.7s linear infinite;
+}
+
+@keyframes trend-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .trend-loading__spinner {
+    animation: none;
+  }
+}

@@ -1,0 +1,145 @@
+// The canonical data-table skin. Add `.data` (e.g. `<table class="data">`)
+// to any table to opt in; it also applies automatically inside a
+// `.data-grid-card`, `.data-grid-overlay`, or `.data-grid-drawer` (see
+// template/_card.scss and template/_modal.scss).
+table.data {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  overflow: visible;
+  font-size: 0.81rem;
+}
+table.data th,
+table.data td {
+  padding: 7px 11px;
+  text-align: right;
+  border-bottom: 1px solid var(--border);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+table.data th:first-child,
+table.data td:first-child {
+  text-align: left;
+  white-space: normal;
+}
+table.data thead th {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  background: var(--surface-2);
+  color: var(--ink-2);
+  font-weight: 700;
+  font-size: 0.68rem;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  box-shadow: inset 0 -1px 0 var(--border);
+}
+table.data tbody tr:last-child td {
+  border-bottom: 0;
+}
+table.data tbody tr:hover td {
+  background: var(--surface-2);
+}
+
+:is(.data-grid-card, .data-grid-overlay, .data-grid-drawer) table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  font-size: 0.8125rem;
+  background: transparent;
+  box-shadow: none;
+  border-radius: 0;
+  overflow: visible;
+}
+
+:is(.data-grid-card, .data-grid-overlay, .data-grid-drawer) th,
+:is(.data-grid-card, .data-grid-overlay, .data-grid-drawer) td {
+  padding: 8px 10px;
+  text-align: right;
+  border-bottom: 1px solid var(--border);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+// Name column wraps instead of forcing the whole table wider.
+:is(.data-grid-card, .data-grid-overlay, .data-grid-drawer) th:first-child,
+:is(.data-grid-card, .data-grid-overlay, .data-grid-drawer) td:first-child {
+  text-align: left;
+  font-weight: 600;
+  white-space: normal;
+}
+
+:is(.data-grid-card, .data-grid-overlay, .data-grid-drawer) thead th {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  background: var(--surface-2);
+  color: var(--ink-2);
+  font-weight: 700;
+  font-size: 0.6875rem;
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+  box-shadow: inset 0 -1px 0 var(--border);
+}
+
+// Shared by every sortable column header, desktop grids and mobile drawers alike.
+.data-grid-sort-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  border: 0;
+  background: transparent;
+  padding: 0;
+  font: inherit;
+  color: inherit;
+  cursor: pointer;
+}
+
+.data-grid-sort-button.is-active {
+  color: var(--brand-ink);
+}
+
+:is(.data-grid-card, .data-grid-overlay, .data-grid-drawer) tbody tr:last-child td {
+  border-bottom: 0;
+}
+
+@media (hover: hover) {
+  :is(.data-grid-card, .data-grid-overlay, .data-grid-drawer)
+    tbody
+    tr:not(.is-unselectable):hover
+    td {
+    background: #e5f3fa;
+  }
+}
+
+:is(.data-grid-card, .data-grid-overlay, .data-grid-drawer) tbody tr.is-clickable {
+  cursor: pointer;
+}
+
+:is(.data-grid-card, .data-grid-overlay, .data-grid-drawer) tbody tr.is-clickable:focus-visible {
+  outline: 2px solid var(--brand);
+  outline-offset: -2px;
+}
+
+// Also used by the mobile drawer, which has no hover state.
+:is(.data-grid-card, .data-grid-overlay, .data-grid-drawer) tbody tr.is-selected td {
+  color: var(--brand-ink);
+  font-weight: 700;
+}
+
+:is(.data-grid-card, .data-grid-overlay, .data-grid-drawer) tbody tr.is-selected td:first-child {
+  box-shadow: inset 3px 0 0 var(--brand-ink);
+}
+
+:is(.data-grid-card, .data-grid-overlay, .data-grid-drawer) tbody tr.is-unselectable td {
+  color: var(--ink-2);
+  cursor: default;
+}
+
+:is(.data-grid-card, .data-grid-overlay, .data-grid-drawer) tr:nth-child(even) {
+  background-color: transparent;
+}
+
+:is(.data-grid-card, .data-grid-overlay, .data-grid-drawer) .num-abbr {
+  display: none;
+}

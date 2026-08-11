@@ -1,0 +1,168 @@
+// State/county map card + the tier histogram -- mirrors dashboard/map.js.
+@use 'template/card' as *;
+@use 'tokens' as *;
+
+#medicare-state-selector.usa-select,
+#drug-state-selector.usa-select,
+.usa-combo-box__input {
+  border-radius: 15px;
+  border: 1px solid var(--baseline);
+  // Overrides USWDS's default margin-top: 0.5rem, which throws off centering here.
+  margin-top: 0;
+}
+
+.map-card__head {
+  @include card-header-row(0, center, 10px 14px);
+  flex-wrap: wrap;
+  margin-bottom: 2px;
+}
+
+.state-map-selection {
+  flex: none;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.map-card__body > .table-container {
+  overflow: visible;
+  flex: none;
+}
+
+.map-card__body > .table-container svg {
+  max-width: 100%;
+  max-height: 480px;
+  width: auto;
+  height: auto;
+  display: block;
+  margin: 0 auto;
+}
+
+.usa-combo-box {
+  width: 220px;
+  max-width: 100%;
+}
+
+.map-card__back {
+  flex: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 2.5rem;
+  padding: 0 12px;
+  border: 1px solid var(--baseline);
+  border-radius: 999px;
+  background: var(--surface);
+  color: var(--ink-2);
+  font: inherit;
+  font-weight: 600;
+  font-size: 0.78rem;
+  cursor: pointer;
+}
+
+.map-card__back:hover {
+  background: var(--surface-2);
+}
+
+@media (max-width: $bp-tablet-max) {
+  .map-card__head {
+    flex-direction: column;
+  }
+
+  .state-map-selection {
+    width: 100%;
+  }
+
+  .usa-combo-box {
+    width: 100%;
+  }
+}
+
+@media (max-width: $bp-phone-max) {
+  .usa-combo-box__input-button-separator {
+    display: none;
+  }
+}
+
+.map-card__divider {
+  margin: 14px 0;
+  border: 0;
+  border-top: 1px solid var(--border);
+}
+
+.map-cards {
+  display: flex;
+  flex-direction: column;
+}
+
+.map-card {
+  padding: 14px 16px;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.map-card__body {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+}
+
+.map-tier-histogram__title {
+  margin: 0.5rem 0 0;
+  text-align: center;
+  font-size: 0.875rem;
+  font-weight: 700;
+  color: var(--ink);
+}
+
+.map-tier-histogram__figure {
+  width: 100%;
+  min-width: 0;
+}
+
+.map-tier-histogram__figure svg {
+  display: block;
+  width: 100%;
+  height: auto;
+  overflow: visible;
+}
+
+.map-tier-histogram__bar {
+  stroke: var(--surface);
+  stroke-width: 1px;
+}
+
+.map-tier-histogram__divider {
+  stroke: rgba(27, 27, 27, 0.45);
+  stroke-dasharray: 3 3;
+  pointer-events: none;
+}
+
+.map-tier-histogram__count {
+  fill: var(--total);
+  font-size: 0.875rem;
+  font-weight: 700;
+}
+
+.map-tier-histogram__axis-label {
+  fill: #454545;
+  font-size: 0.75rem;
+}
+
+.map-tier-histogram__x-axis {
+  color: #565c65;
+  font-size: 0.75rem;
+}
+
+.map-tier-histogram__empty {
+  margin: 0;
+  color: #565c65;
+}
+
+.map-tier-histogram__subtitle {
+  margin: 0.125rem 0 0;
+  text-align: center;
+  font-size: 0.75rem;
+  color: var(--ink-2);
+}

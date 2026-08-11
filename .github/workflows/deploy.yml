@@ -39,6 +39,9 @@ jobs:
         env:
           BASEURL: /medicare_monthly_enrollment_dashboard
           NODE_ENV: production
+          # config/buildAssets.js checks ELEVENTY_ENV (not NODE_ENV) to decide
+          # whether to minify CSS/JS and drop sourcemaps
+          ELEVENTY_ENV: production
 
       - name: Setup GitHub pages
         uses: actions/configure-pages@v5

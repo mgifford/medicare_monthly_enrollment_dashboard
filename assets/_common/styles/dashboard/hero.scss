@@ -1,0 +1,95 @@
+// Enrollment hero card -- mirrors dashboard/hero.js.
+@use 'tokens' as *;
+
+.dash-hero {
+  padding: 14px 18px;
+  display: flex;
+  align-items: center;
+  gap: clamp(18px, 3vw, 36px);
+}
+.dash-hero__total {
+  flex: none;
+}
+.dash-hero__total .lab {
+  display: block;
+}
+
+.dash-hero__total b {
+  display: block;
+  font-size: 3rem;
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  line-height: 1.06;
+}
+
+.dash-hero__split {
+  flex: 1;
+  min-width: 0;
+  display: grid;
+  // fit-content(50%) caps the label column so a long label wraps instead of starving the value column.
+  grid-template-columns: fit-content(50%) minmax(0, 1fr);
+  gap: 9px 12px;
+  align-items: center;
+}
+.dash-hero__label {
+  font-size: 0.78rem;
+  color: var(--ink-2);
+  font-weight: 600;
+  white-space: normal;
+  overflow-wrap: break-word;
+  text-align: right;
+  min-width: 0;
+}
+
+.dash-hero__bar-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+}
+.dash-hero__bar {
+  display: block;
+  height: 13px;
+  border-radius: 0 4px 4px 0;
+  min-width: 3px;
+  flex: 0 1 auto;
+  max-width: 100%;
+}
+.dash-hero__val {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 8px;
+  font-size: 0.78rem;
+  color: var(--ink-2);
+  font-weight: 600;
+  white-space: nowrap;
+  min-width: 0;
+}
+.dash-hero__val b {
+  color: var(--ink);
+  font-weight: 700;
+  font-size: 0.86rem;
+}
+
+@media (max-width: $bp-phone-max) {
+  .dash-hero {
+    flex-direction: column;
+    align-items: stretch;
+    text-align: center;
+    gap: 14px;
+  }
+
+  .dash-hero__split {
+    grid-template-columns: 1fr;
+    row-gap: 6px;
+  }
+  .dash-hero__label {
+    justify-self: start;
+    text-align: left;
+    white-space: normal;
+  }
+
+  #heroNameA {
+    margin-top: 10px;
+  }
+}

@@ -2,24 +2,26 @@ import * as d3 from 'd3';
 import { ckmeans } from 'simple-statistics';
 
 const MONTH_ORDER = {
-  January: 1, February: 2, March: 3, April: 4, May: 5, June: 6,
-  July: 7, August: 8, September: 9, October: 10, November: 11, December: 12,
+  January: 1,
+  February: 2,
+  March: 3,
+  April: 4,
+  May: 5,
+  June: 6,
+  July: 7,
+  August: 8,
+  September: 9,
+  October: 10,
+  November: 11,
+  December: 12,
 };
 
-export const TREND_CHART_WIDTH = 560;
-export const TREND_CHART_HEIGHT = 270;
+const TREND_CHART_WIDTH = 560;
+const TREND_CHART_HEIGHT = 270;
 
 export const DEFAULT_BREAKPOINTS = [17, 34, 51, 67];
-export const  NO_DATA_FILL = '#eee';
+export const NO_DATA_FILL = '#eee';
 export const DEFAULT_COLORS = ['#f1eef6', '#d7b5d8', '#df65b0', '#dd1c77', '#980043'];
-export const DRUG_COLORS = ['#edf8fb', '#b2e2e2', '#66c2a4', '#2ca25f', '#006d2c'];
-export const LINE_CHART_COLORS = {
-  ma:'#961D56',
-  ffs: '#0074D9',
-  mapd:'#006d2c',
-  pdp: '#E69F00',
-  total: '#1b1b1b'
-};
 
 export function computeJenksBreaks(values, numClasses = DEFAULT_COLORS.length) {
   const clean = values.filter((v) => v !== null && v !== undefined && !Number.isNaN(v));
@@ -33,12 +35,11 @@ export function computeJenksBreaks(values, numClasses = DEFAULT_COLORS.length) {
 }
 
 export const TREND_MARGIN = {
-  top: 12, right: 100, bottom: 30, left: 44,
+  top: 12,
+  right: 100,
+  bottom: 30,
+  left: 44,
 };
-
-export function clearContainer(selector) {
-  return d3.select(selector).html('');
-}
 
 export function sortYearlyAscending(data) {
   return [...data].sort((a, b) => Number(a.year) - Number(b.year));
@@ -56,10 +57,29 @@ export function formatPeriod(d) {
   return d.month ? `${d.month} ${d.year}` : String(d.year);
 }
 
-export function formatMillions(d) {
-  if (d === 0) return '0';
-  const m = d / 1e6;
-  return Number.isInteger(m) ? `${m}M` : `${m.toFixed(1)}M`;
+// Scale-adaptive: plain number under 1,000 (e.g. a small county's
+// enrollment), "12k" for thousands, "3.5M" for millions -- a fixed
+// divide-by-1e6 breaks down for anything smaller than national/state scale.
+export function formatCompactNumber(d) {
+  return d3.format('.2~s')(d);
+}
+
+// One place to change these two strings
+// used across the maps, grid, and trend charts
+export const SUPPRESSED_LABEL = 'Suppressed';
+export const NO_DATA_LABEL = '-';
+
+// Raw enrollment counts are null when CMS suppresses a small count for
+// privacy (see num() in src/utils.js) -- shown as "Suppressed"
+// "-" is shown for a suppressed/zero-total percent
+export function formatCount(n) {
+  return Number.isFinite(n) ? n.toLocaleString() : SUPPRESSED_LABEL;
+}
+
+// Percent is NaN both when the total is 0 and when the count feeding it is
+// suppressed, shown as "-"
+export function formatPercent(v) {
+  return Number.isFinite(v) ? `${v}%` : NO_DATA_LABEL;
 }
 
 export function createTooltip(container) {
@@ -98,7 +118,9 @@ export function moveTooltip(tooltip, containerNode, event) {
 export function buildLegendHtml(items) {
   return items
     .map((it) => {
-      const classes = ['key', it.dot && 'dot', it.dashStyle && `key--${it.dashStyle}`].filter(Boolean).join(' ');
+      const classes = ['key', it.dot && 'dot', it.dashStyle && `key--${it.dashStyle}`]
+        .filter(Boolean)
+        .join(' ');
       return `<span class="item"><span class="${classes}" style="--legend-color:${it.color}"></span>${it.label}</span>`;
     })
     .join('');
@@ -140,12 +162,8 @@ export function appendTrendFigure(container, title) {
     .attr('role', 'img')
     .attr('aria-label', title);
 
-  // The figure's height is flex-grown to fill its card on desktop (see
-  // .chart-figure in _dashboard-v2.scss), so the viewBox is sized to match
-  // the figure's actual box rather than a fixed constant — this keeps the
-  // plot filling the box exactly (no distortion/dead space) at whatever
-  // size the flex layout gives it, and stays correct across resizes via
-  // the ResizeObserver in allAreas.js (observeResize('#chartsView', ...)).
+  // Figure's height is flex-grown to fill its card on desktop
+  // viewBox is sized to match the figure's actual box rather than a fixed constant
   const rect = figure.node().getBoundingClientRect();
   const width = Math.round(rect.width) || TREND_CHART_WIDTH;
   const height = Math.round(rect.height) || TREND_CHART_HEIGHT;
@@ -161,14 +179,15 @@ export function appendTrendFigure(container, title) {
   const tooltip = container.append('div').attr('class', 'tt').attr('aria-hidden', 'true');
 
   return {
-    svg, tooltip, width, height,
+    svg,
+    tooltip,
+    width,
+    height,
   };
 }
 
-// Re-measures `selector`'s box whenever it changes size (e.g. a breakpoint
-// stacking the grid, or a window resize changing the available width) and
-// calls `onResize` so charts can redraw at the correct size. No-ops on
-// browsers without ResizeObserver — charts just keep their initial-render size.
+// Re-measures `selector`'s box whenever it changes size.
+// Calls `onResize` so charts can redraw at the correct size.
 export function observeResize(selector, onResize) {
   if (typeof ResizeObserver === 'undefined') return undefined;
   const node = document.querySelector(selector);

@@ -9,7 +9,6 @@
 // * state | a complete tree of the Markdown document as parsed by markdown-it
 // * index | the index of the token in the state of the current heading
 const headingLinks = (slug, _, state, index) => {
-
   // We also need to find the index of the element that closes the header. We'll
   // put our link stuff right before that.
   let closeIndex = index + 1;

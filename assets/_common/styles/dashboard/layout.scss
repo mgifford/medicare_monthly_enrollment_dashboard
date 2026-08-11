@@ -1,0 +1,113 @@
+@use 'uswds-core' as *;
+
+// Page-level layout: the 2-column desktop grid, the page header, and the
+// generic multi-card grid container. Needs uswds-core for the 'desktop'
+// breakpoint + spacing units -- this is data-layer, not template, so that
+// dependency is fine here (see dashboard/template's reuse-packaging goal,
+// which those files avoid).
+
+.page-header {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin: 4px 0 14px;
+}
+.page-header__title {
+  margin: 0;
+  font-size: 1.6rem;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  color: var(--ink);
+}
+.page-header__meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 6px 16px;
+}
+.page-header__updated {
+  margin: 0;
+}
+
+.dashboard-columns {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 14px;
+  align-items: stretch;
+
+  @include at-media('desktop') {
+    grid-template-columns: minmax(0, 3fr) minmax(0, 2fr);
+  }
+}
+
+.dashboard-columns__main {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  min-width: 0;
+}
+
+.dashboard-columns__side {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  min-width: 0;
+}
+
+.data-grid-section {
+  margin-bottom: units(4);
+}
+
+.data-grid-cards {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 14px;
+  align-items: stretch;
+}
+
+// Coordinates several cards' desktop sizing together (hero/map/trend all
+// live in this one 2-column grid) -- kept as one block here rather than
+// split into each card's own file, since it's fundamentally about how they
+// share the grid, not any one card's internals.
+@include at-media('desktop') {
+  .dashboard-columns__main {
+    display: grid;
+    grid-template-rows: auto 1fr;
+  }
+
+  .dashboard-columns__side {
+    display: grid;
+    grid-template-rows: 1fr 1fr;
+  }
+
+  .dash-hero {
+    height: 100px;
+  }
+
+  .dashboard-map-panel {
+    min-height: 650px;
+  }
+
+  // Threads flex-grow down to the chart figure so it fills the card's grown height.
+  #chartsView {
+    flex: 1;
+    min-height: 0;
+  }
+
+  #chartsView > .trend-panel {
+    flex: 1;
+    min-height: 0;
+  }
+
+  #chartsView .table-container {
+    flex: 1;
+    min-height: 0;
+  }
+
+  #chartsView .chart-figure {
+    flex: 1;
+    height: auto;
+    min-height: 267px;
+  }
+}

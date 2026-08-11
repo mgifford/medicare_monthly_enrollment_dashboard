@@ -1,0 +1,31 @@
+// Design tokens for the template layer (dashboard/template/*). This is the
+// one file to edit to re-skin the templates for a different project --
+// swap these values, leave every template/*.scss file alone.
+// Values are column-aligned for scanning; prettier-ignore keeps it that way.
+// prettier-ignore
+:root {
+  --page:      #f3f4f6;
+  --surface:   #ffffff;
+  --surface-2: #f7f8fa;
+  --ink:       #15151b;
+  --ink-2:     #54545f;
+  --muted:     #5c5c66;
+  --grid:      #e7e7ec;
+  --baseline:  #cfcfd7;
+  --border:    rgba(20, 20, 28, 0.10);
+  --shadow:    0 1px 2px rgba(16, 16, 24, 0.05), 0 4px 16px rgba(16, 16, 24, 0.05);
+  --total:     #1b1b1b;
+
+  --brand:     #015390;
+  --brand-ink: #013b63;
+  --focus:     #009ad0;
+}
+
+// Breakpoints (Sass variables, not CSS custom properties -- @media queries
+// can't read var(), so these have to be compile-time). $bp-desktop-min
+// matches USWDS's 'desktop' breakpoint (64em) exactly, so at-media('desktop')
+// in layout.scss and the raw queries below always agree.
+$bp-tablet-max: 63.99em; // below this: mobile/tablet layout (drawers, stacked cards)
+$bp-desktop-min: 64em; // at/above this: desktop layout
+$bp-phone-max: 520px; // below this: narrow-phone tuning (segmented control, hero card)
+$bp-narrow-max: 29.99em; // below this: narrowest table-density tier (abbreviated numbers)

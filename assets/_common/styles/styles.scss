@@ -1,24 +1,36 @@
 /*---------------------------------------------------------
 USWDS Settings
 ----------------------------------------------------------*/
-@forward "uswds-theme-settings";
+@forward 'uswds-theme-settings';
 
 /*---------------------------------------------------------
 USWDS Source
+
+Only the pieces actually used site-wide are forwarded, instead
+of the full component library ("@forward 'uswds'"):
+  - uswds-global: reset/normalize, base typography, uswds-core,
+    uswds-helpers (sr-only, focus) -- kept as a base layer even
+    though no page currently needs the full typography scale,
+    since app.js/`.eleventy.js` already contain (currently dead)
+    sidenav-highlight and markdown heading-permalink logic for
+    guide pages that haven't been built yet.
+  - usa-button: the two usa-button/usa-button--outline usages.
+  - usa-combo-box: the state-picker's combo-box behavior (also
+    forwards usa-select and usa-icon as its own dependencies).
 ----------------------------------------------------------*/
-@forward "uswds";
+@forward 'uswds-global';
+@forward 'usa-button';
+@forward 'usa-combo-box';
 
 /*---------------------------------------------------------
 Custom styling
 ----------------------------------------------------------*/
-@forward "custom-styles.scss";
+@forward 'custom-styles.scss';
 
-@forward "overrides/code_highlight.scss";
+@forward 'overrides/code_highlight.scss';
 
 /*---------------------------------------------------------
-New dashboard design (WIP) — pasted in as-is for now, not
-yet reconciled with the brand tokens above. Forwarded last
-so it wins the cascade over the older dashboard styles.
+Dashboard styles (template + data layers) — forwarded last so
+they win the cascade over the general site styles above.
 ----------------------------------------------------------*/
-@forward "dashboard-v2";
-
+@forward 'dashboard/index';
