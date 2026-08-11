@@ -41,7 +41,7 @@ The members of medicare_monthly_enrollment_dashboard community are responsible f
 
 | Roles      | Responsibilities                               | Requirements                                                                      | Defined by                                                |
 | ---------- | :--------------------------------------------- | :-------------------------------------------------------------------------------- | :-------------------------------------------------------- |
-| member     | active contributor in the community            | multiple contributions to the project.                                            | PROJECT GitHub org Committer Team                         |
+| member     | active contributor in the community            | multiple contributions to the project.                                            | DSACMS GitHub org Committer Team                          |
 | reviewer   | review contributions from other members        | history of review and authorship in a sub-project                                 | COMMUNITY file reviewer entry, and GitHub Org Triage Team |
 | approver   | approve accepting contributions                | highly experienced and active reviewer + contributor to a sub-project             | COMMUNITY file approver entry and GitHub Triage Team      |
 | maintainer | set direction and priorities for a sub-project | demonstrated responsibility and excellent technical judgement for the sub-project | COMMUNITY file owner entry and GitHub Org Admin Team      |
