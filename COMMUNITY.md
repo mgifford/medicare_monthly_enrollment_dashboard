@@ -65,9 +65,7 @@ We'd like to acknowledge the following individuals for their past contributions 
 - [@isaac-rtc](https://github.com/isaac-rtc)
 - [@haseebmalik18](https://github.com/haseebmalik18)
 - [@zionmich](https://github.com/zionmich)
-- [@natalialuzuriaga](https://github.com/natalialuzuriaga)
 - [@jjijon7000](https://github.com/jjijon7000)
-- [@decause-gov](https://github.com/decause-gov)
 
 ## medicare_monthly_enrollment_dashboard Open Source Community Guidelines
 
