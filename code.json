@@ -43,7 +43,7 @@
     "lastModified": "2026-08-11T19:02:28Z",
     "metadataLastUpdated": "2026-08-11T19:03:13.636Z"
   },
-  "tags": ["dsacms-tier2"],
+  "tags": ["dashboard", "dsacms-tier2", "medicare", "medicare-advantage", "medicare-data", "prescription-drug"],
   "contact": {
     "email": "opensource@cms.hhs.gov",
     "name": "CMS Open Source Program Office"

@@ -11,7 +11,7 @@ medicare_monthly_enrollment_dashboard is supported by a dedicated team of indivi
 | Maintainer | [@aaronchafetz](https://github.com/aaronchafetz) | DSAC        |
 | Maintainer | [@avena-cms](https://github.com/avena-cms)     |             |
 
-See [CODEOWNERS.md](.github/CODEOWNERS.md) for a list of those responsible for the code and documentation in this repository.
+See [CODEOWNERS](/CODEOWNERS) for a list of those responsible for the code and documentation in this repository.
 
 ## Roles & Responsibilities
 
