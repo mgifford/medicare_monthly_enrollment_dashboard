@@ -8,18 +8,24 @@ jobs:
   resolve-repolinter-json:
     uses: DSACMS/repo-scaffolder/.github/workflows/extendJSONFile.yml@main
     with: 
-      url_to_json: 'https://raw.githubusercontent.com/DSACMS/repo-scaffolder/main/tier3/%7B%7Bcookiecutter.project_slug%7D%7D/repolinter.json'
+      url_to_json: 'https://raw.githubusercontent.com/DSACMS/repo-scaffolder/main/tier2/%7B%7Bcookiecutter.project_slug%7D%7D/repolinter.json'
   
   repolinter-checks:
-    name: Tier 3 Checks
+    name: Tier 2 Checks
     needs: resolve-repolinter-json
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
+      issues: write
     env:
       RAW_JSON: ${{ needs.resolve-repolinter-json.outputs.raw-json}}
     steps:
       - uses: actions/checkout@v4
       - run: echo $RAW_JSON > repolinter.json
       - uses: newrelic/repolinter-action@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           # A path to the JSON/YAML Repolinter ruleset to use, relative to the workflow
           # working directory (i.e. under `$GITHUB_WORKSPACE`).
@@ -48,7 +54,7 @@ jobs:
           # This option will be ignored if output_type != "issue".
           #
           # Default: "[Repolinter] Open Source Policy Issues"
-          output_name: '[Repolinter] Tier 3 OSS Policy Issues'
+          output_name: '[Repolinter] Tier 2 OSS Policy Issues'
 
           # The name to use for the issue label created by repolinter-action. This name
           # should be unique to repolinter-action (i.e. not used by any other issue) to
@@ -57,7 +63,7 @@ jobs:
           # This option will be ignored if output_type != "issue".
           #
           # Default: "repolinter"
-          label_name: 'Tier 3 Remediation'
+          label_name: 'Tier 2 Remediation'
 
           # The color to use for the issue label created by repolinter-action. The value
           # for this option should be an unprefixed RRGGBB hex string (ex. ff568a).
@@ -76,7 +82,7 @@ jobs:
           # [Learn more about creating and using encrypted secrets](https://help.github.com/en/actions/automating-your-workflow-with-github-actions/creating-and-using-encrypted-secrets)
           #
           # Default: ${{ github.token }}
-          token: ${{ secrets.METRICS_GITHUB_TOKEN }}
+          token: ${{ secrets.GITHUB_TOKEN }}
   run-pylint:
     name: runner / pylint
     permissions: write-all
