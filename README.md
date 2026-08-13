@@ -147,7 +147,7 @@ Principles and guidelines for participating in our open source community are can
 
 ## Governance
 
-This project is governed by our [Community Guidelines](https://github.com/DSACMS/code-book/blob/main/COMMUNITY.md) and [Code of Conduct](https://github.com/DSACMS/code-book/blob/main/CODE_OF_CONDUCT.md). We expect all contributors and maintainers to adhere to these standards to help ensure a welcoming, collaborative, and respectful environment for everyone.
+This project is governed by our [Community Guidelines](COMMUNITY.md) and [Code of Conduct](CODE_OF_CONDUCT.md). We expect all contributors and maintainers to adhere to these standards to help ensure a welcoming, collaborative, and respectful environment for everyone.
 
 ## Feedback
 
