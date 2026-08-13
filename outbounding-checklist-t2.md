@@ -154,7 +154,7 @@ Below is a list of suggested tools to run for code analysis:
 
 * **Repolinter** — Ran `npx repolinter lint .` against the repository root.
   * **Result:** All required repository hygiene checks passed (LICENSE, SECURITY.md, README.md, CONTRIBUTING.md, COMMUNITY.md, CODE_OF_CONDUCT.md, and all required subsections within each). Full output is available in the [Review Repository Hygiene](#review-repository-hygiene) section below.
-* **Gitleaks** — Ran `gitleaks detect -v` against the full repository history.
+* **Gitleaks** — Ran `gitleaks detect -v --config .github/workflows/.gitleaks.toml` against the full repository history.
   * **Result:** Scanned 118 commits (4.8 MB) using the repository's custom `.gitleaks.toml` rules. No leaks or secrets found.
 * **bulk_extractor** — Ran `bulk_extractor -R . -o bulk-output` to recursively scan all directories for secrets, credentials, and embedded URLs/emails.
   * **Result:** No active secrets, credentials, or private internal URLs were identified. 
@@ -205,7 +205,7 @@ Consider using the following tools to perform the tasks above:
 #### Results
 
 Both the gitleaks and the bulk extractor came back clear meaning there is not any metadata or secrets present in the repository. 
-* **Gitleaks** — Ran `gitleaks detect -v` against the full repository history.
+* **Gitleaks** — Ran `gitleaks detect -v --config .github/workflows/.gitleaks.toml` against the full repository history.
   * **Result:** Scanned 118 commits (4.8 MB) using the repository's custom `.gitleaks.toml` rules. No leaks or secrets found.
 * **bulk_extractor** — Ran `bulk_extractor -R . -o bulk-output` to recursively scan all directories for secrets, credentials, and embedded URLs/emails.
   * **Result:** No active secrets, credentials, or private internal URLs were identified.  
