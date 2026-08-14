@@ -39,6 +39,7 @@ A list of core team members responsible for the code and documentation in this r
 
 - [COMMUNITY.md](COMMUNITY.md) - Core team, roles, and community guidelines
 - [CONTRIBUTING.md](CONTRIBUTING.md) - How to contribute to this project
+- [Future Updates](#future-updates) - Ideas and improvements open for contribution
 - [CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md) - Expected behavior for community members
 - [SECURITY.md](SECURITY.md) - Security and responsible disclosure policy
 - [LICENSE](LICENSE) - Licensing terms
@@ -103,6 +104,20 @@ We welcome contributions to be made to this dashboard. All are encouraged to sug
 1. Chart and visualization code lives in `assets/_common/charts`; table configs live in `assets/_common/tables`; data-fetching logic lives in `src/datasets` and `src/api`.
 2. Make edits in a separate branch.
 3. Create a pull request with anyone in the OSPO team as reviewers as noted in [COMMUNITY.md](COMMUNITY.md).
+
+## Future Updates
+
+_A running list of ideas and improvements that are open for contribution. If you'd like to propose something for this list, or pick one up, see [CONTRIBUTING.md](CONTRIBUTING.md)._
+
+**Unfinished features**
+- Map scroll/pinch to zoom: [Issue #47](https://github.com/DSACMS/medicare_monthly_enrollment_dashboard/issues/47)
+- Hex map: [Issue #48](https://github.com/DSACMS/medicare_monthly_enrollment_dashboard/issues/48)
+- Download CSV files: [Issue #49](https://github.com/DSACMS/medicare_monthly_enrollment_dashboard/issues/49)
+
+**Fixes**
+- Resize title text: [Issue #50](https://github.com/DSACMS/medicare_monthly_enrollment_dashboard/issues/50)
+- Hover on mobile (touch should not show tooltips): [Issue #51](https://github.com/DSACMS/medicare_monthly_enrollment_dashboard/issues/51)
+- There is a Media Listener in trend.js that is actually a dashboard-wide listener, it should be moved to index.js: [Issue #52](https://github.com/DSACMS/medicare_monthly_enrollment_dashboard/issues/52)
 
 ## Coding Style and Linters
 
