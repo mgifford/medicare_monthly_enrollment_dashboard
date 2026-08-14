@@ -109,6 +109,16 @@ We welcome contributions to be made to this dashboard. All are encouraged to sug
 
 _A running list of ideas and improvements that are open for contribution. If you'd like to propose something for this list, or pick one up, see [CONTRIBUTING.md](CONTRIBUTING.md)._
 
+**Unfinished features**
+- Map scroll/pinch to zoom
+- Hex map
+- Download CSV files
+
+**Fixes**
+- Resize title text
+- Hover on mobile (touch should show tooltips)
+- One of the util event listeners is currently in `card.js` and should be moved (exact location TBD)
+
 ## Coding Style and Linters
 
 We use a GitHub workflow in place that performs a number of tests on every pull request:
