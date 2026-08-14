@@ -97,45 +97,40 @@ jobs:
           glob_pattern: "**/*.py"
           filter_mode: "file"
   frontend-checks:
-      permissions: write-all
-      runs-on: ubuntu-latest
-      defaults:
-        run:
-          working-directory: ./app
-      steps:
-        - uses: actions/checkout@v4
+    permissions: write-all
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
 
-        - uses: actions/setup-node@v4
-          with:
-            node-version: "18.13"
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "18.13"
 
-        - name: Cache dependencies
-          uses: actions/cache@v4
-          with:
-            path: ~/.npm
-            key: npm-${{ hashFiles('**/package-lock.json') }}
-            restore-keys: |
-              npm-
+      - name: Cache dependencies
+        uses: actions/cache@v4
+        with:
+          path: ~/.npm
+          key: npm-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: |
+            npm-
 
-        - name: Install dependencies
-          run: npm install
+      - name: Install dependencies
+        run: npm install
 
-        - name: Run linter
-          uses: reviewdog/action-eslint@v1
-          with:	
-            github_token: ${{ secrets.GITHUB_TOKEN }}	
-            reporter: github-pr-review
-            workdir: app/
+      - name: Run linter
+        uses: reviewdog/action-eslint@v1
+        with:	
+          github_token: ${{ secrets.GITHUB_TOKEN }}	
+          reporter: github-pr-review
 
-        - name: Check code style
-          uses: EPMatt/reviewdog-action-prettier@v1
-          with:
-            github_token: ${{ secrets.GITHUB_TOKEN }}
-            workdir: app/
-            reporter: github-pr-review
-            level: warning
-            
-        - name: Build Project
-          run: |
-            ./copy_data_to_submodule.sh
-            npm run build
+      - name: Check code style
+        uses: EPMatt/reviewdog-action-prettier@v1
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          reporter: github-pr-review
+          level: warning
+          
+      - name: Build Project
+        run: |
+          ./copy_data_to_submodule.sh
+          npm run build
