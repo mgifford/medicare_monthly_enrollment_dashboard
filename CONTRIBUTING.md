@@ -86,11 +86,11 @@ As concisely as possible, describe the expected behavior.
 As concisely as possible, describe the observed behavior.
 
 ### Steps to reproduce the behavior
-
+  
 List all relevant steps to reproduce the observed behavior.
 ```
 
-See our `.github/ISSUE_TEMPLATE.md` for more examples.
+For standard templates, see our [.github/ISSUE_TEMPLATE/bug_report.md](.github/ISSUE_TEMPLATE/bug_report.md) or [.github/ISSUE_TEMPLATE/feature_request.md](.github/ISSUE_TEMPLATE/feature_request.md).
 
 ### Writing Pull Requests
 
@@ -99,6 +99,8 @@ Please keep pull requests focused on a single change. In your PR description, in
 - **Problem** — what you're fixing or adding, and why
 - **Solution** — a short description of the change
 - **Testing** — how you verified it works (e.g. which tests you ran or added, or which views/tabs you checked manually)
+
+For standard templates, see our [./github/PULL_REQUEST_TEMPLATE.md](.github/PULL_REQUEST_TEMPLATE.md)
 
 Some notes on commit messages:
 
