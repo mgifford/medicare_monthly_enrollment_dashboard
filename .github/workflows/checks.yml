@@ -131,6 +131,4 @@ jobs:
           level: warning
           
       - name: Build Project
-        run: |
-          ./copy_data_to_submodule.sh
-          npm run build
+        run: npm run build
