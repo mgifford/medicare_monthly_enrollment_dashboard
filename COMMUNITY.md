@@ -5,13 +5,13 @@ medicare_monthly_enrollment_dashboard is supported by a dedicated team of indivi
 ## Project Members
 
 
-| Role       | Name                                        | Affiliation |
-| :--------- | :------------------------------------------ | :---------- |
-| Maintainer | [@rbshaffer](https://github.com/rbshaffer)     | OEDA        |
-| Maintainer | [@aaronchafetz](https://github.com/aaronchafetz) | DSAC        |
-| Maintainer | [@avena-cms](https://github.com/avena-cms)     |             |
+| Role       | Name                                       | Affiliation |
+| :--------- | :----------------------------------------- | :---------- |
+| Maintainer | [@rbshaffer](https://github.com/rbshaffer) | OEDA        |
+| Maintainer | [@achafetz](https://github.com/achafetz)   | DSAC        |
+| Maintainer | [@avena-cms](https://github.com/avena-cms) |             |
 
-See [CODEOWNERS](/CODEOWNERS) for a list of those responsible for the code and documentation in this repository.
+See [CODEOWNERS.md](.github/CODEOWNERS.md) for a list of those responsible for the code and documentation in this repository.
 
 ## Roles & Responsibilities
 
@@ -22,7 +22,7 @@ The members of medicare_monthly_enrollment_dashboard community are responsible f
 - [@rbshaffer](https://github.com/rbshaffer)
   - Role: Data Scientist, OEDA
   - Communication channel: Slack, email
-- [@aaronchafetz](https://github.com/aaronchafetz)
+- [@achafetz](https://github.com/achafetz)
   - Role: Data Scientist, DSAC
   - Communication channel: Slack, #dsac-ospo
 - [@avena-cms](https://github.com/avena-cms)
@@ -30,13 +30,13 @@ The members of medicare_monthly_enrollment_dashboard community are responsible f
 ### Approvers List:
 
 - [@rbshaffer](https://github.com/rbshaffer)
-- [@aaronchafetz](https://github.com/aaronchafetz)
+- [@achafetz](https://github.com/achafetz)
 - [@avena-cms](https://github.com/avena-cms)
 
 ### Reviewers List:
 
 - [@rbshaffer](https://github.com/rbshaffer)
-- [@aaronchafetz](https://github.com/aaronchafetz)
+- [@achafetz](https://github.com/achafetz)
 - [@avena-cms](https://github.com/avena-cms)
 
 | Roles      | Responsibilities                               | Requirements                                                                      | Defined by                                                |

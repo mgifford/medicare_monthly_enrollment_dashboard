@@ -117,7 +117,7 @@ _A running list of ideas and improvements that are open for contribution. If you
 **Fixes**
 - Resize title text
 - Hover on mobile (touch should show tooltips)
-- One of the util event listeners is currently in `card.js` and should be moved (exact location TBD)
+- There is a Media Listener in trend.js that is actually a dashboard-wide listener, it should be moved to index.js
 
 ## Coding Style and Linters
 
