@@ -110,14 +110,14 @@ We welcome contributions to be made to this dashboard. All are encouraged to sug
 _A running list of ideas and improvements that are open for contribution. If you'd like to propose something for this list, or pick one up, see [CONTRIBUTING.md](CONTRIBUTING.md)._
 
 **Unfinished features**
-- Map scroll/pinch to zoom
-- Hex map
-- Download CSV files
+- Map scroll/pinch to zoom: [Issue #47](https://github.com/DSACMS/medicare_monthly_enrollment_dashboard/issues/47)
+- Hex map: [Issue #48](https://github.com/DSACMS/medicare_monthly_enrollment_dashboard/issues/48)
+- Download CSV files: [Issue #49](https://github.com/DSACMS/medicare_monthly_enrollment_dashboard/issues/49)
 
 **Fixes**
-- Resize title text
-- Hover on mobile (touch should show tooltips)
-- There is a Media Listener in trend.js that is actually a dashboard-wide listener, it should be moved to index.js
+- Resize title text: [Issue #50](https://github.com/DSACMS/medicare_monthly_enrollment_dashboard/issues/50)
+- Hover on mobile (touch should not show tooltips): [Issue #51](https://github.com/DSACMS/medicare_monthly_enrollment_dashboard/issues/51)
+- There is a Media Listener in trend.js that is actually a dashboard-wide listener, it should be moved to index.js: [Issue #52](https://github.com/DSACMS/medicare_monthly_enrollment_dashboard/issues/52)
 
 ## Coding Style and Linters
 
