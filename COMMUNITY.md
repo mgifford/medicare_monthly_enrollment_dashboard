@@ -61,6 +61,7 @@ The members of medicare_monthly_enrollment_dashboard community are responsible f
 
 We'd like to acknowledge the following individuals for their past contributions to this project:
 
+Coding it Forward '26 Team:
 - [@kmsheikh](https://github.com/kmsheikh)
 - [@isaac-rtc](https://github.com/isaac-rtc)
 - [@haseebmalik18](https://github.com/haseebmalik18)
