@@ -26,7 +26,7 @@ This is a review process to approve CMS-developed software to be released open s
 
 [Review Repository Details](#review-repository-details)
 
-[Additional Notes & Questions](#additional-notes--questions)
+[Additional Notes Questions](#additional-notes-questions)
 
 [Sign off on risk acceptance of open-sourcing the software product](#sign-off-on-risk-acceptance-of-open-sourcing-the-software-product)
 
@@ -79,7 +79,7 @@ Here is the tier-2 repository link: https://github.com/DSACMS/medicare_monthly_e
 
 - [ ] **Security Risks**
 
-  Vulnerabilities may be exposed if the code is not thoroughly reviewed, potentially leading to security breaches or exploitation. (See: [SECURITY.md]({{cookiecutter.project_slug}}/SECURITY.md)) Does this project connect to any CMS-internal only systems? Does this project require authorization or authentication to operate? Does this project detail any non-public directories of CMS/HHS systems or people?
+  Vulnerabilities may be exposed if the code is not thoroughly reviewed, potentially leading to security breaches or exploitation. (See: [SECURITY.md](https://github.com/DSACMS/medicare_monthly_enrollment_dashboard/blob/main/SECURITY.md)) Does this project connect to any CMS-internal only systems? Does this project require authorization or authentication to operate? Does this project detail any non-public directories of CMS/HHS systems or people?
 
 - [ ] **Financial Risks**
 
@@ -180,8 +180,8 @@ The repository’s licensing has been reviewed and is aligned with CMS open-sour
 
 * **License Chosen:** Creative Commons Zero v1.0 Universal (CC0 1.0) Public Domain Dedication.
 * **Justification:** As software developed under a federal fellowship initiative for the Centers for Medicare & Medicaid Services (CMS), this project is dedicated to the public domain. Copyright and related rights worldwide are waived.
-* **License File:** The full license text is included at [`LICENSE`](LICENSE) in the repository root.
-* **Documentation:** The Public Domain dedication is also referenced in the [`README.md`](README.md#public-domain) and [`CONTRIBUTING.md`](CONTRIBUTING.md#public-domain).
+* **License File:** The full license text is included at [`LICENSE`](https://github.com/DSACMS/medicare_monthly_enrollment_dashboard/blob/main/LICENSE) in the repository root.
+* **Documentation:** The Public Domain dedication is also referenced in the [`README.md`](https://github.com/DSACMS/medicare_monthly_enrollment_dashboard/blob/main/README.md#public-domain) and [`CONTRIBUTING.md`](https://github.com/DSACMS/medicare_monthly_enrollment_dashboard/blob/main/CONTRIBUTING.md#public-domain).
 * **Contribution Policy:** All future pull requests and external contributions will be released under this same CC0 dedication.
 
 ### Review Commit History
@@ -433,7 +433,7 @@ As you continue development in this repository, it is important to keep this fil
 
 #### Results
 
-A valid [`code.json`](/code.json) file has been successfully generated and committed to the root of the repository. The file accurately reflects the project's current metadata, contact information, and licensing, ensuring full compliance with the required federal open-source schema.
+A valid [`code.json`](https://github.com/DSACMS/medicare_monthly_enrollment_dashboard/blob/main/code.json) file has been successfully generated and committed to the root of the repository. The file accurately reflects the project's current metadata, contact information, and licensing, ensuring full compliance with the required federal open-source schema.
 
 ### Review Repository Details
 
@@ -470,7 +470,7 @@ Website: dsacms.github.io/medicare_monthly_enrollment_dashboard/
 
 Topics: dashboard dsacms-tier2 medicare medicare-advantage medicare-data prescription-drug 
 
-### Additional Notes & Questions
+### Additional Notes Questions
 
 _Insert any notes or questions here_
 
