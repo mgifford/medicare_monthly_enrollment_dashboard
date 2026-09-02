@@ -81,7 +81,10 @@ function renderTierHistogram(
     })
     .filter((tier) => tier.count > 0);
 
-  const title = `${contextLabel}: ${metricLabel} Enrollment Distribution Count`;
+  const title =
+    contextLabel === 'United States'
+      ? 'Distribution across 50 states'
+      : `${contextLabel}: ${metricLabel} Enrollment Distribution Count`;
   const countLabel = `Number of ${areaLabel.toLowerCase()}`;
 
   const figure = container
