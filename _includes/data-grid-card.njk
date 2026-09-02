@@ -4,7 +4,7 @@
       <header class="data-grid-card__header">
         <div class="data-grid-card__heading">
           <h3 id="enrollment-grid-title" class="data-grid-card__title">Enrollment Table</h3>
-          <p class="data-grid-card__instruction" id="enrollment-instruction">Click a state to display on the map. Click again to deselect.</p>
+          <p class="data-grid-card__instruction" id="enrollment-instruction">Select a state or territory to display on the map.</p>
         </div>
         <button
           type="button"
@@ -28,12 +28,15 @@
         </div>
       </div>
 
+      <p class="data-grid-card__instruction" style="margin-top: 0.5rem; font-size: 0.8rem;">
+        Territory enrollment data is available in the table below but not shown on the map.
+      </p>
+
       <div class="data-grid-card__body">
         <div class="data-grid-scroll-wrap">
           <div
             class="data-grid-scroll"
             id="all-areas-table"
-            tabindex="0"
             role="region"
             aria-labelledby="enrollment-tab-state"
           ></div>
@@ -43,7 +46,6 @@
           <div
             class="data-grid-scroll"
             id="county-table"
-            tabindex="0"
             role="region"
             aria-labelledby="enrollment-tab-county"
           >
@@ -114,7 +116,7 @@
               </svg>
             </span>
 
-            <span class="data-grid-card__mobile-trigger-desc">Open to view county enrollment, or select a county to display on the map.</span>
+            <span class="data-grid-card__mobile-trigger-desc">Open to view county enrollment, or select a county or equivalent area to display on the map.</span>
 
             <span class="data-grid-card__mobile-trigger-divider" aria-hidden="true"></span>
 

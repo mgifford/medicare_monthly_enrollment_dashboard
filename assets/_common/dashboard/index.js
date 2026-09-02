@@ -22,7 +22,7 @@ async function init() {
 
     const { showTrendForScope } = initTrend(state, yearlyWithLatest, monthly);
 
-    const { setMapPanelVisibility, mappableStateNames } = initMap(state);
+    const { setMapPanelVisibility } = initMap(state);
 
     setMapPanelVisibility('hospital');
     initHeroCard(yearlyWithLatest);
@@ -36,7 +36,7 @@ async function init() {
       renderCountyGridTable,
       updateCountyDrawerTriggerValue,
       setActiveGridView,
-    } = initGrid(state, mappableStateNames);
+    } = initGrid(state);
 
     const latestMonth = sortMonthlyAscending(monthly).at(-1);
     d3.select('#dashboard-title-date').text(`${latestMonth.month} ${latestMonth.year}`);
