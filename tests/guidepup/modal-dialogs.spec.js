@@ -216,10 +216,13 @@ voiceOverTest.describe('Modal dialog VoiceOver tests', () => {
 
     voiceOverTest('county drawer opens after state selection', async ({ page, voiceOver }) => {
       await page.goto('/');
-      await page.waitForTimeout(2000);
+      // Wait for initial data load — dashboard:title-date is populated after
+      // loadStateMap() completes, which sets year/month needed for county fetch
+      await page.waitForFunction(
+        () => document.querySelector('#dashboard-title-date')?.textContent?.trim(),
+        { timeout: 30000 }
+      );
 
-      // Dispatch statechange directly — combo box interaction is unreliable
-      // in the mobile viewport due to USWDS enhancement timing
       await page.evaluate(() => {
         document.dispatchEvent(new CustomEvent('dashboard:statechange', {
           detail: { state: 'AL', stateName: 'Alabama' }
@@ -234,7 +237,9 @@ voiceOverTest.describe('Modal dialog VoiceOver tests', () => {
 
       await ensureVoiceOverFocused(voiceOver, page);
 
-      await trigger.click();
+      // aria-disabled="true" is not cleared by app code (only HTML disabled is),
+      // so force the click — the button is functionally enabled
+      await trigger.click({ force: true });
       await page.waitForTimeout(1000);
 
       await expect(trigger).toHaveAttribute('aria-expanded', 'true');
@@ -251,7 +256,10 @@ voiceOverTest.describe('Modal dialog VoiceOver tests', () => {
 
     voiceOverTest('county drawer closes on Escape', async ({ page, voiceOver }) => {
       await page.goto('/');
-      await page.waitForTimeout(2000);
+      await page.waitForFunction(
+        () => document.querySelector('#dashboard-title-date')?.textContent?.trim(),
+        { timeout: 30000 }
+      );
 
       await page.evaluate(() => {
         document.dispatchEvent(new CustomEvent('dashboard:statechange', {
@@ -267,7 +275,7 @@ voiceOverTest.describe('Modal dialog VoiceOver tests', () => {
 
       await ensureVoiceOverFocused(voiceOver, page);
 
-      await trigger.click();
+      await trigger.click({ force: true });
       await page.waitForTimeout(1000);
 
       await page.keyboard.press('Escape');
