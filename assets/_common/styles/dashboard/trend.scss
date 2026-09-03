@@ -228,6 +228,24 @@
   flex-direction: column;
 }
 
+.trend-overlay__panel--grid table.data,
+#trend-drawer-body table.data {
+  background: var(--surface-1);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  overflow: hidden;
+}
+
+.trend-overlay__panel--grid table.data th,
+#trend-drawer-body table.data th {
+  background: var(--surface-2);
+}
+
+.trend-overlay__panel--grid table.data tbody tr:hover td,
+#trend-drawer-body table.data tbody tr:hover td {
+  background: var(--surface-2);
+}
+
 .trend-loading {
   display: flex;
   align-items: center;
