@@ -1,7 +1,7 @@
 {
   "name": "medicare-dashboard-site",
   "version": "0.0.0",
-  "description": "CMS OSPO Guide",
+  "description": "Medicare Monthly Enrollment Dashboard",
   "main": "index.js",
   "scripts": {
     "build": "npm run assets:build && npx @11ty/eleventy",
