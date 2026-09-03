@@ -4,39 +4,32 @@
  * the dashboard state in sync with the browser address bar.
  */
 
-const PARAM_MAP = {
-  type: 'activeDashboardType',
-  state: 'selectedStateAbbr',
-  range: 'activeTrendRange',
-  view: 'activeTrendView',
-};
-
-const VALID_VALUES = {
-  type: ['hospital', 'drug'],
-  range: ['yearly', 'monthly'],
-  view: ['line', 'bar', 'grid'],
-};
-
-function readParams() {
+export function readParams() {
   const params = new URLSearchParams(window.location.search);
   const result = {};
-  for (const [key, stateKey] of Object.entries(PARAM_MAP)) {
-    const val = params.get(key);
-    if (val != null) {
-      if (VALID_VALUES[key] && !VALID_VALUES[key].includes(val)) continue;
-      result[stateKey] = val;
-    }
-  }
+  const type = params.get('type');
+  if (type && ['hospital', 'drug'].includes(type)) result.activeDashboardType = type;
+  const state = params.get('state');
+  if (state) result.selectedStateAbbr = state;
+  const county = params.get('county');
+  if (county) result.selectedCounty = county;
+  const range = params.get('range');
+  if (range && ['yearly', 'monthly'].includes(range)) result.activeTrendRange = range;
+  const view = params.get('view');
+  if (view && ['line', 'bar', 'grid'].includes(view)) result.activeTrendView = view;
   return result;
 }
 
-function writeParams(state) {
+export function writeParams(state) {
   const params = new URLSearchParams();
   if (state.activeDashboardType && state.activeDashboardType !== 'hospital') {
     params.set('type', state.activeDashboardType);
   }
   if (state.selectedState) {
     params.set('state', state.selectedState.state);
+  }
+  if (state.selectedCounty && state.selectedState) {
+    params.set('county', state.selectedCounty);
   }
   if (state.trend?.activeTrendRange && state.trend.activeTrendRange !== 'yearly') {
     params.set('range', state.trend.activeTrendRange);
@@ -66,21 +59,12 @@ export function initUrlSync(state) {
     writeParams(state);
   });
 
-  document.addEventListener('dashboard:statechange', (e) => {
-    writeParams(state);
-  });
-
-  document.addEventListener('dashboard:stateclear', () => {
-    writeParams(state);
-  });
-
-  document.addEventListener('dashboard:rangechange', () => {
-    writeParams(state);
-  });
-
-  document.addEventListener('dashboard:viewchange', () => {
-    writeParams(state);
-  });
+  document.addEventListener('dashboard:typechange', () => writeParams(state));
+  document.addEventListener('dashboard:statechange', () => writeParams(state));
+  document.addEventListener('dashboard:stateclear', () => writeParams(state));
+  document.addEventListener('dashboard:countychange', () => writeParams(state));
+  document.addEventListener('dashboard:rangechange', () => writeParams(state));
+  document.addEventListener('dashboard:viewchange', () => writeParams(state));
 
   window.addEventListener('popstate', () => {
     const params = readParams();
@@ -93,6 +77,11 @@ export function initUrlSync(state) {
       document.dispatchEvent(new CustomEvent('dashboard:statechange', {
         detail: { state: params.selectedStateAbbr }
       }));
+      if (params.selectedCounty) {
+        document.dispatchEvent(new CustomEvent('dashboard:countychange', {
+          detail: { county: params.selectedCounty }
+        }));
+      }
     } else if (!params.selectedStateAbbr && state.selectedState) {
       document.dispatchEvent(new CustomEvent('dashboard:stateclear'));
     }
