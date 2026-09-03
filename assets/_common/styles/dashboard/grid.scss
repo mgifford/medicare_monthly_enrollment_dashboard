@@ -49,7 +49,7 @@
   display: inline-flex;
   align-items: center;
   margin-left: 6px;
-  font-size: 0.6875rem;
+  font-size: 0.75rem;
   font-weight: 600;
   // Darkened for WCAG AA contrast (raw $color-red is only ~3.45:1).
   color: darken($color-red, 15%);
