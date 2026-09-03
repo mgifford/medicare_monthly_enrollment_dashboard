@@ -160,7 +160,8 @@ export function appendTrendFigure(container, title) {
     .append('div')
     .attr('class', 'chart-figure')
     .attr('role', 'img')
-    .attr('aria-label', title);
+    .attr('aria-label', title)
+    .attr('tabindex', '0');
 
   // Figure's height is flex-grown to fill its card on desktop
   // viewBox is sized to match the figure's actual box rather than a fixed constant
