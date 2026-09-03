@@ -224,24 +224,72 @@ export default function initTrend(state, yearlyWithLatest, monthly) {
   };
 
   const trendRangeTabs = document.querySelectorAll('#national-range-tabs .chart-range-tab');
-  trendRangeTabs.forEach((tab) => {
-    tab.addEventListener('click', () => {
-      state.trend.activeTrendRange = tab.dataset.range;
-      trendRangeTabs.forEach((t) => t.setAttribute('aria-selected', String(t === tab)));
-      syncOverlayControls();
-      renderTrend();
+
+  // Roving tabindex: only the active tab is in the tab order.
+  const activateRangeTab = (tab) => {
+    state.trend.activeTrendRange = tab.dataset.range;
+    trendRangeTabs.forEach((t) => {
+      t.setAttribute('aria-selected', String(t === tab));
+      t.setAttribute('tabindex', t === tab ? '0' : '-1');
+    });
+    tab.focus();
+    syncOverlayControls();
+    renderTrend();
+  };
+
+  trendRangeTabs.forEach((tab, i) => {
+    tab.setAttribute('tabindex', i === 0 ? '0' : '-1');
+
+    tab.addEventListener('click', () => activateRangeTab(tab));
+
+    tab.addEventListener('keydown', (e) => {
+      const tabs = Array.from(trendRangeTabs);
+      const idx = tabs.indexOf(tab);
+      let next = -1;
+      if (e.key === 'ArrowRight') next = (idx + 1) % tabs.length;
+      else if (e.key === 'ArrowLeft') next = (idx - 1 + tabs.length) % tabs.length;
+      else if (e.key === 'Home') next = 0;
+      else if (e.key === 'End') next = tabs.length - 1;
+      if (next >= 0) {
+        e.preventDefault();
+        activateRangeTab(tabs[next]);
+      }
     });
   });
 
   const overlayRangeTabs = document.querySelectorAll('#trend-overlay-range .chart-range-tab');
-  overlayRangeTabs.forEach((tab) => {
-    tab.addEventListener('click', () => {
-      state.trend.activeTrendRange = tab.dataset.range;
-      trendRangeTabs.forEach((t) =>
-        t.setAttribute('aria-selected', String(t.dataset.range === state.trend.activeTrendRange)),
-      );
-      syncOverlayControls();
-      renderTrend();
+
+  const activateOverlayRangeTab = (tab) => {
+    state.trend.activeTrendRange = tab.dataset.range;
+    trendRangeTabs.forEach((t) =>
+      t.setAttribute('aria-selected', String(t.dataset.range === state.trend.activeTrendRange)),
+    );
+    overlayRangeTabs.forEach((t) => {
+      t.setAttribute('aria-selected', String(t === tab));
+      t.setAttribute('tabindex', t === tab ? '0' : '-1');
+    });
+    tab.focus();
+    syncOverlayControls();
+    renderTrend();
+  };
+
+  overlayRangeTabs.forEach((tab, i) => {
+    tab.setAttribute('tabindex', i === 0 ? '0' : '-1');
+
+    tab.addEventListener('click', () => activateOverlayRangeTab(tab));
+
+    tab.addEventListener('keydown', (e) => {
+      const tabs = Array.from(overlayRangeTabs);
+      const idx = tabs.indexOf(tab);
+      let next = -1;
+      if (e.key === 'ArrowRight') next = (idx + 1) % tabs.length;
+      else if (e.key === 'ArrowLeft') next = (idx - 1 + tabs.length) % tabs.length;
+      else if (e.key === 'Home') next = 0;
+      else if (e.key === 'End') next = tabs.length - 1;
+      if (next >= 0) {
+        e.preventDefault();
+        activateOverlayRangeTab(tabs[next]);
+      }
     });
   });
 
