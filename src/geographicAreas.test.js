@@ -17,7 +17,9 @@ describe('territory map support', () => {
 
   it('normalizes atlas territory names to the CMS names used by the dashboard', () => {
     expect(normalizeAreaName('United States Virgin Islands')).toBe('Virgin Islands');
-    expect(normalizeAreaName('Commonwealth of the Northern Mariana Islands')).toBe('Northern Mariana Islands');
+    expect(normalizeAreaName('Commonwealth of the Northern Mariana Islands')).toBe(
+      'Northern Mariana Islands',
+    );
     expect(normalizeAreaName('Puerto Rico')).toBe('Puerto Rico');
   });
 });

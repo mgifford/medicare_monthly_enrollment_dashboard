@@ -63,18 +63,24 @@ export function initUrlSync(state) {
   window.addEventListener('popstate', () => {
     const params = readParams();
     if (params.type && params.type !== state.activeDashboardType) {
-      document.dispatchEvent(new CustomEvent('dashboard:typechange', {
-        detail: { type: params.type }
-      }));
+      document.dispatchEvent(
+        new CustomEvent('dashboard:typechange', {
+          detail: { type: params.type },
+        }),
+      );
     }
     if (params.state) {
-      document.dispatchEvent(new CustomEvent('dashboard:statechange', {
-        detail: { state: params.state }
-      }));
+      document.dispatchEvent(
+        new CustomEvent('dashboard:statechange', {
+          detail: { state: params.state },
+        }),
+      );
       if (params.county) {
-        document.dispatchEvent(new CustomEvent('dashboard:countychange', {
-          detail: { county: params.county }
-        }));
+        document.dispatchEvent(
+          new CustomEvent('dashboard:countychange', {
+            detail: { county: params.county },
+          }),
+        );
       }
     } else if (!params.state && state.selectedState) {
       document.dispatchEvent(new CustomEvent('dashboard:stateclear'));

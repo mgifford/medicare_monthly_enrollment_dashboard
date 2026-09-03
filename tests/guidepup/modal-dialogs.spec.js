@@ -27,21 +27,24 @@ voiceOverTest.describe('Modal dialog VoiceOver tests', () => {
       expect(titleText).toBeTruthy();
     });
 
-    voiceOverTest('enrollment overlay close button returns focus to trigger', async ({ page, voiceOver }) => {
-      await page.goto('/');
-      await page.waitForTimeout(2000);
+    voiceOverTest(
+      'enrollment overlay close button returns focus to trigger',
+      async ({ page, voiceOver }) => {
+        await page.goto('/');
+        await page.waitForTimeout(2000);
 
-      const trigger = page.locator('#enrollment-expand-trigger');
-      await trigger.click();
-      await page.waitForTimeout(1000);
+        const trigger = page.locator('#enrollment-expand-trigger');
+        await trigger.click();
+        await page.waitForTimeout(1000);
 
-      const closeBtn = page.locator('#enrollment-overlay-close');
-      await closeBtn.click();
-      await page.waitForTimeout(500);
+        const closeBtn = page.locator('#enrollment-overlay-close');
+        await closeBtn.click();
+        await page.waitForTimeout(500);
 
-      await expect(trigger).toHaveAttribute('aria-expanded', 'false');
-      await expect(page.locator('#enrollment-overlay')).not.toBeVisible();
-    });
+        await expect(trigger).toHaveAttribute('aria-expanded', 'false');
+        await expect(page.locator('#enrollment-overlay')).not.toBeVisible();
+      },
+    );
 
     voiceOverTest('enrollment overlay closes on Escape', async ({ page, voiceOver }) => {
       await page.goto('/');
@@ -81,21 +84,24 @@ voiceOverTest.describe('Modal dialog VoiceOver tests', () => {
       expect(titleText).toBeTruthy();
     });
 
-    voiceOverTest('trend overlay close button returns focus to trigger', async ({ page, voiceOver }) => {
-      await page.goto('/');
-      await page.waitForTimeout(2000);
+    voiceOverTest(
+      'trend overlay close button returns focus to trigger',
+      async ({ page, voiceOver }) => {
+        await page.goto('/');
+        await page.waitForTimeout(2000);
 
-      const trigger = page.locator('#trend-expand-trigger');
-      await trigger.click();
-      await page.waitForTimeout(1000);
+        const trigger = page.locator('#trend-expand-trigger');
+        await trigger.click();
+        await page.waitForTimeout(1000);
 
-      const closeBtn = page.locator('#trend-overlay-close');
-      await closeBtn.click();
-      await page.waitForTimeout(500);
+        const closeBtn = page.locator('#trend-overlay-close');
+        await closeBtn.click();
+        await page.waitForTimeout(500);
 
-      await expect(trigger).toHaveAttribute('aria-expanded', 'false');
-      await expect(page.locator('#trend-overlay')).not.toBeVisible();
-    });
+        await expect(trigger).toHaveAttribute('aria-expanded', 'false');
+        await expect(page.locator('#trend-overlay')).not.toBeVisible();
+      },
+    );
 
     voiceOverTest('trend overlay closes on Escape', async ({ page, voiceOver }) => {
       await page.goto('/');
@@ -112,28 +118,31 @@ voiceOverTest.describe('Modal dialog VoiceOver tests', () => {
       await expect(page.locator('#trend-overlay')).not.toBeVisible();
     });
 
-    voiceOverTest('trend overlay has tablist and chart type controls', async ({ page, voiceOver }) => {
-      await page.goto('/');
-      await page.waitForTimeout(2000);
+    voiceOverTest(
+      'trend overlay has tablist and chart type controls',
+      async ({ page, voiceOver }) => {
+        await page.goto('/');
+        await page.waitForTimeout(2000);
 
-      await page.locator('#trend-expand-trigger').click();
-      await page.waitForTimeout(1000);
+        await page.locator('#trend-expand-trigger').click();
+        await page.waitForTimeout(1000);
 
-      const tablist = page.locator('#trend-overlay-range');
-      await expect(tablist).toBeAttached();
-      await expect(tablist).toHaveAttribute('role', 'tablist');
+        const tablist = page.locator('#trend-overlay-range');
+        await expect(tablist).toBeAttached();
+        await expect(tablist).toHaveAttribute('role', 'tablist');
 
-      const tabs = page.locator('#trend-overlay-range [role="tab"]');
-      const tabCount = await tabs.count();
-      expect(tabCount).toBe(2);
+        const tabs = page.locator('#trend-overlay-range [role="tab"]');
+        const tabCount = await tabs.count();
+        expect(tabCount).toBe(2);
 
-      const chartTypeGroup = page.locator('#trend-overlay-types[role="group"]');
-      await expect(chartTypeGroup).toBeAttached();
+        const chartTypeGroup = page.locator('#trend-overlay-types[role="group"]');
+        await expect(chartTypeGroup).toBeAttached();
 
-      const chartButtons = page.locator('#trend-overlay-types button[aria-pressed]');
-      const chartCount = await chartButtons.count();
-      expect(chartCount).toBe(3);
-    });
+        const chartButtons = page.locator('#trend-overlay-types button[aria-pressed]');
+        const chartCount = await chartButtons.count();
+        expect(chartCount).toBe(3);
+      },
+    );
   });
 
   voiceOverTest.describe('Mobile drawers', () => {
@@ -162,21 +171,24 @@ voiceOverTest.describe('Modal dialog VoiceOver tests', () => {
       expect(titleText).toContain('State Enrollment');
     });
 
-    voiceOverTest('state drawer close button returns focus to trigger', async ({ page, voiceOver }) => {
-      await page.goto('/');
-      await page.waitForTimeout(2000);
+    voiceOverTest(
+      'state drawer close button returns focus to trigger',
+      async ({ page, voiceOver }) => {
+        await page.goto('/');
+        await page.waitForTimeout(2000);
 
-      const trigger = page.locator('#all-areas-mobile-trigger');
-      await trigger.click();
-      await page.waitForTimeout(1000);
+        const trigger = page.locator('#all-areas-mobile-trigger');
+        await trigger.click();
+        await page.waitForTimeout(1000);
 
-      const closeBtn = page.locator('#all-areas-drawer-close');
-      await closeBtn.click();
-      await page.waitForTimeout(500);
+        const closeBtn = page.locator('#all-areas-drawer-close');
+        await closeBtn.click();
+        await page.waitForTimeout(500);
 
-      await expect(trigger).toHaveAttribute('aria-expanded', 'false');
-      await expect(page.locator('#all-areas-drawer')).not.toBeVisible();
-    });
+        await expect(trigger).toHaveAttribute('aria-expanded', 'false');
+        await expect(page.locator('#all-areas-drawer')).not.toBeVisible();
+      },
+    );
 
     voiceOverTest('state drawer closes on Escape', async ({ page, voiceOver }) => {
       await page.goto('/');
@@ -220,13 +232,15 @@ voiceOverTest.describe('Modal dialog VoiceOver tests', () => {
       // loadStateMap() completes, which sets year/month needed for county fetch
       await page.waitForFunction(
         () => document.querySelector('#dashboard-title-date')?.textContent?.trim(),
-        { timeout: 30000 }
+        { timeout: 30000 },
       );
 
       await page.evaluate(() => {
-        document.dispatchEvent(new CustomEvent('dashboard:statechange', {
-          detail: { state: 'AL', stateName: 'Alabama' }
-        }));
+        document.dispatchEvent(
+          new CustomEvent('dashboard:statechange', {
+            detail: { state: 'AL', stateName: 'Alabama' },
+          }),
+        );
       });
 
       const trigger = page.locator('#county-mobile-trigger');
@@ -258,13 +272,15 @@ voiceOverTest.describe('Modal dialog VoiceOver tests', () => {
       await page.goto('/');
       await page.waitForFunction(
         () => document.querySelector('#dashboard-title-date')?.textContent?.trim(),
-        { timeout: 30000 }
+        { timeout: 30000 },
       );
 
       await page.evaluate(() => {
-        document.dispatchEvent(new CustomEvent('dashboard:statechange', {
-          detail: { state: 'AL', stateName: 'Alabama' }
-        }));
+        document.dispatchEvent(
+          new CustomEvent('dashboard:statechange', {
+            detail: { state: 'AL', stateName: 'Alabama' },
+          }),
+        );
       });
 
       const trigger = page.locator('#county-mobile-trigger');

@@ -7,7 +7,9 @@ async function selectComboBoxOption(page, optionText) {
   await selector.fill(optionText);
   await page.waitForTimeout(500);
 
-  const option = page.locator('#medicare-state-selector--list .usa-combo-box__list-option', { hasText: optionText });
+  const option = page.locator('#medicare-state-selector--list .usa-combo-box__list-option', {
+    hasText: optionText,
+  });
   await option.click();
   await page.waitForTimeout(500);
 }

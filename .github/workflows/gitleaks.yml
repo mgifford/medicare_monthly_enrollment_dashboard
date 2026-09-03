@@ -14,6 +14,6 @@ jobs:
       - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
         with:
           fetch-depth: 0
-      - uses: gacts/gitleaks@7d78ad59e05b0a1c40f6de01a4074841e5a25a59
+      - uses: gacts/gitleaks@03e7105de6e27d619be467b70e6d2c9657780d9b # v1.2.3
         with:
           config-path: .github/.gitleaks.toml

@@ -22,7 +22,11 @@ async function init() {
 
     const yearlyWithLatest = mergeLatestMonthlyIntoYearly(yearly, monthly);
 
-    const { showTrendForScope, setActiveTrendDot, scrollToTrendView } = initTrend(state, yearlyWithLatest, monthly);
+    const { showTrendForScope, setActiveTrendDot, scrollToTrendView } = initTrend(
+      state,
+      yearlyWithLatest,
+      monthly,
+    );
 
     const { setMapPanelVisibility } = initMap(state);
 
@@ -100,21 +104,82 @@ async function init() {
       state.resetMapToNational('drug');
     };
 
+    // Waits for the active map to bind its combo-box change handler, then
+    // drives the drill-in via a native change event on the <select>. This
+    // reuses the same code path as a user selection, so it also emits
+    // dashboard:statechange (which updates the grid and trend cards).
+    const drillActiveMapToState = ({ stateAbbr, stateName, county }) => {
+      const activeConfig = state.mapConfigs[state.activeDashboardType];
+      const activeSelector = activeConfig?.selector;
+      const select = activeConfig
+        ? document.querySelector(activeConfig.options.comboBoxSelector)
+        : null;
+
+      const trigger = () => {
+        if (select && stateName) {
+          select.value = stateName;
+          select.dispatchEvent(new Event('change', { bubbles: true }));
+        } else if (stateAbbr) {
+          document.dispatchEvent(
+            new CustomEvent('dashboard:statechange', {
+              detail: { state: stateAbbr, stateName },
+            }),
+          );
+        }
+
+        if (county) {
+          // Route the county through the map's own selection channel so the
+          // county map's highlight updates too; countyselect internally
+          // re-emits countychange for the grid and trend cards.
+          const onCountyMapReady = (event) => {
+            if (!activeSelector || event.detail?.containerSelector === activeSelector) {
+              document.removeEventListener('dashboard:countymapready', onCountyMapReady);
+              document.dispatchEvent(
+                new CustomEvent('dashboard:countyselect', {
+                  detail: { containerSelector: activeSelector, county },
+                }),
+              );
+            }
+          };
+          document.addEventListener('dashboard:countymapready', onCountyMapReady);
+        }
+      };
+
+      const onReady = (event) => {
+        if (!activeSelector || event.detail?.containerSelector === activeSelector) {
+          document.removeEventListener('dashboard:mapready', onReady);
+          trigger();
+        }
+      };
+      document.addEventListener('dashboard:mapready', onReady);
+    };
+
     document.addEventListener('dashboard:typechange', (event) => {
       const { type } = event.detail || {};
       if (!type) return;
+      const previousState = state.selectedState;
+      const previousCounty = state.selectedCounty;
+
       state.activeDashboardType = type;
       state.trend.activeTrendType = type;
       setMapPanelVisibility(type);
-      state.selectedState = null;
-      updateDrawerTriggerValue();
       renderAllAreasGrid(type);
       if (isDrawerOpen()) {
         renderDrawerList(type);
       }
-      renderCountyGrid(null, null, type);
+
       state.resetMapToNational(type);
-      showTrendForScope('national', null);
+
+      if (previousState) {
+        drillActiveMapToState({
+          stateAbbr: previousState.state,
+          stateName: previousState.stateName,
+          county: previousCounty,
+        });
+      } else {
+        renderCountyGrid(null, null, type);
+        showTrendForScope('national', null);
+      }
     });
 
     document.addEventListener('dashboard:statechange', (event) => {
@@ -163,41 +228,11 @@ async function init() {
     if (initial.state) {
       const matchedState = state.grid.allStatesRows.find((row) => row.state === initial.state);
       const stateName = matchedState?.stateName || initial.state;
-
-      // Drive the active map's combo box so the state map drills into
-      // the county view. Its change handler also emits dashboard:statechange,
-      // which updates the grid and trend cards.
-      const activeConfig = state.mapConfigs[state.activeDashboardType];
-      const select = activeConfig && document.querySelector(activeConfig.options.comboBoxSelector);
-
-      const triggerDrillIn = () => {
-        if (select && stateName) {
-          select.value = stateName;
-          select.dispatchEvent(new Event('change', { bubbles: true }));
-        } else {
-          document.dispatchEvent(new CustomEvent('dashboard:statechange', {
-            detail: { state: initial.state, stateName },
-          }));
-        }
-
-        if (initial.county) {
-          document.dispatchEvent(new CustomEvent('dashboard:countychange', {
-            detail: { county: initial.county },
-          }));
-        }
-      };
-
-      // Wait for the active map to bind its combo-box change handler
-      // before firing the drill-in event; the map renders synchronously
-      // but its feature/handler wiring resolves after an async fetch.
-      const activeSelector = activeConfig?.selector;
-      const onReady = (event) => {
-        if (!activeSelector || event.detail?.containerSelector === activeSelector) {
-          document.removeEventListener('dashboard:mapready', onReady);
-          triggerDrillIn();
-        }
-      };
-      document.addEventListener('dashboard:mapready', onReady);
+      drillActiveMapToState({
+        stateAbbr: initial.state,
+        stateName,
+        county: initial.county,
+      });
     }
 
     observeResize('.dashboard-columns__main', syncColumnHeights);

@@ -77,34 +77,35 @@ export default function initTrend(state, yearlyWithLatest, monthly) {
   // Shared by the desktop overlay's grid view and the mobile trend drawer.
   const renderTrendGrid = (selector) => {
     const data = currentTrendBucket()?.[state.trend.activeTrendRange];
-    const columns = buildTrendGridColumns(state.trend.activeTrendType, state.trend.activeTrendRange);
+    const columns = buildTrendGridColumns(
+      state.trend.activeTrendType,
+      state.trend.activeTrendRange,
+    );
     const { index, direction } = state.trend.trendGridSort;
     const sortCol = columns[index];
     const sortKey = sortCol?.sortValue || sortCol?.value;
     const sorted = [...(data || [])].sort((a, b) => {
-      const av = sortKey(a), bv = sortKey(b);
+      const av = sortKey(a);
+      const bv = sortKey(b);
       if (av == null && bv == null) return 0;
       if (av == null) return 1;
       if (bv == null) return -1;
-      const cmp = av < bv ? -1 : av > bv ? 1 : 0;
+      let cmp = 0;
+      if (av < bv) cmp = -1;
+      else if (av > bv) cmp = 1;
       return direction === 'asc' ? cmp : -cmp;
     });
     if (!sorted.length) {
       document.querySelector(selector).innerHTML =
         '<p class="data-grid-placeholder">No trend data available for this selection.</p>';
     } else {
-      renderTable(
-        selector,
-        columns,
-        sorted,
-        {
-          sortState: state.trend.trendGridSort,
-          onSort: (index) => {
-            state.trend.trendGridSort = toggleSort(state.trend.trendGridSort, index);
-            renderTrendGrid(selector);
-          },
+      renderTable(selector, columns, sorted, {
+        sortState: state.trend.trendGridSort,
+        onSort: (nextIndex) => {
+          state.trend.trendGridSort = toggleSort(state.trend.trendGridSort, nextIndex);
+          renderTrendGrid(selector);
         },
-      );
+      });
     }
   };
 

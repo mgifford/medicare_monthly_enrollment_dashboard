@@ -26,7 +26,11 @@ voiceOverTest.describe('VoiceOver screen reader tests', () => {
     for (let i = 0; i < 10; i++) {
       await voiceOver.next();
       const phrase = await voiceOver.lastSpokenPhrase();
-      if (phrase.toLowerCase().includes('combo box') || phrase.toLowerCase().includes('select') || phrase.toLowerCase().includes('state')) {
+      if (
+        phrase.toLowerCase().includes('combo box') ||
+        phrase.toLowerCase().includes('select') ||
+        phrase.toLowerCase().includes('state')
+      ) {
         found = true;
         break;
       }
@@ -42,7 +46,9 @@ voiceOverTest.describe('VoiceOver screen reader tests', () => {
     await page.locator('#medicare-state-selector').fill('Puerto Rico');
     await page.waitForTimeout(500);
 
-    const option = page.locator('#medicare-state-selector--list .usa-combo-box__list-option', { hasText: 'Puerto Rico' });
+    const option = page.locator('#medicare-state-selector--list .usa-combo-box__list-option', {
+      hasText: 'Puerto Rico',
+    });
     await option.click();
     await page.waitForTimeout(2000);
 
@@ -99,7 +105,9 @@ voiceOverTest.describe('VoiceOver screen reader tests', () => {
     await page.locator('#medicare-state-selector').fill('Alabama');
     await page.waitForTimeout(500);
 
-    const option = page.locator('#medicare-state-selector--list .usa-combo-box__list-option', { hasText: 'Alabama' });
+    const option = page.locator('#medicare-state-selector--list .usa-combo-box__list-option', {
+      hasText: 'Alabama',
+    });
     await option.click();
 
     // Re-activate browser in case VoiceOver wandered during data fetch
@@ -126,7 +134,9 @@ voiceOverTest.describe('VoiceOver screen reader tests', () => {
     await page.locator('#medicare-state-selector').fill('Alabama');
     await page.waitForTimeout(500);
 
-    const option = page.locator('#medicare-state-selector--list .usa-combo-box__list-option', { hasText: 'Alabama' });
+    const option = page.locator('#medicare-state-selector--list .usa-combo-box__list-option', {
+      hasText: 'Alabama',
+    });
     await option.click();
     await page.waitForTimeout(2000);
 

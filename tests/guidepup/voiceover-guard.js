@@ -16,7 +16,7 @@ export async function ensureVoiceOverFocused(voiceOver, page) {
     await Promise.race([
       macOSActivate(BROWSER_APP_NAME),
       new Promise((_, reject) =>
-        setTimeout(() => reject(new Error('macOSActivate timeout')), VOICEOVER_ACTIVATE_TIMEOUT_MS)
+        setTimeout(() => reject(new Error('macOSActivate timeout')), VOICEOVER_ACTIVATE_TIMEOUT_MS),
       ),
     ]);
 
@@ -40,7 +40,10 @@ export async function withVoiceOverGuard(voiceOver, page, interactionFn) {
   const result = await Promise.race([
     interactionFn(),
     new Promise((_, reject) =>
-      setTimeout(() => reject(new Error('VoiceOver interaction timed out - focus may have wandered')), 10000)
+      setTimeout(
+        () => reject(new Error('VoiceOver interaction timed out - focus may have wandered')),
+        10000,
+      ),
     ),
   ]);
   return result;

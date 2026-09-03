@@ -193,9 +193,7 @@ function renderStateMap(containerSelector, data, config = {}) {
 
   const metricColor = d3.scaleThreshold().domain(resolvedBreakpoints).range(resolvedColors);
 
-  const dataByName = new Map(
-    data.map((d) => [normalizeAreaName(d.stateName), d]),
-  );
+  const dataByName = new Map(data.map((d) => [normalizeAreaName(d.stateName), d]));
 
   const isMobile = window.matchMedia(MOBILE_MEDIA_QUERY).matches;
   const width = 975;
@@ -320,6 +318,12 @@ function renderStateMap(containerSelector, data, config = {}) {
         backButtonEl.hidden = false;
         backButtonEl.onclick = onBackFn;
       }
+
+      document.dispatchEvent(
+        new CustomEvent('dashboard:countymapready', {
+          detail: { containerSelector },
+        }),
+      );
     } catch (error) {
       if (error?.name === 'AbortError') return;
       if (isStale()) return;
@@ -338,7 +342,10 @@ function renderStateMap(containerSelector, data, config = {}) {
   getStateFeatures()
     .then((features) => {
       const featureByStateName = new Map(
-        features.map((stateFeature) => [normalizeAreaName(stateFeature.properties.name), stateFeature]),
+        features.map((stateFeature) => [
+          normalizeAreaName(stateFeature.properties.name),
+          stateFeature,
+        ]),
       );
 
       d3.select(comboBoxSelector).on('change.state-map', async (event) => {

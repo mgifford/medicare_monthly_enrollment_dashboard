@@ -51,7 +51,9 @@ test.describe('Keyboard navigation', () => {
     await page.waitForTimeout(500);
 
     // Select from dropdown
-    const option = page.locator('#medicare-state-selector--list .usa-combo-box__list-option', { hasText: 'Puerto Rico' });
+    const option = page.locator('#medicare-state-selector--list .usa-combo-box__list-option', {
+      hasText: 'Puerto Rico',
+    });
     await option.click();
     await page.waitForTimeout(500);
 
@@ -70,7 +72,9 @@ test.describe('Keyboard navigation', () => {
     await selector.fill('Alabama');
     await page.waitForTimeout(500);
 
-    const option = page.locator('#medicare-state-selector--list .usa-combo-box__list-option', { hasText: 'Alabama' });
+    const option = page.locator('#medicare-state-selector--list .usa-combo-box__list-option', {
+      hasText: 'Alabama',
+    });
     await option.click();
     await page.waitForTimeout(2000);
 
@@ -101,7 +105,9 @@ test.describe('Keyboard navigation', () => {
     await selector.fill('Alabama');
     await page.waitForTimeout(500);
 
-    const option = page.locator('#medicare-state-selector--list .usa-combo-box__list-option', { hasText: 'Alabama' });
+    const option = page.locator('#medicare-state-selector--list .usa-combo-box__list-option', {
+      hasText: 'Alabama',
+    });
     await option.click();
     await page.waitForTimeout(3000);
 

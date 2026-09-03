@@ -124,7 +124,15 @@ export function buildTrendGridColumns(type, range) {
     { label: 'Total', value: (d) => formatCount(d[total.key]), sortValue: (d) => d[total.key] },
     { label: type1.label, value: (d) => formatCount(d[type1.key]), sortValue: (d) => d[type1.key] },
     { label: type2.label, value: (d) => formatCount(d[type2.key]), sortValue: (d) => d[type2.key] },
-    { label: `${type1.label} %`, value: (d) => roundPct(d[type1.percentKey]), sortValue: (d) => d[type1.percentKey] },
-    { label: `${type2.label} %`, value: (d) => roundPct(d[type2.percentKey]), sortValue: (d) => d[type2.percentKey] },
+    {
+      label: `${type1.label} %`,
+      value: (d) => roundPct(d[type1.percentKey]),
+      sortValue: (d) => d[type1.percentKey],
+    },
+    {
+      label: `${type2.label} %`,
+      value: (d) => roundPct(d[type2.percentKey]),
+      sortValue: (d) => d[type2.percentKey],
+    },
   ];
 }

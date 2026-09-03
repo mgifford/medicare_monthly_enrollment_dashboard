@@ -14,11 +14,11 @@ test.describe('Territory behavior', () => {
     const options = page.locator('#medicare-state-selector--list .usa-combo-box__list-option');
     const optionTexts = await options.allTextContents();
 
-    expect(optionTexts.some(t => t.includes('Puerto Rico'))).toBeTruthy();
-    expect(optionTexts.some(t => t.includes('Guam'))).toBeTruthy();
-    expect(optionTexts.some(t => t.includes('American Samoa'))).toBeTruthy();
-    expect(optionTexts.some(t => t.includes('Virgin Islands'))).toBeTruthy();
-    expect(optionTexts.some(t => t.includes('Northern Mariana Islands'))).toBeTruthy();
+    expect(optionTexts.some((t) => t.includes('Puerto Rico'))).toBeTruthy();
+    expect(optionTexts.some((t) => t.includes('Guam'))).toBeTruthy();
+    expect(optionTexts.some((t) => t.includes('American Samoa'))).toBeTruthy();
+    expect(optionTexts.some((t) => t.includes('Virgin Islands'))).toBeTruthy();
+    expect(optionTexts.some((t) => t.includes('Northern Mariana Islands'))).toBeTruthy();
   });
 
   test('selecting Puerto Rico shows enrollment data', async ({ page }) => {
@@ -31,7 +31,9 @@ test.describe('Territory behavior', () => {
     await selector.fill('Puerto Rico');
     await page.waitForTimeout(500);
 
-    const option = page.locator('#medicare-state-selector--list .usa-combo-box__list-option', { hasText: 'Puerto Rico' });
+    const option = page.locator('#medicare-state-selector--list .usa-combo-box__list-option', {
+      hasText: 'Puerto Rico',
+    });
     await option.click();
     await page.waitForTimeout(3000);
 
@@ -50,12 +52,16 @@ test.describe('Territory behavior', () => {
     await selector.fill('Guam');
     await page.waitForTimeout(500);
 
-    const option = page.locator('#medicare-state-selector--list .usa-combo-box__list-option', { hasText: 'Guam' });
+    const option = page.locator('#medicare-state-selector--list .usa-combo-box__list-option', {
+      hasText: 'Guam',
+    });
     await option.click();
     await page.waitForTimeout(2000);
 
     // Should show territory scope note
-    const scopeNote = page.locator('.data-grid-card__instruction', { hasText: 'Territory enrollment data is available in the table below' });
+    const scopeNote = page.locator('.data-grid-card__instruction', {
+      hasText: 'Territory enrollment data is available in the table below',
+    });
     await expect(scopeNote).toBeVisible();
   });
 
