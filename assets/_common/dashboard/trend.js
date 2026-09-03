@@ -306,23 +306,6 @@ export default function initTrend(state, yearlyWithLatest, monthly) {
 
   const trendOverlayEls = makeOverlayEls('trend'); // tabsSlot resolves to null (no tabs-slot markup) and is unused
 
-  // Force-close the drawers on entering desktop, and the expand overlays
-  // on leaving it — matches each one's own CSS display:none guard.
-  const desktopMql = window.matchMedia('(min-width: 64em)');
-  desktopMql.addEventListener('change', (event) => {
-    if (event.matches) {
-      state.popups.closeDrawer();
-      state.popups.closeCountyDrawer();
-      state.popups.closeTrendDrawer();
-      state.trend.activeTrendView = 'line';
-      setActiveTrendDot('line');
-      scrollToTrendView('line', 'auto');
-    } else {
-      state.popups.closeOverlay();
-      state.popups.closeTrendOverlay();
-    }
-  });
-
   // ---- Desktop "expand" overlay for the trend card. No reparenting — the
   // body is static placeholder markup baked into trend-card.njk, so this
   // popup needs no onOpen/onClose hooks. ----
@@ -390,5 +373,5 @@ export default function initTrend(state, yearlyWithLatest, monthly) {
     trendDrawerEls.overlay?.addEventListener('click', state.popups.closeTrendDrawer);
   }
 
-  return { showTrendForScope };
+  return { showTrendForScope, setActiveTrendDot, scrollToTrendView };
 }

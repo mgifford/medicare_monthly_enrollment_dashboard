@@ -20,7 +20,7 @@ async function init() {
 
     const yearlyWithLatest = mergeLatestMonthlyIntoYearly(yearly, monthly);
 
-    const { showTrendForScope } = initTrend(state, yearlyWithLatest, monthly);
+    const { showTrendForScope, setActiveTrendDot, scrollToTrendView } = initTrend(state, yearlyWithLatest, monthly);
 
     const { setMapPanelVisibility } = initMap(state);
 
@@ -129,6 +129,23 @@ async function init() {
     });
 
     document.addEventListener('dashboard:stateclear', () => state.clearSelectedState());
+
+    // Force-close the drawers on entering desktop, and the expand overlays
+    // on leaving it — matches each one's own CSS display:none guard.
+    const desktopMql = window.matchMedia('(min-width: 64em)');
+    desktopMql.addEventListener('change', (event) => {
+      if (event.matches) {
+        state.popups.closeDrawer();
+        state.popups.closeCountyDrawer();
+        state.popups.closeTrendDrawer();
+        state.trend.activeTrendView = 'line';
+        setActiveTrendDot('line');
+        scrollToTrendView('line', 'auto');
+      } else {
+        state.popups.closeOverlay();
+        state.popups.closeTrendOverlay();
+      }
+    });
 
     await loadStateMap();
 
