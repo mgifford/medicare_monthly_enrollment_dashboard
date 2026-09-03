@@ -353,11 +353,12 @@ function renderStateMap(containerSelector, data, config = {}) {
         const stateData = dataByName.get(selectedValue);
         if (!stateData) return;
 
-        const stateFeature = featureByStateName.get(selectedValue);
-        if (!stateFeature) return;
-
         emitStateChange(stateData);
-        await showCountyView(stateFeature, stateData);
+
+        const stateFeature = featureByStateName.get(selectedValue);
+        if (stateFeature) {
+          await showCountyView(stateFeature, stateData);
+        }
       });
       const statePaths = svg
         .append('g')

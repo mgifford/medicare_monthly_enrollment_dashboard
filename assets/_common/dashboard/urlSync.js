@@ -4,30 +4,14 @@
  * the dashboard state in sync with the browser address bar.
  */
 
-const PARAM_MAP = {
-  type: 'activeDashboardType',
-  state: 'selectedStateAbbr',
-  range: 'activeTrendRange',
-  view: 'activeTrendView',
-};
-
-const VALID_VALUES = {
-  type: ['hospital', 'drug'],
-  range: ['yearly', 'monthly'],
-  view: ['line', 'bar', 'grid'],
-};
-
 function readParams() {
   const params = new URLSearchParams(window.location.search);
-  const result = {};
-  for (const [key, stateKey] of Object.entries(PARAM_MAP)) {
-    const val = params.get(key);
-    if (val != null) {
-      if (VALID_VALUES[key] && !VALID_VALUES[key].includes(val)) continue;
-      result[stateKey] = val;
-    }
-  }
-  return result;
+  return {
+    type: params.get('type'),
+    state: params.get('state'),
+    range: params.get('range'),
+    view: params.get('view'),
+  };
 }
 
 function writeParams(state) {
@@ -52,48 +36,37 @@ function writeParams(state) {
 export function initUrlSync(state) {
   const initial = readParams();
 
-  if (initial.activeDashboardType) {
-    state.activeDashboardType = initial.activeDashboardType;
+  if (initial.type) {
+    state.activeDashboardType = initial.type;
   }
-  if (initial.activeTrendRange) {
-    state.trend.activeTrendRange = initial.activeTrendRange;
+  if (initial.range) {
+    state.trend.activeTrendRange = initial.range;
   }
-  if (initial.activeTrendView) {
-    state.trend.activeTrendView = initial.activeTrendView;
+  if (initial.view) {
+    state.trend.activeTrendView = initial.view;
   }
 
-  document.addEventListener('dashboard:typechange', (e) => {
-    writeParams(state);
-  });
+  // Defer writes so all other event handlers update state first
+  const scheduleWrite = () => setTimeout(() => writeParams(state), 0);
 
-  document.addEventListener('dashboard:statechange', (e) => {
-    writeParams(state);
-  });
-
-  document.addEventListener('dashboard:stateclear', () => {
-    writeParams(state);
-  });
-
-  document.addEventListener('dashboard:rangechange', () => {
-    writeParams(state);
-  });
-
-  document.addEventListener('dashboard:viewchange', () => {
-    writeParams(state);
-  });
+  document.addEventListener('dashboard:typechange', scheduleWrite);
+  document.addEventListener('dashboard:statechange', scheduleWrite);
+  document.addEventListener('dashboard:stateclear', scheduleWrite);
+  document.addEventListener('dashboard:rangechange', scheduleWrite);
+  document.addEventListener('dashboard:viewchange', scheduleWrite);
 
   window.addEventListener('popstate', () => {
     const params = readParams();
-    if (params.activeDashboardType && params.activeDashboardType !== state.activeDashboardType) {
+    if (params.type && params.type !== state.activeDashboardType) {
       document.dispatchEvent(new CustomEvent('dashboard:typechange', {
-        detail: { type: params.activeDashboardType }
+        detail: { type: params.type }
       }));
     }
-    if (params.selectedStateAbbr) {
+    if (params.state) {
       document.dispatchEvent(new CustomEvent('dashboard:statechange', {
-        detail: { state: params.selectedStateAbbr }
+        detail: { state: params.state }
       }));
-    } else if (!params.selectedStateAbbr && state.selectedState) {
+    } else if (!params.state && state.selectedState) {
       document.dispatchEvent(new CustomEvent('dashboard:stateclear'));
     }
   });
