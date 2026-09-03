@@ -126,6 +126,15 @@ async function init() {
         smooth: true,
       });
       showTrendForScope('state', { state: stateAbbr, stateName });
+
+      // Switch to county view and move focus for keyboard users
+      setActiveGridView('county');
+      requestAnimationFrame(() => {
+        const countyTable = document.querySelector('#county-table');
+        if (countyTable) {
+          countyTable.focus();
+        }
+      });
     });
 
     document.addEventListener('dashboard:stateclear', () => state.clearSelectedState());

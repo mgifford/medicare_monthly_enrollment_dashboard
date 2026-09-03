@@ -89,4 +89,40 @@ test.describe('Keyboard navigation', () => {
       expect(focused).not.toBe('');
     }
   });
+
+  test('county table is keyboard accessible after state selection', async ({ page }) => {
+    await page.goto('/');
+    await page.waitForLoadState('networkidle');
+    await page.waitForTimeout(2000);
+
+    // Select a state using the combo-box interaction
+    const selector = page.locator('#medicare-state-selector');
+    await selector.click();
+    await selector.fill('Alabama');
+    await page.waitForTimeout(500);
+
+    const option = page.locator('#medicare-state-selector--list .usa-combo-box__list-option', { hasText: 'Alabama' });
+    await option.click();
+    await page.waitForTimeout(3000);
+
+    // Counties tab should now be visible and selected
+    const countyTab = page.locator('#enrollment-tab-county');
+    await expect(countyTab).toBeVisible();
+    await expect(countyTab).toHaveAttribute('aria-selected', 'true');
+
+    // County table should be visible with rows
+    const countyTable = page.locator('#county-table');
+    await expect(countyTable).toBeVisible();
+
+    // County table should have clickable rows
+    const countyRows = countyTable.locator('tr[tabindex="0"]');
+    const rowCount = await countyRows.count();
+    expect(rowCount).toBeGreaterThan(0);
+
+    // First county row should be keyboard accessible
+    const firstRow = countyRows.first();
+    await firstRow.focus();
+    const focused = await page.evaluate(() => document.activeElement?.tagName);
+    expect(focused).toBe('TR');
+  });
 });
