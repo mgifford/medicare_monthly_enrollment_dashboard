@@ -1,7 +1,7 @@
 import * as d3 from 'd3';
 import requestDataset from '../../../src/router';
 import renderTable from '../tables/renderTable';
-import { sortYearlyAscending, sortMonthlyAscending, observeResize } from '../charts/utils';
+import { observeResize } from '../charts/utils';
 import { buildTrendGridColumns } from '../tables/gridColumns';
 import { toggleSort, makeDrawerEls, makeOverlayEls, createPopup } from './shared';
 import { DASHBOARD_TREND_CHARTS } from '../charts/index';
@@ -77,24 +77,30 @@ export default function initTrend(state, yearlyWithLatest, monthly) {
   // Shared by the desktop overlay's grid view and the mobile trend drawer.
   const renderTrendGrid = (selector) => {
     const data = currentTrendBucket()?.[state.trend.activeTrendRange];
-    const ascending =
-      state.trend.activeTrendRange === 'yearly'
-        ? sortYearlyAscending(data || [])
-        : sortMonthlyAscending(data || []);
-    const sorted = state.trend.trendGridSort.direction === 'asc' ? ascending : ascending.reverse();
+    const columns = buildTrendGridColumns(state.trend.activeTrendType, state.trend.activeTrendRange);
+    const { index, direction } = state.trend.trendGridSort;
+    const sortCol = columns[index];
+    const sortKey = sortCol?.sortValue || sortCol?.value;
+    const sorted = [...(data || [])].sort((a, b) => {
+      const av = sortKey(a), bv = sortKey(b);
+      if (av == null && bv == null) return 0;
+      if (av == null) return 1;
+      if (bv == null) return -1;
+      const cmp = av < bv ? -1 : av > bv ? 1 : 0;
+      return direction === 'asc' ? cmp : -cmp;
+    });
     if (!sorted.length) {
       document.querySelector(selector).innerHTML =
         '<p class="data-grid-placeholder">No trend data available for this selection.</p>';
     } else {
       renderTable(
         selector,
-        buildTrendGridColumns(state.trend.activeTrendType, state.trend.activeTrendRange),
+        columns,
         sorted,
         {
           sortState: state.trend.trendGridSort,
-          sortableIndex: 0,
-          onSort: () => {
-            state.trend.trendGridSort = toggleSort(state.trend.trendGridSort, 0);
+          onSort: (index) => {
+            state.trend.trendGridSort = toggleSort(state.trend.trendGridSort, index);
             renderTrendGrid(selector);
           },
         },
