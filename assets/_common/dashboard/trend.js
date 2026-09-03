@@ -225,6 +225,13 @@ export default function initTrend(state, yearlyWithLatest, monthly) {
 
   const trendRangeTabs = document.querySelectorAll('#national-range-tabs .chart-range-tab');
 
+  // Set initial tab state from URL
+  trendRangeTabs.forEach((tab) => {
+    const isActive = tab.dataset.range === state.trend.activeTrendRange;
+    tab.setAttribute('aria-selected', String(isActive));
+    tab.setAttribute('tabindex', isActive ? '0' : '-1');
+  });
+
   // Roving tabindex: only the active tab is in the tab order.
   const activateRangeTab = (tab) => {
     state.trend.activeTrendRange = tab.dataset.range;
@@ -235,6 +242,7 @@ export default function initTrend(state, yearlyWithLatest, monthly) {
     tab.focus();
     syncOverlayControls();
     renderTrend();
+    document.dispatchEvent(new CustomEvent('dashboard:rangechange'));
   };
 
   trendRangeTabs.forEach((tab, i) => {
@@ -271,6 +279,7 @@ export default function initTrend(state, yearlyWithLatest, monthly) {
     tab.focus();
     syncOverlayControls();
     renderTrend();
+    document.dispatchEvent(new CustomEvent('dashboard:rangechange'));
   };
 
   overlayRangeTabs.forEach((tab, i) => {
@@ -333,6 +342,7 @@ export default function initTrend(state, yearlyWithLatest, monthly) {
       state.trend.activeTrendView = dot.dataset.view;
       setActiveTrendDot(state.trend.activeTrendView);
       scrollToTrendView(state.trend.activeTrendView);
+      document.dispatchEvent(new CustomEvent('dashboard:viewchange'));
     });
   });
 
