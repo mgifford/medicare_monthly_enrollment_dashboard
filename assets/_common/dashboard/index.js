@@ -8,10 +8,12 @@ import initMap from './map';
 import initGrid from './grid';
 import initTrend from './trend';
 import { mergeLatestMonthlyIntoYearly } from '../charts/index';
+import { initUrlSync } from './urlSync';
 
 async function init() {
   try {
     const state = createDashboardState();
+    const { initial } = initUrlSync(state);
 
     const [yearly, monthly] = await Promise.all([
       requestDataset('nationalEnrollment', { type: 'yearly' }),
@@ -24,8 +26,8 @@ async function init() {
 
     const { setMapPanelVisibility } = initMap(state);
 
-    setMapPanelVisibility('hospital');
-    initHeroCard(yearlyWithLatest);
+    setMapPanelVisibility(initial.activeDashboardType || 'hospital');
+    initHeroCard(yearlyWithLatest, initial);
 
     const {
       renderAllAreasGrid,
