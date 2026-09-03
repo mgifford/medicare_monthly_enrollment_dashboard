@@ -26,7 +26,7 @@ async function init() {
 
     const { setMapPanelVisibility } = initMap(state);
 
-    setMapPanelVisibility(initial.activeDashboardType || 'hospital');
+    setMapPanelVisibility(state.activeDashboardType || 'hospital');
     initHeroCard(yearlyWithLatest, initial);
 
     const {
@@ -164,15 +164,40 @@ async function init() {
       const matchedState = state.grid.allStatesRows.find((row) => row.state === initial.state);
       const stateName = matchedState?.stateName || initial.state;
 
-      document.dispatchEvent(new CustomEvent('dashboard:statechange', {
-        detail: { state: initial.state, stateName },
-      }));
+      // Drive the active map's combo box so the state map drills into
+      // the county view. Its change handler also emits dashboard:statechange,
+      // which updates the grid and trend cards.
+      const activeConfig = state.mapConfigs[state.activeDashboardType];
+      const select = activeConfig && document.querySelector(activeConfig.options.comboBoxSelector);
 
-      if (initial.county) {
-        document.dispatchEvent(new CustomEvent('dashboard:countychange', {
-          detail: { county: initial.county },
-        }));
-      }
+      const triggerDrillIn = () => {
+        if (select && stateName) {
+          select.value = stateName;
+          select.dispatchEvent(new Event('change', { bubbles: true }));
+        } else {
+          document.dispatchEvent(new CustomEvent('dashboard:statechange', {
+            detail: { state: initial.state, stateName },
+          }));
+        }
+
+        if (initial.county) {
+          document.dispatchEvent(new CustomEvent('dashboard:countychange', {
+            detail: { county: initial.county },
+          }));
+        }
+      };
+
+      // Wait for the active map to bind its combo-box change handler
+      // before firing the drill-in event; the map renders synchronously
+      // but its feature/handler wiring resolves after an async fetch.
+      const activeSelector = activeConfig?.selector;
+      const onReady = (event) => {
+        if (!activeSelector || event.detail?.containerSelector === activeSelector) {
+          document.removeEventListener('dashboard:mapready', onReady);
+          triggerDrillIn();
+        }
+      };
+      document.addEventListener('dashboard:mapready', onReady);
     }
 
     observeResize('.dashboard-columns__main', syncColumnHeights);

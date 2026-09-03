@@ -416,6 +416,12 @@ function renderStateMap(containerSelector, data, config = {}) {
           emitStateChange(stateData);
           await showCountyView(d, stateData);
         });
+
+      document.dispatchEvent(
+        new CustomEvent('dashboard:mapready', {
+          detail: { containerSelector, comboBoxSelector },
+        }),
+      );
     })
     .catch(() => {
       container.append('p').attr('role', 'alert').text('State map could not be loaded.');
