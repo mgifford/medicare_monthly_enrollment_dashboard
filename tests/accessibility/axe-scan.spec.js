@@ -1,12 +1,23 @@
 import { test, expect } from '@playwright/test';
 import AxeBuilder from '@axe-core/playwright';
 
+async function selectComboBoxOption(page, optionText) {
+  const selector = page.locator('#medicare-state-selector');
+  await selector.click();
+  await selector.fill(optionText);
+  await page.waitForTimeout(500);
+
+  const option = page.locator('#medicare-state-selector--list .usa-combo-box__list-option', { hasText: optionText });
+  await option.click();
+  await page.waitForTimeout(500);
+}
+
 test.describe('Accessibility scans', () => {
   test('initial national dashboard', async ({ page }) => {
     await page.goto('/');
-    // Wait for the dashboard to be ready
     await expect(page.locator('.dashboard-root')).toBeVisible();
-    await page.waitForTimeout(2000); // Let API data load
+    await page.waitForLoadState('networkidle');
+    await page.waitForTimeout(2000);
 
     const results = await new AxeBuilder({ page })
       .withTags(['wcag2a', 'wcag2aa', 'wcag21aa', 'wcag22aa'])
@@ -18,6 +29,7 @@ test.describe('Accessibility scans', () => {
   test('hospital/medical view is accessible', async ({ page }) => {
     await page.goto('/');
     await expect(page.locator('.dashboard-root')).toBeVisible();
+    await page.waitForLoadState('networkidle');
     await page.waitForTimeout(2000);
 
     // Hospital view should be the default
@@ -36,6 +48,7 @@ test.describe('Accessibility scans', () => {
   test('prescription drug view is accessible', async ({ page }) => {
     await page.goto('/');
     await expect(page.locator('.dashboard-root')).toBeVisible();
+    await page.waitForLoadState('networkidle');
     await page.waitForTimeout(2000);
 
     const drugBtn = page.locator('[data-dashboard-type="drug"]');
@@ -54,11 +67,10 @@ test.describe('Accessibility scans', () => {
   test('Alabama selected state is accessible', async ({ page }) => {
     await page.goto('/');
     await expect(page.locator('.dashboard-root')).toBeVisible();
+    await page.waitForLoadState('networkidle');
     await page.waitForTimeout(2000);
 
-    // Select Alabama using the combo box
-    const selector = page.locator('#medicare-state-selector');
-    await selector.selectOption('Alabama');
+    await selectComboBoxOption(page, 'Alabama');
     await page.waitForTimeout(2000);
 
     const results = await new AxeBuilder({ page })
@@ -71,10 +83,10 @@ test.describe('Accessibility scans', () => {
   test('Puerto Rico territory is accessible', async ({ page }) => {
     await page.goto('/');
     await expect(page.locator('.dashboard-root')).toBeVisible();
+    await page.waitForLoadState('networkidle');
     await page.waitForTimeout(2000);
 
-    const selector = page.locator('#medicare-state-selector');
-    await selector.selectOption('Puerto Rico');
+    await selectComboBoxOption(page, 'Puerto Rico');
     await page.waitForTimeout(2000);
 
     const results = await new AxeBuilder({ page })
@@ -87,10 +99,10 @@ test.describe('Accessibility scans', () => {
   test('Guam territory is accessible', async ({ page }) => {
     await page.goto('/');
     await expect(page.locator('.dashboard-root')).toBeVisible();
+    await page.waitForLoadState('networkidle');
     await page.waitForTimeout(2000);
 
-    const selector = page.locator('#medicare-state-selector');
-    await selector.selectOption('Guam');
+    await selectComboBoxOption(page, 'Guam');
     await page.waitForTimeout(2000);
 
     const results = await new AxeBuilder({ page })
@@ -103,10 +115,10 @@ test.describe('Accessibility scans', () => {
   test('District of Columbia is accessible', async ({ page }) => {
     await page.goto('/');
     await expect(page.locator('.dashboard-root')).toBeVisible();
+    await page.waitForLoadState('networkidle');
     await page.waitForTimeout(2000);
 
-    const selector = page.locator('#medicare-state-selector');
-    await selector.selectOption('District of Columbia');
+    await selectComboBoxOption(page, 'District of Columbia');
     await page.waitForTimeout(2000);
 
     const results = await new AxeBuilder({ page })
@@ -120,6 +132,7 @@ test.describe('Accessibility scans', () => {
     await page.setViewportSize({ width: 320, height: 256 });
     await page.goto('/');
     await expect(page.locator('.dashboard-root')).toBeVisible();
+    await page.waitForLoadState('networkidle');
     await page.waitForTimeout(2000);
 
     const results = await new AxeBuilder({ page })
@@ -133,6 +146,7 @@ test.describe('Accessibility scans', () => {
     await page.emulateMedia({ forcedColors: 'active' });
     await page.goto('/');
     await expect(page.locator('.dashboard-root')).toBeVisible();
+    await page.waitForLoadState('networkidle');
     await page.waitForTimeout(2000);
 
     const results = await new AxeBuilder({ page })
