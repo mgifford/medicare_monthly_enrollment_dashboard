@@ -564,57 +564,57 @@ const GEOGRAPHIC_AREAS = [
   {
     id: 'american-samoa',
     name: 'American Samoa',
-    abbreviation: null,
+    abbreviation: 'AS',
     fips: null,
     type: 'territory',
-    mapStatus: 'no-geometry',
+    mapStatus: 'mappable',
     localAreaLabel: 'county or equivalent',
     isSelectable: true,
-    showOnMap: false,
+    showOnMap: true,
   },
   {
     id: 'guam',
     name: 'Guam',
-    abbreviation: null,
+    abbreviation: 'GU',
     fips: null,
     type: 'territory',
-    mapStatus: 'no-geometry',
+    mapStatus: 'mappable',
     localAreaLabel: 'county or equivalent',
     isSelectable: true,
-    showOnMap: false,
+    showOnMap: true,
   },
   {
     id: 'northern-mariana-islands',
     name: 'Northern Mariana Islands',
-    abbreviation: null,
+    abbreviation: 'MP',
     fips: null,
     type: 'territory',
-    mapStatus: 'no-geometry',
+    mapStatus: 'mappable',
     localAreaLabel: 'county or equivalent',
     isSelectable: true,
-    showOnMap: false,
+    showOnMap: true,
   },
   {
     id: 'puerto-rico',
     name: 'Puerto Rico',
-    abbreviation: null,
+    abbreviation: 'PR',
     fips: null,
     type: 'territory',
-    mapStatus: 'no-geometry',
+    mapStatus: 'mappable',
     localAreaLabel: 'county or equivalent',
     isSelectable: true,
-    showOnMap: false,
+    showOnMap: true,
   },
   {
     id: 'virgin-islands',
     name: 'Virgin Islands',
-    abbreviation: null,
+    abbreviation: 'VI',
     fips: null,
     type: 'territory',
-    mapStatus: 'no-geometry',
+    mapStatus: 'mappable',
     localAreaLabel: 'county or equivalent',
     isSelectable: true,
-    showOnMap: false,
+    showOnMap: true,
   },
   {
     id: 'foreign-and-other-outlying-areas',
@@ -652,6 +652,19 @@ function getMappableAreas() {
   return GEOGRAPHIC_AREAS.filter((area) => area.showOnMap);
 }
 
+function normalizeAreaName(name) {
+  const normalized = String(name || '').trim();
+
+  if (!normalized) return normalized;
+
+  const aliases = {
+    'Commonwealth of the Northern Mariana Islands': 'Northern Mariana Islands',
+    'United States Virgin Islands': 'Virgin Islands',
+  };
+
+  return aliases[normalized] || normalized;
+}
+
 const ALL_STATES_AND_TERRITORIES = getSelectableAreas();
 
 export {
@@ -659,5 +672,6 @@ export {
   getAreaByName,
   getSelectableAreas,
   getMappableAreas,
+  normalizeAreaName,
   ALL_STATES_AND_TERRITORIES,
 };
