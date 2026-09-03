@@ -4,23 +4,27 @@
  * the dashboard state in sync with the browser address bar.
  */
 
-function readParams() {
+export function readParams() {
   const params = new URLSearchParams(window.location.search);
   return {
     type: params.get('type'),
     state: params.get('state'),
+    county: params.get('county'),
     range: params.get('range'),
     view: params.get('view'),
   };
 }
 
-function writeParams(state) {
+export function writeParams(state) {
   const params = new URLSearchParams();
   if (state.activeDashboardType && state.activeDashboardType !== 'hospital') {
     params.set('type', state.activeDashboardType);
   }
   if (state.selectedState) {
     params.set('state', state.selectedState.state);
+  }
+  if (state.selectedCounty && state.selectedState) {
+    params.set('county', state.selectedCounty);
   }
   if (state.trend?.activeTrendRange && state.trend.activeTrendRange !== 'yearly') {
     params.set('range', state.trend.activeTrendRange);
@@ -52,6 +56,7 @@ export function initUrlSync(state) {
   document.addEventListener('dashboard:typechange', scheduleWrite);
   document.addEventListener('dashboard:statechange', scheduleWrite);
   document.addEventListener('dashboard:stateclear', scheduleWrite);
+  document.addEventListener('dashboard:countychange', scheduleWrite);
   document.addEventListener('dashboard:rangechange', scheduleWrite);
   document.addEventListener('dashboard:viewchange', scheduleWrite);
 
@@ -66,6 +71,11 @@ export function initUrlSync(state) {
       document.dispatchEvent(new CustomEvent('dashboard:statechange', {
         detail: { state: params.state }
       }));
+      if (params.county) {
+        document.dispatchEvent(new CustomEvent('dashboard:countychange', {
+          detail: { county: params.county }
+        }));
+      }
     } else if (!params.state && state.selectedState) {
       document.dispatchEvent(new CustomEvent('dashboard:stateclear'));
     }

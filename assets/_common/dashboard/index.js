@@ -160,6 +160,21 @@ async function init() {
 
     await loadStateMap();
 
+    if (initial.state) {
+      const matchedState = state.grid.allStatesRows.find((row) => row.state === initial.state);
+      const stateName = matchedState?.stateName || initial.state;
+
+      document.dispatchEvent(new CustomEvent('dashboard:statechange', {
+        detail: { state: initial.state, stateName },
+      }));
+
+      if (initial.county) {
+        document.dispatchEvent(new CustomEvent('dashboard:countychange', {
+          detail: { county: initial.county },
+        }));
+      }
+    }
+
     observeResize('.dashboard-columns__main', syncColumnHeights);
     observeResize('.dashboard-columns__side', syncColumnHeights);
   } catch (error) {
