@@ -27,9 +27,6 @@ module.exports = function (config) {
   config.addPassthroughCopy('assets');
   config.addPassthroughCopy('src');
 
-  // Copy the robots.txt file to the output
-  config.addPassthroughCopy('robots.txt');
-
   // Specific scripts to guides
   config.addPassthroughCopy('./assets/_common/dashboard/*');
   config.addPassthroughCopy('./assets/**/js/*');

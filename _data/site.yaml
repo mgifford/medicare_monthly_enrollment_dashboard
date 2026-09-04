@@ -3,6 +3,7 @@ description: >- # this means to ignore newlines
   Medicare enrollment data by geographic area, including hospital/medical and prescription drug coverage trends.
 
 host: https://mgifford.github.io/
+name: medicare_monthly_enrollment_dashboard
 # TODO: Digital Analytics Program
 # dap:
 #   agency: GSA
