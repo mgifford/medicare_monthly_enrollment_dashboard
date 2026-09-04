@@ -27,6 +27,10 @@ module.exports = function (config) {
   config.addPassthroughCopy('assets');
   config.addPassthroughCopy('src');
 
+  // Belt-and-suspenders: also emit a .nojekyll in _site so the Pages CDN
+  // never tries to re-run Jekyll on the uploaded artifact.
+  config.addPassthroughCopy('.nojekyll');
+
   // Parquet + manifest emitted by scripts/fetch_cms_data.py. The directory
   // only exists in the deploy pipeline (see ADR-0001); PR CI builds without
   // it, so guard the passthrough so a missing directory doesn't warn.
