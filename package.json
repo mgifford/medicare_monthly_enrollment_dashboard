@@ -69,6 +69,7 @@
   },
   "dependencies": {
     "@11ty/eleventy-img": "^3.1.8",
+    "@duckdb/duckdb-wasm": "1.32.0",
     "@uswds/uswds": "3.14.0",
     "autoprefixer": "^10.4.20",
     "d3": "^7.9.0",

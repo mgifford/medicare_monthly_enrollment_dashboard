@@ -1,14 +1,20 @@
 /**
  * Data source that queries preprocessed Parquet files with DuckDB-Wasm.
  *
- * Phase 3 ships this as a stub: initialize() always throws, so the
- * DataManager will always fall back to CmsApiDataSource. Phase 4 replaces
- * the stub with a real Worker-hosted DuckDB-Wasm implementation.
+ * This opt-in implementation currently supports national enrollment only.
+ * Unsupported services throw so DataManager can use CmsApiDataSource.
  *
  * See docs/adr/0001-parquet-duckdb-webmcp-architecture.md for the design.
  */
 
-/* eslint-disable max-classes-per-file, class-methods-use-this */
+/* eslint-disable max-classes-per-file */
+
+import DuckDbClient from '../duckdb/DuckDbClient';
+import { selectDuckDbBundle } from '../duckdb/bundleSelector';
+import ParquetCache from '../ParquetCache';
+import { parseEnrollmentFields, sortDescByPeriod } from '../../utils';
+
+const SUMMARY_FILE_NAME = 'national-summary.parquet';
 
 export class ParquetSourceUnavailableError extends Error {
   constructor(message) {
@@ -22,23 +28,92 @@ export default class ParquetDataSource {
     return 'parquet';
   }
 
-  constructor({ manifestUrl = 'data/v1/manifest.json' } = {}) {
+  constructor({
+    manifestUrl = 'data/v1/manifest.json',
+    assetBaseUrl = 'assets/duckdb',
+    client = null,
+    fetchFn = globalThis.fetch,
+    storage = globalThis.localStorage,
+    cache = null,
+  } = {}) {
     this.manifestUrl = manifestUrl;
+    this.assetBaseUrl = assetBaseUrl;
+    this.client = client;
+    this.fetchFn = fetchFn;
+    this.storage = storage;
+    this.cache = cache || new ParquetCache({ fetchFn });
     this.manifest = null;
     this.initialized = false;
   }
 
   async initialize() {
-    throw new ParquetSourceUnavailableError(
-      'ParquetDataSource is not yet implemented (Phase 4). ' +
-        'DataManager should treat this as a signal to use the CMS API fallback.',
-    );
+    if (this.initialized) return;
+    if (!this.isOptedIn()) {
+      throw new ParquetSourceUnavailableError(
+        "Parquet data is disabled; set localStorage['use-parquet'] to '1' to opt in.",
+      );
+    }
+    try {
+      this.manifest = await this.cache.loadManifest(this.manifestUrl);
+    } catch {
+      throw new ParquetSourceUnavailableError('Unable to load the Parquet data manifest.');
+    }
+    if (!this.manifest?.files?.summary?.path) {
+      throw new ParquetSourceUnavailableError('The Parquet data manifest has no summary file.');
+    }
+
+    this.client ||= new DuckDbClient({
+      bundle: selectDuckDbBundle({ assetBaseUrl: this.assetBaseUrl }),
+    });
+    await this.client.initialize();
+    try {
+      const summaryBytes = await this.cache.loadFile(this.summaryUrl(), this.manifest);
+      await this.client.registerFileBuffer(SUMMARY_FILE_NAME, summaryBytes);
+    } catch {
+      throw new ParquetSourceUnavailableError('Unable to load the Parquet national summary.');
+    }
+    this.initialized = true;
   }
 
-  async fetch() {
-    throw new ParquetSourceUnavailableError(
-      'ParquetDataSource.fetch called before Phase 4 initialization succeeded.',
+  async fetch(serviceName, options = {}) {
+    if (!this.initialized) {
+      throw new ParquetSourceUnavailableError(
+        'ParquetDataSource.fetch called before initialization.',
+      );
+    }
+    if (serviceName !== 'nationalEnrollment') {
+      throw new ParquetSourceUnavailableError(
+        `ParquetDataSource does not support '${serviceName}'.`,
+      );
+    }
+
+    const rows = await this.client.query(
+      `SELECT year, month, TOT_BENES, ORGNL_MDCR_BENES, MA_AND_OTH_BENES, PRSCRPTN_DRUG_TOT_BENES, PRSCRPTN_DRUG_PDP_BENES, PRSCRPTN_DRUG_MAPD_BENES FROM read_parquet('${SUMMARY_FILE_NAME}') WHERE geo_level = 'National' ORDER BY CAST(year AS INTEGER) DESC, month_ordinal DESC`,
     );
+    const parsedRows = rows.map((row) => ({
+      year: String(row.year),
+      month: row.month,
+      ...parseEnrollmentFields(row),
+    }));
+
+    if (options.type === 'yearly')
+      return sortDescByPeriod(parsedRows.filter((row) => row.month === 'Year'));
+    if (!options.type || options.type === 'monthly') {
+      return sortDescByPeriod(parsedRows.filter((row) => row.month !== 'Year')).slice(0, 12);
+    }
+    return parsedRows;
+  }
+
+  isOptedIn() {
+    try {
+      return this.storage?.['use-parquet'] === '1';
+    } catch {
+      return false;
+    }
+  }
+
+  summaryUrl() {
+    return `data/${this.manifest.files.summary.path}`;
   }
 
   getMetadata() {
