@@ -129,3 +129,11 @@ _data/assetPaths.json
 utils/test_redirects_*_output.csv
 _data/assetPaths.json
 .playwright-mcp/
+
+# Python ETL venv used for local development
+.venv-etl/
+
+# Generated Parquet + manifest (published as Pages artifact, never committed)
+generated/
+__pycache__/
+*.pyc
