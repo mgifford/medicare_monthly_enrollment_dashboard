@@ -234,22 +234,25 @@ export default function initTrend(state, yearlyWithLatest, monthly) {
   });
 
   // Roving tabindex: only the active tab is in the tab order.
-  const activateRangeTab = (tab) => {
-    state.trend.activeTrendRange = tab.dataset.range;
+  const setTrendRange = (range, { moveFocus = false, announce = true } = {}) => {
+    const tab = Array.from(trendRangeTabs).find((entry) => entry.dataset.range === range);
+    if (!tab) return;
+    state.trend.activeTrendRange = range;
     trendRangeTabs.forEach((t) => {
       t.setAttribute('aria-selected', String(t === tab));
       t.setAttribute('tabindex', t === tab ? '0' : '-1');
     });
-    tab.focus();
+    if (moveFocus) tab.focus();
     syncOverlayControls();
     renderTrend();
-    document.dispatchEvent(new CustomEvent('dashboard:rangechange'));
+    document.dispatchEvent(new CustomEvent('dashboard:rangechange', { detail: { announce } }));
   };
+  state.trend.setRange = setTrendRange;
 
   trendRangeTabs.forEach((tab, i) => {
     tab.setAttribute('tabindex', i === 0 ? '0' : '-1');
 
-    tab.addEventListener('click', () => activateRangeTab(tab));
+    tab.addEventListener('click', () => setTrendRange(tab.dataset.range, { moveFocus: true }));
 
     tab.addEventListener('keydown', (e) => {
       const tabs = Array.from(trendRangeTabs);
@@ -261,7 +264,7 @@ export default function initTrend(state, yearlyWithLatest, monthly) {
       else if (e.key === 'End') next = tabs.length - 1;
       if (next >= 0) {
         e.preventDefault();
-        activateRangeTab(tabs[next]);
+        setTrendRange(tabs[next].dataset.range, { moveFocus: true });
       }
     });
   });

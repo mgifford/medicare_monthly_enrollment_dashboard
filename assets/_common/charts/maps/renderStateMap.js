@@ -48,7 +48,9 @@ document.addEventListener('dashboard:countyselect', (event) => {
   if (countySelectFrame) cancelAnimationFrame(countySelectFrame);
   countySelectFrame = requestAnimationFrame(() => {
     entry.rerender(county);
-    document.dispatchEvent(new CustomEvent('dashboard:countychange', { detail: { county } }));
+    document.dispatchEvent(
+      new CustomEvent('dashboard:countychange', { detail: { county, ...event.detail } }),
+    );
   });
 });
 
@@ -331,10 +333,10 @@ function renderStateMap(containerSelector, data, config = {}) {
     }
   };
 
-  const emitStateChange = (stateData) => {
+  const emitStateChange = (stateData, options = {}) => {
     document.dispatchEvent(
       new CustomEvent('dashboard:statechange', {
-        detail: { stateName: stateData.stateName, state: stateData.state },
+        detail: { stateName: stateData.stateName, state: stateData.state, ...options },
       }),
     );
   };
@@ -352,7 +354,7 @@ function renderStateMap(containerSelector, data, config = {}) {
         const selectedValue = event.target.value;
 
         if (!selectedValue || selectedValue === 'us-map') {
-          document.dispatchEvent(new CustomEvent('dashboard:stateclear'));
+          document.dispatchEvent(new CustomEvent('dashboard:stateclear', { detail: event.detail }));
 
           renderStateMap(containerSelector, data, config);
           return;
@@ -361,7 +363,7 @@ function renderStateMap(containerSelector, data, config = {}) {
         const stateData = dataByName.get(selectedValue);
         if (!stateData) return;
 
-        emitStateChange(stateData);
+        emitStateChange(stateData, event.detail || { source: 'human' });
 
         const stateFeature = featureByStateName.get(selectedValue);
         if (stateFeature) {
@@ -420,7 +422,7 @@ function renderStateMap(containerSelector, data, config = {}) {
           const stateData = dataByName.get(d.properties.name);
           if (!stateData) return;
 
-          emitStateChange(stateData);
+          emitStateChange(stateData, { source: 'human' });
           await showCountyView(d, stateData);
         });
 

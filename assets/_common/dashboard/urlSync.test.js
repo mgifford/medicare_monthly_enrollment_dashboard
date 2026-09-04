@@ -17,6 +17,7 @@ describe('dashboard URL sync', () => {
       county: 'La Paz',
       range: 'monthly',
       view: null,
+      table: null,
     });
   });
 
@@ -25,6 +26,7 @@ describe('dashboard URL sync', () => {
       activeDashboardType: 'hospital',
       selectedState: { state: 'AZ', stateName: 'Arizona' },
       selectedCounty: 'La Paz',
+      grid: { activeView: 'state' },
       trend: { activeTrendRange: 'yearly', activeTrendView: 'line' },
     });
 

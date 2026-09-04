@@ -88,6 +88,9 @@ export default class DataManager {
     await this.initialize();
 
     const cacheKey = `${serviceName}:${JSON.stringify(options)}`;
+    // Each AbortSignal owns its request lifecycle. Sharing a pending request
+    // would make a later selection inherit an earlier selection's abort.
+    const pendingKey = signal ? null : cacheKey;
 
     const cached = safeStorageGet(cacheKey);
     if (cached) {
@@ -99,8 +102,8 @@ export default class DataManager {
       }
     }
 
-    if (this.pending.has(cacheKey)) {
-      return this.pending.get(cacheKey);
+    if (pendingKey && this.pending.has(pendingKey)) {
+      return this.pending.get(pendingKey);
     }
 
     const promise = (async () => {
@@ -118,11 +121,11 @@ export default class DataManager {
       return data;
     })();
 
-    this.pending.set(cacheKey, promise);
+    if (pendingKey) this.pending.set(pendingKey, promise);
     try {
       return await promise;
     } finally {
-      this.pending.delete(cacheKey);
+      if (pendingKey) this.pending.delete(pendingKey);
     }
   }
 }

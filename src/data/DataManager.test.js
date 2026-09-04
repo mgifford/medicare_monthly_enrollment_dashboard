@@ -119,6 +119,36 @@ describe('DataManager', () => {
     expect(fallback.fetch).toHaveBeenCalledTimes(1);
   });
 
+  test('does not share a pending request across distinct AbortSignals', async () => {
+    const pending = [];
+    const fallback = makeSource('fallback', {
+      fetch: jest.fn(
+        () =>
+          new Promise((resolve) => {
+            pending.push(resolve);
+          }),
+      ),
+    });
+    const mgr = new DataManager({ fallback });
+    const first = mgr.fetch(
+      'stateEnrollment',
+      { state: 'NJ' },
+      { signal: new AbortController().signal },
+    );
+    const second = mgr.fetch(
+      'stateEnrollment',
+      { state: 'NJ' },
+      { signal: new AbortController().signal },
+    );
+
+    await new Promise((resolve) => {
+      setTimeout(resolve, 0);
+    });
+    expect(fallback.fetch).toHaveBeenCalledTimes(2);
+    pending.forEach((resolve) => resolve({ ok: true }));
+    await expect(Promise.all([first, second])).resolves.toEqual([{ ok: true }, { ok: true }]);
+  });
+
   test('distinct option payloads do not share a dedup slot', async () => {
     const fallback = makeSource('fallback');
     const mgr = new DataManager({ fallback });

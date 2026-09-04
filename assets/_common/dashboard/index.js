@@ -9,6 +9,8 @@ import initGrid from './grid';
 import initTrend from './trend';
 import { mergeLatestMonthlyIntoYearly } from '../charts/index';
 import { initUrlSync } from './urlSync';
+import DashboardController from './DashboardController';
+import registerDashboardTools from './webmcp';
 
 async function init() {
   try {
@@ -62,6 +64,7 @@ async function init() {
     // Fires on any county selection source (map click, drawer row, or the
     // grid's own row click), so the grid's highlight always stays in sync.
     document.addEventListener('dashboard:countychange', (event) => {
+      const shouldMoveFocus = event.detail?.moveFocus ?? hasUserInteracted;
       state.selectedCounty = (event.detail || {}).county || null;
       updateCountyDrawerTriggerValue();
 
@@ -84,7 +87,7 @@ async function init() {
       renderCountyGridTable(state.activeDashboardType);
 
       if (state.selectedCounty) setActiveGridView('county');
-      if (hasUserInteracted) {
+      if (shouldMoveFocus) {
         scrollRowIntoView(document.querySelector('#county-table tr.is-selected'), {
           smooth: true,
         });
@@ -93,6 +96,7 @@ async function init() {
 
     state.clearSelectedState = () => {
       state.selectedState = null;
+      state.selectedCounty = null;
       updateDrawerTriggerValue();
       renderAllAreasGrid(state.activeDashboardType);
       renderCountyGrid(null, null, state.activeDashboardType);
@@ -124,7 +128,7 @@ async function init() {
     // drives the drill-in via a native change event on the <select>. This
     // reuses the same code path as a user selection, so it also emits
     // dashboard:statechange (which updates the grid and trend cards).
-    const drillActiveMapToState = ({ stateAbbr, stateName, county }) => {
+    const drillActiveMapToState = ({ stateAbbr, stateName, county, options = {} }) => {
       const activeConfig = state.mapConfigs[state.activeDashboardType];
       const activeSelector = activeConfig?.selector;
       const select = activeConfig
@@ -134,11 +138,11 @@ async function init() {
       const trigger = () => {
         if (select && stateName) {
           select.value = stateName;
-          select.dispatchEvent(new Event('change', { bubbles: true }));
+          select.dispatchEvent(new CustomEvent('change', { bubbles: true, detail: options }));
         } else if (stateAbbr) {
           document.dispatchEvent(
             new CustomEvent('dashboard:statechange', {
-              detail: { state: stateAbbr, stateName },
+              detail: { state: stateAbbr, stateName, ...options },
             }),
           );
         }
@@ -152,7 +156,7 @@ async function init() {
               document.removeEventListener('dashboard:countymapready', onCountyMapReady);
               document.dispatchEvent(
                 new CustomEvent('dashboard:countyselect', {
-                  detail: { containerSelector: activeSelector, county },
+                  detail: { containerSelector: activeSelector, county, ...options },
                 }),
               );
             }
@@ -199,13 +203,14 @@ async function init() {
     });
 
     document.addEventListener('dashboard:statechange', (event) => {
+      const shouldMoveFocus = event.detail?.moveFocus ?? hasUserInteracted;
       const { state: stateAbbr, stateName } = event.detail || {};
       if (!stateAbbr) return;
       state.selectedState = { state: stateAbbr, stateName };
       updateDrawerTriggerValue();
       renderAllAreasGrid(state.activeDashboardType);
       renderCountyGrid(stateAbbr, stateName, state.activeDashboardType);
-      if (hasUserInteracted) {
+      if (shouldMoveFocus) {
         scrollRowIntoView(document.querySelector('#all-areas-table tr.is-selected'), {
           smooth: true,
         });
@@ -216,7 +221,7 @@ async function init() {
       // focus move on URL restore so a shared link lands at the top of the
       // page instead of jumping down to the county table.
       setActiveGridView('county');
-      if (hasUserInteracted) {
+      if (shouldMoveFocus) {
         requestAnimationFrame(() => {
           const countyTable = document.querySelector('#county-table');
           if (countyTable) {
@@ -247,6 +252,14 @@ async function init() {
 
     await loadStateMap();
 
+    window.dashboardController = new DashboardController({
+      state,
+      statusElement: document.querySelector('#dashboard-status'),
+    });
+    registerDashboardTools({ controller: window.dashboardController }).catch(() => {
+      // WebMCP is an optional browser enhancement.
+    });
+
     if (initial.state) {
       const matchedState = state.grid.allStatesRows.find((row) => row.state === initial.state);
       const stateName = matchedState?.stateName || initial.state;
@@ -254,6 +267,7 @@ async function init() {
         stateAbbr: initial.state,
         stateName,
         county: initial.county,
+        options: { source: 'url', moveFocus: false, announce: false },
       });
     }
 
