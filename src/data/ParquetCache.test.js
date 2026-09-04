@@ -99,7 +99,7 @@ describe('ParquetCache', () => {
   test('removes older versioned data after caching the active version', async () => {
     const cacheStorage = makeCacheStorage();
     const oldManifest = { ...manifest, files: { summary: { sha256: 'old', size_bytes: 3 } } };
-    await cacheStorage.open('medicare-enrollment-parquet-1-old');
+    await cacheStorage.open(ParquetCache.cacheName(oldManifest));
     const cache = new ParquetCache({
       cacheStorage,
       fetchFn: jest.fn(async () => response(new Uint8Array([1, 2, 3]))),
@@ -108,5 +108,21 @@ describe('ParquetCache', () => {
 
     await cache.loadFile('data/v1/summary.parquet', manifest);
     expect(cacheStorage.delete).toHaveBeenCalledWith(ParquetCache.cacheName(oldManifest));
+  });
+
+  test('keeps current-version county partitions when another partition is cached', async () => {
+    const cacheStorage = makeCacheStorage();
+    const county = { path: 'v1/counties/ND.parquet', sha256: 'nd123', size_bytes: 3 };
+    const cache = new ParquetCache({
+      cacheStorage,
+      fetchFn: jest.fn(async () => response(new Uint8Array([1, 2, 3]))),
+      storageManager: { estimate: async () => ({ quota: 10, usage: 0 }) },
+    });
+
+    await cache.loadFile('data/v1/summary.parquet', manifest);
+    await cache.loadFile('data/v1/counties/ND.parquet', manifest, county);
+
+    const summaryCache = await cacheStorage.open(ParquetCache.cacheName(manifest));
+    await expect(summaryCache.match('data/v1/summary.parquet')).resolves.toBeDefined();
   });
 });
