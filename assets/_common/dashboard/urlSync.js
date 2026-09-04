@@ -42,6 +42,7 @@ export function initUrlSync(state) {
 
   if (initial.type) {
     state.activeDashboardType = initial.type;
+    state.trend.activeTrendType = initial.type;
   }
   if (initial.range) {
     state.trend.activeTrendRange = initial.range;

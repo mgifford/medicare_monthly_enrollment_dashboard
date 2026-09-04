@@ -31,7 +31,7 @@ async function init() {
     const { setMapPanelVisibility } = initMap(state);
 
     setMapPanelVisibility(state.activeDashboardType || 'hospital');
-    initHeroCard(yearlyWithLatest, initial);
+    initHeroCard(yearlyWithLatest, state.activeDashboardType);
 
     const {
       renderAllAreasGrid,

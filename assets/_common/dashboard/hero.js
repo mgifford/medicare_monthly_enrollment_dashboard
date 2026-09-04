@@ -63,7 +63,7 @@ function buildHeroCardConfigs(yearlyWithLatest) {
 // .dashboard-type-button toggles that drive it. Dispatches dashboard:typechange
 // on click so other cards (map/grid/trend) can react without this module
 // needing to know they exist.
-export default function initHeroCard(yearlyWithLatest, initial = {}) {
+export default function initHeroCard(yearlyWithLatest, initialType = 'hospital') {
   const heroCardConfigs = buildHeroCardConfigs(yearlyWithLatest);
 
   const renderEnrollmentHeroCard = (type) => {
@@ -77,7 +77,7 @@ export default function initHeroCard(yearlyWithLatest, initial = {}) {
     });
   };
 
-  renderEnrollmentHeroCard(initial.activeDashboardType || 'hospital');
+  renderEnrollmentHeroCard(initialType);
 
   document.querySelectorAll('.dashboard-type-button').forEach((btn) => {
     btn.addEventListener('click', () => {
