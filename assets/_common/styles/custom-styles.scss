@@ -77,3 +77,28 @@ figcaption details {
 .chart-tooltip__label {
   color: color('base');
 }
+
+// 404 page layout — the CSS bundle omits USWDS grid/prose/button-group
+// utilities, so this styles the not-found section directly.
+.not-found {
+  max-width: 40rem;
+  margin: 0 auto;
+  padding: 3rem 1.25rem;
+  line-height: 1.5;
+}
+
+.not-found__title {
+  margin-top: 0;
+  margin-bottom: 1.5rem;
+}
+
+.not-found__url {
+  word-break: break-all;
+}
+
+.not-found__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  margin-top: 2rem;
+}

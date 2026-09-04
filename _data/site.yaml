@@ -4,6 +4,7 @@ description: >- # this means to ignore newlines
 
 host: https://mgifford.github.io/
 name: medicare_monthly_enrollment_dashboard
+contactUrl: https://github.com/DSACMS/medicare_monthly_enrollment_dashboard/issues
 # TODO: Digital Analytics Program
 # dap:
 #   agency: GSA
