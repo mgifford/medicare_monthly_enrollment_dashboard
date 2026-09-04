@@ -41,6 +41,16 @@ module.exports = function (config) {
     config.addPassthroughCopy({ 'generated/data': 'data' });
   }
 
+  config.addPassthroughCopy({
+    'node_modules/@duckdb/duckdb-wasm/dist/duckdb-browser.mjs': 'assets/duckdb/duckdb-browser.mjs',
+    'node_modules/@duckdb/duckdb-wasm/dist/duckdb-mvp.wasm': 'assets/duckdb/duckdb-mvp.wasm',
+    'node_modules/@duckdb/duckdb-wasm/dist/duckdb-eh.wasm': 'assets/duckdb/duckdb-eh.wasm',
+    'node_modules/@duckdb/duckdb-wasm/dist/duckdb-browser-mvp.worker.js':
+      'assets/duckdb/duckdb-browser-mvp.worker.js',
+    'node_modules/@duckdb/duckdb-wasm/dist/duckdb-browser-eh.worker.js':
+      'assets/duckdb/duckdb-browser-eh.worker.js',
+  });
+
   // Specific scripts to guides
   config.addPassthroughCopy('./assets/_common/dashboard/*');
   config.addPassthroughCopy('./assets/**/js/*');

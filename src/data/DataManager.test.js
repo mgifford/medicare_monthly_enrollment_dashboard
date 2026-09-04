@@ -79,6 +79,24 @@ describe('DataManager', () => {
     expect(result).toEqual({ svc: 'nationalEnrollment', opts: { type: 'yearly' } });
   });
 
+  test('falls back when the active primary does not support a service', async () => {
+    const primary = makeSource('primary', {
+      fetch: async () => {
+        throw new Error('unsupported service');
+      },
+    });
+    const fallback = makeSource('fallback', {
+      fetch: async (svc, opts) => ({ svc, opts, source: 'fallback' }),
+    });
+    const mgr = new DataManager({ primary, fallback });
+
+    await expect(mgr.fetch('allStates', { year: '2024' })).resolves.toEqual({
+      svc: 'allStates',
+      opts: { year: '2024' },
+      source: 'fallback',
+    });
+  });
+
   test('deduplicates concurrent identical fetches', async () => {
     let resolveFetch;
     const pendingResult = new Promise((resolve) => {

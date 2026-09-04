@@ -104,7 +104,16 @@ export default class DataManager {
     }
 
     const promise = (async () => {
-      const data = await this.active.fetch(serviceName, options, { signal });
+      let data;
+      try {
+        data = await this.active.fetch(serviceName, options, { signal });
+      } catch (error) {
+        if (this.active === this.primary) {
+          data = await this.fallback.fetch(serviceName, options, { signal });
+        } else {
+          throw error;
+        }
+      }
       safeStorageSet(cacheKey, JSON.stringify({ data, cachedAt: Date.now() }));
       return data;
     })();
