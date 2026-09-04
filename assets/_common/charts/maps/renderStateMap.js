@@ -5,8 +5,8 @@ import {
   createTooltip,
   moveTooltip,
   DEFAULT_BREAKPOINTS,
-  DEFAULT_COLORS,
-  NO_DATA_FILL,
+  getDefaultColors,
+  getNoDataFill,
   computeJenksBreaks,
   formatCount,
   formatPercent,
@@ -180,7 +180,7 @@ function renderStateMap(containerSelector, data, config = {}) {
 
   const resolvedBreakpoints =
     breakpoints && breakpoints.length === 4 ? breakpoints : DEFAULT_BREAKPOINTS;
-  const resolvedColors = colors && colors.length === 5 ? colors : DEFAULT_COLORS;
+  const resolvedColors = colors && colors.length === 5 ? colors : getDefaultColors();
 
   if (histogramSelector) {
     renderTierHistogram(histogramSelector, histogramData, {
@@ -203,10 +203,10 @@ function renderStateMap(containerSelector, data, config = {}) {
 
   const getStateFill = (stateFeature) => {
     const row = dataByName.get(normalizeAreaName(stateFeature.properties.name));
-    if (!row) return NO_DATA_FILL;
+    if (!row) return getNoDataFill();
 
     const percent = metricPercent(row);
-    return Number.isFinite(percent) ? metricColor(percent) : NO_DATA_FILL;
+    return Number.isFinite(percent) ? metricColor(percent) : getNoDataFill();
   };
 
   const container = d3.select(containerSelector);
@@ -377,14 +377,14 @@ function renderStateMap(containerSelector, data, config = {}) {
         .join('path')
         .attr('d', path)
         .attr('fill', getStateFill)
-        .attr('stroke', '#fff')
+        .attr('stroke', 'var(--map-stroke)')
         .attr('stroke-width', 1)
         .style('cursor', 'pointer');
 
       const hoverOutline = svg
         .append('path')
         .attr('fill', 'none')
-        .attr('stroke', '#111')
+        .attr('stroke', 'var(--map-stroke-selected)')
         .attr('stroke-width', 3)
         .style('pointer-events', 'none')
         .style('opacity', 0);
