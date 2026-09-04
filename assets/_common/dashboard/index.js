@@ -15,6 +15,18 @@ async function init() {
     const state = createDashboardState();
     const { initial } = initUrlSync(state);
 
+    // Suppresses auto-scroll and focus movement until the user actually
+    // touches the page. URL-restore (?state=X&county=Y links) reuses the
+    // same drill-in code path as an interactive selection, so without
+    // this guard a shared link would auto-scroll past the header down to
+    // the county table.
+    let hasUserInteracted = false;
+    const markUserInteracted = () => {
+      hasUserInteracted = true;
+    };
+    document.addEventListener('pointerdown', markUserInteracted, { once: true, capture: true });
+    document.addEventListener('keydown', markUserInteracted, { once: true, capture: true });
+
     const [yearly, monthly] = await Promise.all([
       requestDataset('nationalEnrollment', { type: 'yearly' }),
       requestDataset('nationalEnrollment', { type: 'monthly' }),
@@ -72,7 +84,11 @@ async function init() {
       renderCountyGridTable(state.activeDashboardType);
 
       if (state.selectedCounty) setActiveGridView('county');
-      scrollRowIntoView(document.querySelector('#county-table tr.is-selected'), { smooth: true });
+      if (hasUserInteracted) {
+        scrollRowIntoView(document.querySelector('#county-table tr.is-selected'), {
+          smooth: true,
+        });
+      }
     });
 
     state.clearSelectedState = () => {
@@ -189,19 +205,25 @@ async function init() {
       updateDrawerTriggerValue();
       renderAllAreasGrid(state.activeDashboardType);
       renderCountyGrid(stateAbbr, stateName, state.activeDashboardType);
-      scrollRowIntoView(document.querySelector('#all-areas-table tr.is-selected'), {
-        smooth: true,
-      });
+      if (hasUserInteracted) {
+        scrollRowIntoView(document.querySelector('#all-areas-table tr.is-selected'), {
+          smooth: true,
+        });
+      }
       showTrendForScope('state', { state: stateAbbr, stateName });
 
-      // Switch to county view and move focus for keyboard users
+      // Switch to county view and move focus for keyboard users. Skip the
+      // focus move on URL restore so a shared link lands at the top of the
+      // page instead of jumping down to the county table.
       setActiveGridView('county');
-      requestAnimationFrame(() => {
-        const countyTable = document.querySelector('#county-table');
-        if (countyTable) {
-          countyTable.focus();
-        }
-      });
+      if (hasUserInteracted) {
+        requestAnimationFrame(() => {
+          const countyTable = document.querySelector('#county-table');
+          if (countyTable) {
+            countyTable.focus();
+          }
+        });
+      }
     });
 
     document.addEventListener('dashboard:stateclear', () => state.clearSelectedState());
