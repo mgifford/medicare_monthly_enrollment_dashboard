@@ -863,6 +863,14 @@ def build_argparser() -> argparse.ArgumentParser:
         action="store_true",
         help="Also download the state + county TopoJSON alongside Parquet.",
     )
+    p.add_argument(
+        "--only-levels",
+        default=",".join(GEO_LEVELS),
+        help=(
+            "Comma-separated subset of geographic levels to fetch. Useful for "
+            "quick live-contract smoke tests (e.g. --only-levels National)."
+        ),
+    )
     p.add_argument("--page-size", type=int, default=DEFAULT_PAGE_SIZE)
     p.add_argument("--timeout", type=float, default=DEFAULT_TIMEOUT_S)
     p.add_argument("--max-retries", type=int, default=DEFAULT_MAX_RETRIES)
@@ -877,6 +885,14 @@ def main(argv: Sequence[str] | None = None) -> int:
         format="%(asctime)s %(levelname)s %(name)s: %(message)s",
     )
 
+    requested_levels = tuple(
+        lvl.strip() for lvl in args.only_levels.split(",") if lvl.strip()
+    )
+    unknown = [lvl for lvl in requested_levels if lvl not in GEO_LEVELS]
+    if unknown:
+        log.error("Unknown --only-levels values: %s", unknown)
+        return 2
+
     policy = RetryPolicy(max_retries=args.max_retries)
     session = _session()
 
@@ -887,18 +903,21 @@ def main(argv: Sequence[str] | None = None) -> int:
             vendor_dir, session=session, timeout_s=args.timeout, policy=policy
         )
 
+    base_source = _cli_source_rows(
+        args.fixtures,
+        session=session,
+        page_size=args.page_size,
+        timeout_s=args.timeout,
+        policy=policy,
+    )
+
+    def source(level: str) -> Iterable[dict]:
+        if level not in requested_levels:
+            return []
+        return base_source(level)
+
     try:
-        outputs = run_etl(
-            args.out,
-            source_rows=_cli_source_rows(
-                args.fixtures,
-                session=session,
-                page_size=args.page_size,
-                timeout_s=args.timeout,
-                policy=policy,
-            ),
-            vendor_paths=vendor_paths,
-        )
+        outputs = run_etl(args.out, source_rows=source, vendor_paths=vendor_paths)
     except EtlError as exc:
         log.error("ETL failed: %s", exc)
         return 2

@@ -30,6 +30,13 @@ module.exports = function (config) {
   // Copy the robots.txt file to the output
   config.addPassthroughCopy('robots.txt');
 
+  // Parquet + manifest emitted by scripts/fetch_cms_data.py. The directory
+  // only exists in the deploy pipeline (see ADR-0001); PR CI builds without
+  // it, so guard the passthrough so a missing directory doesn't warn.
+  if (fs.existsSync('generated/data')) {
+    config.addPassthroughCopy({ 'generated/data': 'data' });
+  }
+
   // Specific scripts to guides
   config.addPassthroughCopy('./assets/_common/dashboard/*');
   config.addPassthroughCopy('./assets/**/js/*');
