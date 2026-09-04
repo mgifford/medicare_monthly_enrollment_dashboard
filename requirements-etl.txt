@@ -1,0 +1,14 @@
+# ETL toolchain for scripts/fetch_cms_data.py.
+#
+# Pinned to conservative floors that ship wheels for CPython 3.11+ on the
+# runners we care about (ubuntu-24.04, macOS-14 arm64). Keep this file
+# minimal — the runtime dashboard does not import anything from here.
+
+requests==2.32.3
+pyarrow==17.0.0
+pandas==2.2.2
+zstandard==0.23.0
+
+# Test-only:
+pytest==8.3.2
+responses==0.25.3
