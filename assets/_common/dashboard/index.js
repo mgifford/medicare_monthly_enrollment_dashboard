@@ -1,5 +1,5 @@
 import * as d3 from 'd3';
-import requestDataset from '../../../src/router';
+import requestDataset, { dataManager } from '../../../src/router';
 import { sortMonthlyAscending, observeResize } from '../charts/utils';
 import { scrollRowIntoView, syncColumnHeights } from './shared';
 import createDashboardState from './dashboardState';
@@ -11,6 +11,7 @@ import { mergeLatestMonthlyIntoYearly } from '../charts/index';
 import { initUrlSync } from './urlSync';
 import DashboardController from './DashboardController';
 import registerDashboardTools from './webmcp';
+import formatFreshnessInfo from './freshness';
 
 async function init() {
   try {
@@ -60,6 +61,12 @@ async function init() {
 
     const latestMonth = sortMonthlyAscending(monthly).at(-1);
     d3.select('#dashboard-title-date').text(`${latestMonth.month} ${latestMonth.year}`);
+    const dataSource = document.querySelector('#dashboard-data-source');
+    const freshnessInfo = formatFreshnessInfo(dataManager.getInfo());
+    if (dataSource && freshnessInfo) {
+      dataSource.textContent = freshnessInfo;
+      dataSource.hidden = false;
+    }
 
     // Fires on any county selection source (map click, drawer row, or the
     // grid's own row click), so the grid's highlight always stays in sync.

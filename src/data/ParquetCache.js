@@ -25,8 +25,8 @@ export default class ParquetCache {
     }
   }
 
-  async loadFile(url, manifest) {
-    const cacheName = ParquetCache.cacheName(manifest);
+  async loadFile(url, manifest, file = manifest.files.summary) {
+    const cacheName = ParquetCache.cacheName(manifest, file);
     const cache = await this.openCache(cacheName);
     const cached = cache && (await cache.match(url));
     if (cached) return cached.arrayBuffer();
@@ -35,16 +35,20 @@ export default class ParquetCache {
     if (!response.ok) throw new Error(`Parquet request failed with ${response.status}.`);
     const cacheableResponse = response.clone();
     const buffer = await response.arrayBuffer();
-    if (cache && (await this.hasCapacity(manifest.files.summary.size_bytes))) {
+    if (cache && (await this.hasCapacity(file.size_bytes))) {
       await cache.put(url, cacheableResponse);
-      await this.removeObsoleteCaches(cacheName);
+      await this.removeObsoleteCaches(ParquetCache.cacheVersion(manifest));
     }
     return buffer;
   }
 
-  static cacheName(manifest) {
-    const { schema_version: schemaVersion, files } = manifest;
-    return `${CACHE_PREFIX}-${schemaVersion}-${files.summary.sha256}`;
+  static cacheVersion(manifest) {
+    const { schema_version: schemaVersion, generated_at: generatedAt, files } = manifest;
+    return `${CACHE_PREFIX}-${schemaVersion}-${generatedAt || files.summary.sha256}`;
+  }
+
+  static cacheName(manifest, file = manifest.files.summary) {
+    return `${ParquetCache.cacheVersion(manifest)}-${file.sha256}`;
   }
 
   async openCache(name) {
@@ -64,7 +68,7 @@ export default class ParquetCache {
     }
   }
 
-  async removeObsoleteCaches(activeCacheName) {
+  async removeObsoleteCaches(activeCacheVersion) {
     try {
       const cacheNames = await this.cacheStorage.keys();
       await Promise.all(
@@ -72,7 +76,7 @@ export default class ParquetCache {
           .filter(
             (name) =>
               name.startsWith(`${CACHE_PREFIX}-`) &&
-              name !== activeCacheName &&
+              !name.startsWith(activeCacheVersion) &&
               name !== `${CACHE_PREFIX}-manifest`,
           )
           .map((name) => this.cacheStorage.delete(name)),

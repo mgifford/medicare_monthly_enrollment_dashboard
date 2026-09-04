@@ -15,6 +15,34 @@ import ParquetCache from '../ParquetCache';
 import { parseEnrollmentFields, sortDescByPeriod } from '../../utils';
 
 const SUMMARY_FILE_NAME = 'national-summary.parquet';
+const ENROLLMENT_COLUMNS =
+  'year, month, TOT_BENES, ORGNL_MDCR_BENES, MA_AND_OTH_BENES, PRSCRPTN_DRUG_TOT_BENES, PRSCRPTN_DRUG_PDP_BENES, PRSCRPTN_DRUG_MAPD_BENES';
+
+function parseStateRow(row) {
+  return {
+    state: row.state_abbr,
+    stateName: row.state_name,
+    year: String(row.year),
+    month: row.month,
+    ...parseEnrollmentFields(row),
+  };
+}
+
+function parseCountyRow(row) {
+  return {
+    state: row.state_abbr,
+    stateName: row.state_name,
+    county: row.county_name,
+    fips: row.fips,
+    year: String(row.year),
+    month: row.month,
+    ...parseEnrollmentFields(row),
+  };
+}
+
+function sqlString(value) {
+  return String(value).replace(/'/g, "''");
+}
 
 export class ParquetSourceUnavailableError extends Error {
   constructor(message) {
@@ -42,6 +70,7 @@ export default class ParquetDataSource {
     this.fetchFn = fetchFn;
     this.storage = storage;
     this.cache = cache || new ParquetCache({ fetchFn });
+    this.countyFiles = new Set();
     this.manifest = null;
     this.initialized = false;
   }
@@ -81,27 +110,104 @@ export default class ParquetDataSource {
         'ParquetDataSource.fetch called before initialization.',
       );
     }
-    if (serviceName !== 'nationalEnrollment') {
-      throw new ParquetSourceUnavailableError(
-        `ParquetDataSource does not support '${serviceName}'.`,
-      );
-    }
+    if (serviceName === 'nationalEnrollment') return this.fetchNationalEnrollment(options);
+    if (serviceName === 'allStates') return this.fetchAllStates(options);
+    if (serviceName === 'stateEnrollment') return this.fetchStateEnrollment(options);
+    if (serviceName === 'countyEnrollment') return this.fetchCountyEnrollment(options);
+    if (serviceName === 'countyTrend') return this.fetchCountyTrend(options);
+    throw new ParquetSourceUnavailableError(`ParquetDataSource does not support '${serviceName}'.`);
+  }
 
+  async fetchNationalEnrollment(options) {
     const rows = await this.client.query(
-      `SELECT year, month, TOT_BENES, ORGNL_MDCR_BENES, MA_AND_OTH_BENES, PRSCRPTN_DRUG_TOT_BENES, PRSCRPTN_DRUG_PDP_BENES, PRSCRPTN_DRUG_MAPD_BENES FROM read_parquet('${SUMMARY_FILE_NAME}') WHERE geo_level = 'National' ORDER BY CAST(year AS INTEGER) DESC, month_ordinal DESC`,
+      `SELECT ${ENROLLMENT_COLUMNS} FROM read_parquet('${SUMMARY_FILE_NAME}') WHERE geo_level = 'National' ORDER BY CAST(year AS INTEGER) DESC, month_ordinal DESC`,
     );
     const parsedRows = rows.map((row) => ({
       year: String(row.year),
       month: row.month,
       ...parseEnrollmentFields(row),
     }));
-
     if (options.type === 'yearly')
       return sortDescByPeriod(parsedRows.filter((row) => row.month === 'Year'));
     if (!options.type || options.type === 'monthly') {
       return sortDescByPeriod(parsedRows.filter((row) => row.month !== 'Year')).slice(0, 12);
     }
     return parsedRows;
+  }
+
+  async fetchAllStates({ year, month } = {}) {
+    if (!year || !month) {
+      throw new Error('fetchAllStates requires options.year and options.month');
+    }
+    const rows = await this.client.query(
+      `SELECT state_abbr, state_name, ${ENROLLMENT_COLUMNS} FROM read_parquet('${SUMMARY_FILE_NAME}') WHERE geo_level = 'State' AND year = '${sqlString(year)}' AND month = '${sqlString(month)}'`,
+    );
+    return rows.map(parseStateRow);
+  }
+
+  async fetchStateEnrollment({ state } = {}) {
+    if (!state) {
+      throw new Error("fetchStateEnrollment requires options.state (e.g. 'NY')");
+    }
+    const rows = await this.client.query(
+      `SELECT state_abbr, state_name, ${ENROLLMENT_COLUMNS} FROM read_parquet('${SUMMARY_FILE_NAME}') WHERE geo_level = 'State' AND state_abbr = '${sqlString(state)}' ORDER BY CAST(year AS INTEGER) DESC, month_ordinal DESC`,
+    );
+    const parsedRows = rows.map(parseStateRow);
+    return {
+      yearly: sortDescByPeriod(parsedRows.filter((row) => row.month === 'Year')),
+      monthly: sortDescByPeriod(parsedRows.filter((row) => row.month !== 'Year')).slice(0, 12),
+    };
+  }
+
+  async fetchCountyEnrollment({ state, year, month } = {}) {
+    if (!state) {
+      throw new Error("fetchCountiesForState requires options.state (e.g. 'NY')");
+    }
+    const fileName = await this.loadCountyFile(state);
+    const hasPeriod = Boolean(year && month);
+    const periodFilter = hasPeriod
+      ? ` AND year = '${sqlString(year)}' AND month = '${sqlString(month)}'`
+      : '';
+    const rows = await this.client.query(
+      `SELECT state_abbr, state_name, county_name, fips, ${ENROLLMENT_COLUMNS} FROM read_parquet('${fileName}') WHERE month <> 'Year' AND county_name <> 'Unknown'${periodFilter} ORDER BY CAST(year AS INTEGER) DESC, month_ordinal DESC`,
+    );
+    const parsedRows = rows.map(parseCountyRow);
+    if (hasPeriod) return parsedRows;
+    const [latest] = sortDescByPeriod(parsedRows);
+    return latest
+      ? parsedRows.filter((row) => row.year === latest.year && row.month === latest.month)
+      : [];
+  }
+
+  async fetchCountyTrend({ state, county } = {}) {
+    if (!state || !county) {
+      throw new Error(
+        "fetchCountyEnrollment requires options.state and options.county (e.g. { state: 'NY', county: 'Kings' })",
+      );
+    }
+    const fileName = await this.loadCountyFile(state);
+    const rows = await this.client.query(
+      `SELECT state_abbr, state_name, county_name, fips, ${ENROLLMENT_COLUMNS} FROM read_parquet('${fileName}') WHERE county_name = '${sqlString(county)}' ORDER BY CAST(year AS INTEGER) DESC, month_ordinal DESC`,
+    );
+    const parsedRows = rows.map(parseCountyRow);
+    return {
+      yearly: sortDescByPeriod(parsedRows.filter((row) => row.month === 'Year')),
+      monthly: sortDescByPeriod(parsedRows.filter((row) => row.month !== 'Year')).slice(0, 12),
+    };
+  }
+
+  async loadCountyFile(state) {
+    const partition = this.manifest.files.counties?.[state];
+    if (!partition) {
+      throw new ParquetSourceUnavailableError(`No Parquet county partition for '${state}'.`);
+    }
+    const fileName = `county-${state}.parquet`;
+    if (!this.countyFiles.has(fileName)) {
+      const bytes = await this.cache.loadFile(`data/${partition.path}`, this.manifest, partition);
+      await this.client.registerFileBuffer(fileName, bytes);
+      this.countyFiles.add(fileName);
+    }
+    return fileName;
   }
 
   isOptedIn() {

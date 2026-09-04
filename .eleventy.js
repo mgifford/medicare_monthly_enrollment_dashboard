@@ -30,6 +30,8 @@ module.exports = function (config) {
   // Belt-and-suspenders: also emit a .nojekyll in _site so the Pages CDN
   // never tries to re-run Jekyll on the uploaded artifact.
   config.addPassthroughCopy('.nojekyll');
+  config.addPassthroughCopy('llms.txt');
+  config.addPassthroughCopy('.well-known');
 
   // Parquet + manifest emitted by scripts/fetch_cms_data.py. The directory
   // only exists in the deploy pipeline (see ADR-0001); PR CI builds without
