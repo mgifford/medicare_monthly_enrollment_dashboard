@@ -16,6 +16,19 @@ import formatFreshnessInfo from './freshness';
 async function init() {
   try {
     const state = createDashboardState();
+    const { initial } = initUrlSync(state);
+
+    // Suppresses auto-scroll and focus movement until the user actually
+    // touches the page. URL-restore (?state=X&county=Y links) reuses the
+    // same drill-in code path as an interactive selection, so without
+    // this guard a shared link would auto-scroll past the header down to
+    // the county table.
+    let hasUserInteracted = false;
+    const markUserInteracted = () => {
+      hasUserInteracted = true;
+    };
+    document.addEventListener('pointerdown', markUserInteracted, { once: true, capture: true });
+    document.addEventListener('keydown', markUserInteracted, { once: true, capture: true });
 
     const [yearly, monthly] = await Promise.all([
       requestDataset('nationalEnrollment', { type: 'yearly' }),
