@@ -9,3 +9,7 @@ code.json
 config
 docs
 test-results
+scripts
+generated
+.pytest_cache
+.venv-etl

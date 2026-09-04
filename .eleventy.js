@@ -27,6 +27,13 @@ module.exports = function (config) {
   config.addPassthroughCopy('assets');
   config.addPassthroughCopy('src');
 
+  // Parquet + manifest emitted by scripts/fetch_cms_data.py. The directory
+  // only exists in the deploy pipeline (see ADR-0001); PR CI builds without
+  // it, so guard the passthrough so a missing directory doesn't warn.
+  if (fs.existsSync('generated/data')) {
+    config.addPassthroughCopy({ 'generated/data': 'data' });
+  }
+
   // Specific scripts to guides
   config.addPassthroughCopy('./assets/_common/dashboard/*');
   config.addPassthroughCopy('./assets/**/js/*');
