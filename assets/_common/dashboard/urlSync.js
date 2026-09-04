@@ -55,10 +55,6 @@ export function initUrlSync(state) {
     state.trend.activeTrendView = initial.activeTrendView;
   }
 
-  document.addEventListener('dashboard:typechange', (e) => {
-    writeParams(state);
-  });
-
   document.addEventListener('dashboard:typechange', () => writeParams(state));
   document.addEventListener('dashboard:statechange', () => writeParams(state));
   document.addEventListener('dashboard:stateclear', () => writeParams(state));

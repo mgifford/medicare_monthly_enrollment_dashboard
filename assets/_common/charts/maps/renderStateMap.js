@@ -12,6 +12,7 @@ import {
   formatPercent,
 } from '../utils';
 import renderCountyMap from './renderCountyMap';
+import { normalizeAreaName } from '../../../../src/geographicAreas';
 import requestDataset from '../../../../src/router';
 import renderTierHistogram from './renderTierHistogram';
 import createRequestGuard from '../../requestGuard';
@@ -192,8 +193,9 @@ function renderStateMap(containerSelector, data, config = {}) {
 
   const metricColor = d3.scaleThreshold().domain(resolvedBreakpoints).range(resolvedColors);
 
-  // Lookup by full state name (matches us-atlas's properties.name field).
-  const dataByName = new Map(data.map((d) => [d.stateName, d]));
+  const dataByName = new Map(
+    data.map((d) => [normalizeAreaName(d.stateName), d]),
+  );
 
   const isMobile = window.matchMedia(MOBILE_MEDIA_QUERY).matches;
   const width = 975;
@@ -336,7 +338,7 @@ function renderStateMap(containerSelector, data, config = {}) {
   getStateFeatures()
     .then((features) => {
       const featureByStateName = new Map(
-        features.map((stateFeature) => [stateFeature.properties.name, stateFeature]),
+        features.map((stateFeature) => [normalizeAreaName(stateFeature.properties.name), stateFeature]),
       );
 
       d3.select(comboBoxSelector).on('change.state-map', async (event) => {
@@ -349,10 +351,11 @@ function renderStateMap(containerSelector, data, config = {}) {
           return;
         }
 
-        const stateData = dataByName.get(selectedValue);
+        const normalizedValue = normalizeAreaName(selectedValue);
+        const stateData = dataByName.get(normalizedValue);
         if (!stateData) return;
 
-        const stateFeature = featureByStateName.get(selectedValue);
+        const stateFeature = featureByStateName.get(normalizedValue);
         if (!stateFeature) return;
 
         emitStateChange(stateData);
@@ -384,7 +387,7 @@ function renderStateMap(containerSelector, data, config = {}) {
           hoverOutline.attr('d', path(d)).style('opacity', 1);
         })
         .on('mousemove', (event, d) => {
-          const row = dataByName.get(d.properties.name);
+          const row = dataByName.get(normalizeAreaName(d.properties.name));
           if (!row) {
             tooltip.style('opacity', 0).style('display', 'none');
             return;
@@ -407,7 +410,7 @@ function renderStateMap(containerSelector, data, config = {}) {
           tooltip.style('opacity', 0).style('display', 'none');
         })
         .on('click', async (event, d) => {
-          const stateData = dataByName.get(d.properties.name);
+          const stateData = dataByName.get(normalizeAreaName(d.properties.name));
           if (!stateData) return;
 
           emitStateChange(stateData);

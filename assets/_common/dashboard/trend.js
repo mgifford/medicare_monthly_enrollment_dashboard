@@ -82,11 +82,15 @@ export default function initTrend(state, yearlyWithLatest, monthly) {
     const sortCol = columns[index];
     const sortKey = sortCol?.sortValue || sortCol?.value;
     const sorted = [...(data || [])].sort((a, b) => {
-      const av = sortKey(a), bv = sortKey(b);
+      const av = sortKey(a);
+      const bv = sortKey(b);
       if (av == null && bv == null) return 0;
       if (av == null) return 1;
       if (bv == null) return -1;
-      const cmp = av < bv ? -1 : av > bv ? 1 : 0;
+      let cmp;
+      if (av < bv) cmp = -1;
+      else if (av > bv) cmp = 1;
+      else cmp = 0;
       return direction === 'asc' ? cmp : -cmp;
     });
     if (!sorted.length) {
@@ -99,8 +103,8 @@ export default function initTrend(state, yearlyWithLatest, monthly) {
         sorted,
         {
           sortState: state.trend.trendGridSort,
-          onSort: (index) => {
-            state.trend.trendGridSort = toggleSort(state.trend.trendGridSort, index);
+          onSort: (colIndex) => {
+            state.trend.trendGridSort = toggleSort(state.trend.trendGridSort, colIndex);
             renderTrendGrid(selector);
           },
         },

@@ -654,10 +654,24 @@ function getMappableAreas() {
 
 const ALL_STATES_AND_TERRITORIES = getSelectableAreas();
 
+function normalizeAreaName(name) {
+  const normalized = String(name || '').trim();
+
+  if (!normalized) return normalized;
+
+  const aliases = {
+    'Commonwealth of the Northern Mariana Islands': 'Northern Mariana Islands',
+    'United States Virgin Islands': 'Virgin Islands',
+  };
+
+  return aliases[normalized] || normalized;
+}
+
 export {
   GEOGRAPHIC_AREAS,
   getAreaByName,
   getSelectableAreas,
   getMappableAreas,
+  normalizeAreaName,
   ALL_STATES_AND_TERRITORIES,
 };
