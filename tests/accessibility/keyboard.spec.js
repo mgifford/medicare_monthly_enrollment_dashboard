@@ -1,25 +1,39 @@
 import { test, expect } from '@playwright/test';
 
 test.describe('Keyboard navigation', () => {
-  test('skip link works', async ({ page, browserName }) => {
+  test('skip links are focusable', async ({ page }) => {
+    await page.goto('/');
+    await page.waitForLoadState('networkidle');
+    await page.waitForTimeout(1000);
+
+    // The SkipTo third-party script inserts its own button as the first
+    // tab stop, so we can't assert a specific Tab count. Instead, verify
+    // that each of our own sr-only skip links is focusable and points at
+    // a real anchor.
+    const links = page.locator('a.usa-sr-only.usa-focus');
+    const count = await links.count();
+    expect(count).toBeGreaterThan(0);
+
+    for (let i = 0; i < count; i += 1) {
+      const link = links.nth(i);
+      await link.focus();
+      await expect(link).toBeFocused();
+      const href = await link.getAttribute('href');
+      expect(href).toMatch(/^#/);
+      const target = await page.locator(href).count();
+      expect(target).toBeGreaterThan(0);
+    }
+  });
+
+  test('activating the main-content skip link moves focus to main', async ({ page }) => {
     await page.goto('/');
     await page.waitForLoadState('networkidle');
     await page.waitForTimeout(1000);
 
     const skipLink = page.locator('a[href="#main-content"]');
-
-    if (browserName === 'webkit') {
-      // WebKit Playwright doesn't reliably focus sr-only elements via simulated Tab.
-      // Verify the skip link exists and can be activated directly.
-      await skipLink.focus();
-    } else {
-      // Tab to skip link
-      await page.keyboard.press('Tab');
-      await expect(skipLink).toBeFocused();
-    }
-
-    // Activate skip link
+    await skipLink.focus();
     await page.keyboard.press('Enter');
+
     const main = page.locator('#main-content');
     await expect(main).toBeFocused();
   });
